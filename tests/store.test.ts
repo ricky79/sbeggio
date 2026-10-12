@@ -68,6 +68,39 @@ describe('luogo della giornata', () => {
     expect(store.giornate[GIOVEDI]?.luogo).toBe('smart');
   });
 
+  it('tolte tutte le timbrature, il luogo proposto se ne va e la giornata sparisce', async () => {
+    const { store } = await carica();
+    store.proponiLuogo(() => 'smart');
+    store.modificaGiornata(GIOVEDI, (g) => void g.eventi.push({ id: 'x', tipo: 'ENTRATA', minuti: 510 }));
+    expect(store.giornate[GIOVEDI]?.luogoAutomatico).toBe(true);
+    store.modificaGiornata(GIOVEDI, (g) => void (g.eventi = []));
+    expect(store.giornate[GIOVEDI]).toBeUndefined();
+  });
+
+  it('un luogo scelto a mano resta anche senza timbrature', async () => {
+    const { store } = await carica();
+    store.proponiLuogo(() => 'smart');
+    store.modificaGiornata(GIOVEDI, (g) => void g.eventi.push({ id: 'x', tipo: 'ENTRATA', minuti: 510 }));
+    // Toccare 🏠 a mano rende la scelta definitiva (come fa impostaLuogo).
+    store.modificaGiornata(GIOVEDI, (g) => {
+      g.luogo = 'smart';
+      delete g.luogoAutomatico;
+    });
+    store.modificaGiornata(GIOVEDI, (g) => void (g.eventi = []));
+    expect(store.giornate[GIOVEDI]?.luogo).toBe('smart');
+  });
+
+  it('una giornata si elimina del tutto e si può ripristinare', async () => {
+    const { store } = await carica();
+    store.modificaGiornata(GIOVEDI, (g) => void (g.luogo = 'smart'));
+    const copia = store.giornata(GIOVEDI);
+    store.eliminaGiornata(GIOVEDI);
+    expect(store.giornate[GIOVEDI]).toBeUndefined();
+    expect(JSON.parse(memoria.get('timbrature')!).giornate[GIOVEDI]).toBeUndefined();
+    store.ripristinaGiornata(copia);
+    expect(store.giornate[GIOVEDI]?.luogo).toBe('smart');
+  });
+
   it('la proposta non sostituisce una scelta fatta a mano', async () => {
     const { store } = await carica();
     store.proponiLuogo(() => 'smart');

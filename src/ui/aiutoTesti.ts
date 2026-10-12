@@ -297,6 +297,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       testo: [
         'Tocca la timbratura nella timeline per cambiarne l\'orario o il tipo, oppure per eliminarla.',
         'Per una timbratura dimenticata usa "+ Aggiungi timbratura" e scegli tipo e orario. Le timbrature vengono sempre ordinate per orario.',
+        'Per cancellare un giorno intero (timbrature, permessi, ferie, casa o ufficio) usa "Elimina la giornata" in fondo alla giornata: dopo c\'è Annulla per qualche secondo.',
       ],
     },
     {

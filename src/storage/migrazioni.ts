@@ -141,7 +141,10 @@ function normalizzaGiornata(g: unknown, chiave: string): Giornata | null {
     permessoUscitaMinuti: intIn(g.permessoUscitaMinuti, 0, 1440) ?? 0,
     eventi,
   };
-  if (g.luogo === 'smart' || g.luogo === 'sede') giornata.luogo = g.luogo;
+  if (g.luogo === 'smart' || g.luogo === 'sede') {
+    giornata.luogo = g.luogo;
+    if (g.luogoAutomatico === true) giornata.luogoAutomatico = true;
+  }
   if (g.ferie === true) giornata.ferie = true;
   const sigarette: SigarettaNonConteggiata[] = [];
   if (Array.isArray(g.sigaretteNonConteggiate)) {
