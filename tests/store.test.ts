@@ -68,6 +68,39 @@ describe('luogo della giornata', () => {
     expect(store.giornate[GIOVEDI]?.luogo).toBe('smart');
   });
 
+  it('tolte tutte le timbrature, il luogo proposto se ne va e la giornata sparisce', async () => {
+    const { store } = await carica();
+    store.proponiLuogo(() => 'smart');
+    store.modificaGiornata(GIOVEDI, (g) => void g.eventi.push({ id: 'x', tipo: 'ENTRATA', minuti: 510 }));
+    expect(store.giornate[GIOVEDI]?.luogoAutomatico).toBe(true);
+    store.modificaGiornata(GIOVEDI, (g) => void (g.eventi = []));
+    expect(store.giornate[GIOVEDI]).toBeUndefined();
+  });
+
+  it('un luogo scelto a mano resta anche senza timbrature', async () => {
+    const { store } = await carica();
+    store.proponiLuogo(() => 'smart');
+    store.modificaGiornata(GIOVEDI, (g) => void g.eventi.push({ id: 'x', tipo: 'ENTRATA', minuti: 510 }));
+    // Toccare 🏠 a mano rende la scelta definitiva (come fa impostaLuogo).
+    store.modificaGiornata(GIOVEDI, (g) => {
+      g.luogo = 'smart';
+      delete g.luogoAutomatico;
+    });
+    store.modificaGiornata(GIOVEDI, (g) => void (g.eventi = []));
+    expect(store.giornate[GIOVEDI]?.luogo).toBe('smart');
+  });
+
+  it('una giornata si elimina del tutto e si può ripristinare', async () => {
+    const { store } = await carica();
+    store.modificaGiornata(GIOVEDI, (g) => void (g.luogo = 'smart'));
+    const copia = store.giornata(GIOVEDI);
+    store.eliminaGiornata(GIOVEDI);
+    expect(store.giornate[GIOVEDI]).toBeUndefined();
+    expect(JSON.parse(memoria.get('timbrature')!).giornate[GIOVEDI]).toBeUndefined();
+    store.ripristinaGiornata(copia);
+    expect(store.giornate[GIOVEDI]?.luogo).toBe('smart');
+  });
+
   it('la proposta non sostituisce una scelta fatta a mano', async () => {
     const { store } = await carica();
     store.proponiLuogo(() => 'smart');
@@ -80,6 +113,35 @@ describe('luogo della giornata', () => {
     const { store } = await carica();
     store.modificaGiornata(GIOVEDI, (g) => void g.eventi.push({ id: 'x', tipo: 'ENTRATA', minuti: 510 }));
     expect(store.giornate[GIOVEDI]?.luogo).toBeUndefined();
+  });
+});
+
+describe('uscita prevista salvata alla chiusura', () => {
+  it('per i giorni salvati prima, si calcola all\'apertura e si scrive subito', async () => {
+    const dati = datiVuoti();
+    dati.giornate[GIOVEDI] = giornata([['ENTRATA', '08:30'], ['INIZIO_PAUSA', '12:30'], ['FINE_PAUSA', '13:30'], ['USCITA', '17:45']]);
+    memoria.set('timbrature', JSON.stringify(dati));
+    const { store } = await carica();
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBe(1050);
+    expect(JSON.parse(memoria.get('timbrature')!).giornate[GIOVEDI].uscitaPrevista).toBe(1050);
+  });
+
+  it('si salva quando la giornata si chiude e si toglie riaprendola', async () => {
+    const { store } = await carica();
+    const timbra = (tipo: 'ENTRATA' | 'INIZIO_PAUSA' | 'FINE_PAUSA' | 'USCITA', minuti: number) =>
+      store.modificaGiornata(GIOVEDI, (g) => void g.eventi.push({ id: tipo, tipo, minuti }));
+    timbra('ENTRATA', 510);
+    timbra('INIZIO_PAUSA', 750);
+    timbra('FINE_PAUSA', 810);
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBeUndefined();
+    timbra('USCITA', 1065);
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBe(1050); // 17:30
+    // Le impostazioni cambiate dopo non la toccano.
+    store.modificaImpostazioni((i) => void (i.minutiDovuti.predefinito = 420));
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBe(1050);
+    // Riaperta (uscita eliminata): non c'è più.
+    store.modificaGiornata(GIOVEDI, (g) => void (g.eventi = g.eventi.filter((e) => e.tipo !== 'USCITA')));
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBeUndefined();
   });
 });
 
