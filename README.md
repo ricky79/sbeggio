@@ -254,6 +254,27 @@ a ogni push su `main`, pubblica `dist/` con `wrangler deploy`. Va configurato un
 A mano: `npm run build && npx wrangler deploy`. Il `base` in `vite.config.ts` è `/`: il sito è servito
 dalla radice del dominio.
 
+### Posta di supporto (risposta automatica)
+
+Il Worker `sbeggio` riceve anche la posta di **supporto@sbeggio.app** (`src/email.ts`): inoltra ogni
+mail all'indirizzo del secret `INOLTRO` e risponde a chi scrive con "grazie della segnalazione, le
+risponderemo prima possibile". Non risponde a risponditori automatici, mailing list, bounce e
+indirizzi `noreply` (niente risposte a ping-pong). Se la risposta non può partire (es. il mittente
+non supera i controlli DMARC) la mail viene comunque inoltrata.
+
+Configurazione, una volta sola (dopo il deploy del Worker con il gestore email):
+
+1. **Secret dell'inoltro**: in Cloudflare apri *Workers & Pages → sbeggio → Settings → Variables and
+   Secrets → Add*, tipo **Secret**, nome `INOLTRO`, valore il tuo indirizzo (lo stesso già verificato
+   in Email Routing). In alternativa: `npx wrangler secret put INOLTRO`. Non va nel repository.
+2. **Regola di instradamento**: in *sbeggio.app → Email → Email Routing → Routing rules* modifica la
+   regola di `supporto@sbeggio.app`: azione **Send to a Worker**, Worker **sbeggio** (al posto di
+   *Send to an email*).
+3. Prova scrivendo a supporto@sbeggio.app da un altro indirizzo: arrivano l'inoltro e la risposta.
+
+Senza il secret `INOLTRO` il Worker rifiuta la mail (chi scrive riceve un errore di consegna) invece di
+perderla. Il testo della risposta è `TESTO_RISPOSTA` in `src/email.ts`.
+
 ### App Android
 
 L'app (cartella `android/`) racchiude la build web in un contenitore Android. Il codice è lo stesso
