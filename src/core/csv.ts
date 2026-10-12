@@ -19,6 +19,7 @@ const INTESTAZIONE = [
   'Permesso in uscita (min)',
   'Luogo',
   'Ferie',
+  'Uscita prevista',
   'Eventi',
 ];
 
@@ -63,6 +64,7 @@ export function esportaCsv(
         String(g.permessoUscitaMinuti),
         g.luogo === 'smart' ? 'Smart' : 'Sede',
         g.ferie ? 'Sì' : '',
+        g.uscitaPrevista !== undefined ? formattaOra(g.uscitaPrevista) : '',
         eventiInTesto(g.eventi),
       ]
         .map(quota)

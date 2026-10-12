@@ -69,6 +69,11 @@ export interface Giornata {
   luogoAutomatico?: true;
   /** Giornata di ferie: le ore dovute sono coperte dalle ferie. Assente = giornata normale. */
   ferie?: true;
+  /**
+   * Giornata chiusa: l'orario (minuti) a cui si sarebbe dovuti uscire, salvato alla chiusura con le
+   * impostazioni di allora. Assente se la giornata non è chiusa.
+   */
+  uscitaPrevista?: number;
   eventi: Evento[];
   /**
    * Pause sigaretta rientrate entro la tolleranza: non contano nelle ore, si mostrano solo

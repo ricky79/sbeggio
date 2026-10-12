@@ -1,3 +1,4 @@
+import { aggiornaUscitaPrevista } from '../core/uscitaPrevista';
 import { giornataVuota, haTimbrature } from '../core/giornata';
 import type { Giornata, Impostazioni, Luogo } from '../core/tipi';
 import { datiVuoti, migra, type DatiSalvati } from './migrazioni';
@@ -29,7 +30,18 @@ class Store {
     }
     if (!testo) return datiVuoti();
     try {
-      return migra(JSON.parse(testo));
+      const dati = migra(JSON.parse(testo));
+      // La migrazione può aver aggiunto dati calcolati (es. l'uscita prevista dei giorni di prima):
+      // si salvano subito, così restano quelli anche se poi cambiano le impostazioni.
+      const normalizzato = JSON.stringify(dati);
+      if (normalizzato !== testo) {
+        try {
+          localStorage.setItem(CHIAVE, normalizzato);
+        } catch {
+          /* si riproverà al prossimo salvataggio */
+        }
+      }
+      return dati;
     } catch (e) {
       // Conserva la copia illeggibile per non perderla.
       try {
@@ -110,8 +122,13 @@ class Store {
   }
 
   private applica(data: string, g: Giornata): void {
-    if (giornataVuota(g)) delete this.dati.giornate[data];
-    else this.dati.giornate[data] = g;
+    if (giornataVuota(g)) {
+      delete this.dati.giornate[data];
+      return;
+    }
+    // Alla chiusura (e a ogni modifica di una giornata chiusa) si salva l'uscita prevista.
+    aggiornaUscitaPrevista(g, this.dati.impostazioni);
+    this.dati.giornate[data] = g;
   }
 
   /** Elimina tutto di una giornata (timbrature, permessi, ferie, luogo). */
@@ -143,6 +160,8 @@ class Store {
 
   /** Unisce giornate importate, sovrascrivendo le date già presenti. */
   unisciGiornate(giornate: Record<string, Giornata>): void {
+    // Dal CSV l'uscita prevista non arriva: si calcola con le impostazioni attuali.
+    for (const g of Object.values(giornate)) if (g.uscitaPrevista === undefined) aggiornaUscitaPrevista(g, this.dati.impostazioni);
     Object.assign(this.dati.giornate, giornate);
     this.salva();
   }

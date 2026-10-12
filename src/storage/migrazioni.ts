@@ -1,5 +1,6 @@
 import { nuovoId } from '../core/id';
 import { dataValida } from '../core/tempo';
+import { aggiornaUscitaPrevista } from '../core/uscitaPrevista';
 import {
   IMPOSTAZIONI_PREDEFINITE,
   TIPI_EVENTO,
@@ -71,7 +72,11 @@ function normalizza(d: Grezzo): DatiSalvati {
   if (isObj(d.giornate)) {
     for (const [chiave, g] of Object.entries(d.giornate)) {
       const giornata = normalizzaGiornata(g, chiave);
-      if (giornata) out.giornate[giornata.data] = giornata;
+      if (!giornata) continue;
+      // Giornate salvate prima che esistesse il dato (o backup che non lo hanno): si calcola con le
+      // impostazioni del file.
+      if (giornata.uscitaPrevista === undefined) aggiornaUscitaPrevista(giornata, out.impostazioni);
+      out.giornate[giornata.data] = giornata;
     }
   }
   return out;
@@ -146,6 +151,8 @@ function normalizzaGiornata(g: unknown, chiave: string): Giornata | null {
     if (g.luogoAutomatico === true) giornata.luogoAutomatico = true;
   }
   if (g.ferie === true) giornata.ferie = true;
+  const uscita = intIn(g.uscitaPrevista, 0, 2879);
+  if (uscita !== undefined) giornata.uscitaPrevista = uscita;
   const sigarette: SigarettaNonConteggiata[] = [];
   if (Array.isArray(g.sigaretteNonConteggiate)) {
     for (const s of g.sigaretteNonConteggiate) {

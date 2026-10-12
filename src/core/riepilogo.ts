@@ -29,6 +29,9 @@ export interface GiornoRiepilogo {
   smart: boolean;
   /** Giornata di ferie. */
   ferie: boolean;
+  /** Orario di uscita reale (ultima uscita) e quello a cui si sarebbe dovuti uscire, se noti. */
+  uscita: number | null;
+  uscitaPrevista: number | null;
   risultato: RisultatoGiornata;
   ore: OreGiorno;
 }
@@ -68,9 +71,15 @@ export function riepilogoMese(
       data: g.data,
       smart: g.luogo === 'smart' && g.ferie !== true,
       ferie: g.ferie === true,
+      uscita: uscitaReale(g),
       risultato: calcolaGiornata(g, imp, g.data === oggi.data ? oggi.minuti : null),
     }))
-    .map((x) => ({ ...x, ore: oreGiorno(x.risultato) }));
+    .map((x) => ({
+      ...x,
+      ore: oreGiorno(x.risultato),
+      // Giornata in corso: quella calcolata adesso; chiusa: quella salvata alla chiusura.
+      uscitaPrevista: x.risultato.stato === 'CHIUSA' ? (giornate[x.data]!.uscitaPrevista ?? null) : x.risultato.uscitaPrevista,
+    }));
 
   let lavoro = 0;
   let straordinario = 0;
@@ -94,6 +103,12 @@ export function riepilogoMese(
     }
   }
   return { mese, giorni, lavoro, straordinario, permesso, saldo, giorniDaCorreggere, giorniSmart, giorniFerie, ferie };
+}
+
+/** Orario dell'ultima uscita (normale o anticipata) della giornata, se c'è. */
+export function uscitaReale(g: Giornata): number | null {
+  const uscite = g.eventi.filter((e) => e.tipo === 'USCITA' || e.tipo === 'USCITA_ANTICIPATA');
+  return uscite.length > 0 ? Math.max(...uscite.map((e) => e.minuti)) : null;
 }
 
 export { haContenuto, haTimbrature } from './giornata';
