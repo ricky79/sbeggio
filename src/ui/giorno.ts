@@ -54,6 +54,28 @@ export function vistaGiorno(data: string, adesso: Adesso, onIndietro: (() => voi
     oggi && !soloFerie ? pulsantiAzione(data, r, adesso.minuti) : null,
     oggi && !soloFerie ? riquadroPausaSaltata(data, adesso.minuti) : null,
     soloFerie ? null : timeline(data, giornata, analisi.idScartati, r, oggi ? adesso.minuti : 9 * 60),
+    data in store.giornate ? pulsanteElimina(data) : null,
+  );
+}
+
+/** Elimina tutta la giornata: timbrature, permessi, ferie e luogo (con conferma e Annulla). */
+function pulsanteElimina(data: string): HTMLElement {
+  const elimina = async () => {
+    const ok = await conferma(
+      'Eliminare la giornata?',
+      `Tutto quello che c'è il ${formattaDataLunga(data)} (timbrature, permessi, ferie, casa o ufficio) verrà eliminato.`,
+      'Elimina',
+      true,
+    );
+    if (!ok) return;
+    const copia = store.giornata(data);
+    store.eliminaGiornata(data);
+    toast('Giornata eliminata', () => store.ripristinaGiornata(copia));
+  };
+  return el(
+    'div',
+    { class: 'riga-pulsanti' },
+    el('button', { type: 'button', class: 'btn btn-pericolo', onclick: () => void elimina() }, 'Elimina la giornata'),
   );
 }
 

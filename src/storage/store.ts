@@ -85,7 +85,15 @@ class Store {
     // Alla prima timbratura la proposta (casa o sede dalla posizione) diventa il luogo della giornata.
     if (g.luogo === undefined && haTimbrature(g)) {
       const proposto = this.luogoProposto(data);
-      if (proposto) g.luogo = proposto;
+      if (proposto) {
+        g.luogo = proposto;
+        g.luogoAutomatico = true;
+      }
+    }
+    // Tolte tutte le timbrature, il luogo messo in automatico se ne va con loro.
+    if (g.luogoAutomatico && !haTimbrature(g)) {
+      delete g.luogo;
+      delete g.luogoAutomatico;
     }
     this.applica(data, g);
     this.salva();
@@ -104,6 +112,18 @@ class Store {
   private applica(data: string, g: Giornata): void {
     if (giornataVuota(g)) delete this.dati.giornate[data];
     else this.dati.giornate[data] = g;
+  }
+
+  /** Elimina tutto di una giornata (timbrature, permessi, ferie, luogo). */
+  eliminaGiornata(data: string): void {
+    delete this.dati.giornate[data];
+    this.salva();
+  }
+
+  /** Rimette una giornata com'era (Annulla dopo l'eliminazione). */
+  ripristinaGiornata(g: Giornata): void {
+    this.dati.giornate[g.data] = structuredClone(g);
+    this.salva();
   }
 
   proponiLuogo(f: (data: string) => Luogo | null): void {
