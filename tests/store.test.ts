@@ -83,6 +83,35 @@ describe('luogo della giornata', () => {
   });
 });
 
+describe('uscita prevista salvata alla chiusura', () => {
+  it('per i giorni salvati prima, si calcola all\'apertura e si scrive subito', async () => {
+    const dati = datiVuoti();
+    dati.giornate[GIOVEDI] = giornata([['ENTRATA', '08:30'], ['INIZIO_PAUSA', '12:30'], ['FINE_PAUSA', '13:30'], ['USCITA', '17:45']]);
+    memoria.set('timbrature', JSON.stringify(dati));
+    const { store } = await carica();
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBe(1050);
+    expect(JSON.parse(memoria.get('timbrature')!).giornate[GIOVEDI].uscitaPrevista).toBe(1050);
+  });
+
+  it('si salva quando la giornata si chiude e si toglie riaprendola', async () => {
+    const { store } = await carica();
+    const timbra = (tipo: 'ENTRATA' | 'INIZIO_PAUSA' | 'FINE_PAUSA' | 'USCITA', minuti: number) =>
+      store.modificaGiornata(GIOVEDI, (g) => void g.eventi.push({ id: tipo, tipo, minuti }));
+    timbra('ENTRATA', 510);
+    timbra('INIZIO_PAUSA', 750);
+    timbra('FINE_PAUSA', 810);
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBeUndefined();
+    timbra('USCITA', 1065);
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBe(1050); // 17:30
+    // Le impostazioni cambiate dopo non la toccano.
+    store.modificaImpostazioni((i) => void (i.minutiDovuti.predefinito = 420));
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBe(1050);
+    // Riaperta (uscita eliminata): non c'è più.
+    store.modificaGiornata(GIOVEDI, (g) => void (g.eventi = g.eventi.filter((e) => e.tipo !== 'USCITA')));
+    expect(store.giornate[GIOVEDI]?.uscitaPrevista).toBeUndefined();
+  });
+});
+
 describe('più schede aperte', () => {
   it('quando un\'altra scheda salva, rilegge i dati e avvisa chi ascolta', async () => {
     const { store, seguiAltreSchede } = await carica();

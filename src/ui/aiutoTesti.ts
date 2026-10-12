@@ -327,6 +327,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
         '• Permesso: le ore di permesso usate, sempre a blocchi da 30 minuti.',
         'Se in un giorno mancano ore, sotto compare "Mancano …". In alto il riepilogo del mese somma le tre voci; sotto trovi il saldo esatto, che non è arrotondato.',
         'La giornata di oggi non entra nel saldo del mese finché non è chiusa. Tocca un giorno per vederlo e correggerlo.',
+        'Sotto ogni giorno chiuso trovi anche "Uscita 17:40 · prevista 17:25": l\'orario a cui sei uscito e quello a cui saresti dovuto uscire, cioè l\'uscita prevista che Oggi mostrava prima che timbrassi. Si salva alla chiusura con le impostazioni di quel giorno; per le giornate di prima, o importate da un backup che non lo ha, viene calcolato dalle timbrature. Per oggi, finché la giornata è in corso, vedi l\'uscita prevista del momento.',
       ],
     },
     {

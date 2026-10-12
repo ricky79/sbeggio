@@ -150,7 +150,10 @@ un'altra chiave (per esempio una build di prova). Fai il backup JSON, disinstall
   **Permesso** (un trattino significa zero). Lo straordinario e il permesso sono a blocchi da
   30 minuti: 20 minuti di extra non contano, 50 minuti valgono 30. Se mancano ore compare
   "Mancano …". In alto il riepilogo del mese somma le tre voci e mostra il saldo esatto, senza
-  arrotondamenti. Con *+ Giornata dimenticata* inserisci un giorno passato.
+  arrotondamenti. Con *+ Giornata dimenticata* inserisci un giorno passato. Sotto ogni giorno
+  chiuso c'è "Uscita 17:40 · prevista 17:25": l'uscita prevista è salvata alla chiusura (campo
+  `uscitaPrevista`, anche nel backup e nella colonna *Uscita prevista* del CSV); per i giorni che
+  non la hanno (dati di prima, backup, CSV) si calcola dalle timbrature all'apertura o all'import.
 - **Impostazioni**: ore dovute (anche diverse per giorno della settimana), fascia pranzo,
   pausa da scalare, pausa minima, orario di inizio conteggio, tolleranza e tipo della pausa sigaretta, export e import dei dati.
 - **Aiuto**: risposte ai dubbi più comuni (per esempio la differenza tra *Esco in permesso*

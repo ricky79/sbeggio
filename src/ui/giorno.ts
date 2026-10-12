@@ -72,6 +72,7 @@ function schedaRiepilogo(r: RisultatoGiornata, giornata: Giornata, oggi: boolean
     etichetta = 'Saldo della giornata';
     valore = formattaSaldo(r.saldo);
     if (ultimo) nota = `uscita alle ${formattaOra(ultimo.minuti)}`;
+    if (ultimo && giornata.uscitaPrevista !== undefined) nota += ` · prevista alle ${formattaOra(giornata.uscitaPrevista)}`;
   } else if (r.stato === 'IN_PERMESSO') {
     etichetta = 'In permesso dalle';
     valore = ultimo ? formattaOra(ultimo.minuti) : '—';
