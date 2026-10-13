@@ -319,4 +319,4 @@ UI della pagina e del dialogo dello scanner: controllo con Chrome headless, come
 - La frase *"i dati restano sul telefono"* diventa *"…salvo quando li mandi tu al computer, cifrati da
   un capo all'altro"*; nuova sezione *Scaricare le timbrature dal computer*; nella parte per
   sviluppatori, il Worker con il Durable Object e il sito `web.html`.
-- Versione minore: **2.7.0**.
+- Versione minore: **2.9.0** (develop era già alla 2.8.1).

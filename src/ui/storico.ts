@@ -1,6 +1,6 @@
 import { riepilogoMese } from '../core/riepilogo';
 import { statoLeggibile } from '../core/testi';
-import { formattaDataBreve, formattaDurata, formattaSaldo, nomeMese, spostaMese } from '../core/tempo';
+import { formattaDataBreve, formattaDurata, formattaOra, formattaSaldo, nomeMese, spostaMese } from '../core/tempo';
 import { store } from '../storage/store';
 import { apriFoglio } from './dialoghi';
 import { el } from './dom';
@@ -76,7 +76,7 @@ export function vistaStorico(mese: string, adesso: Adesso, cambiaMese: (m: strin
         : el(
             'ul',
             { class: 'elenco-giorni' },
-            rm.giorni.map(({ data, smart, risultato: r, ore }) => {
+            rm.giorni.map(({ data, smart, risultato: r, ore, uscita, uscitaPrevista }) => {
               const ferie = r.ferie > 0 && !r.daCorreggere;
               const inCorso = !ferie && data === adesso.data && r.stato !== 'CHIUSA';
               const mancano = !inCorso && !r.daCorreggere && r.saldo < 0 ? -r.saldo : 0;
@@ -104,12 +104,13 @@ export function vistaStorico(mese: string, adesso: Adesso, cambiaMese: (m: strin
                   cella('Lavoro', ore.lavoro),
                   cella('Straord.', ore.straordinario, 'positivo'),
                   cella('Permesso', ore.permesso),
-                  nota || mancano > 0
+                  nota || mancano > 0 || uscitaPrevista !== null
                     ? el(
                         'span',
                         { class: 'giorno-note' },
                         nota ? el('span', { class: 'badge' }, nota) : null,
                         mancano > 0 ? el('span', { class: 'negativo' }, `Mancano ${formattaDurata(mancano)}`) : null,
+                        uscitaPrevista !== null ? el('span', { class: 'giorno-uscita' }, testoUscita(uscita, uscitaPrevista, inCorso)) : null,
                       )
                     : null,
                 ),
@@ -125,6 +126,12 @@ export function vistaStorico(mese: string, adesso: Adesso, cambiaMese: (m: strin
       el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void esportaCsvCondividi(adesso) }, 'Esporta CSV'),
     ),
   );
+}
+
+/** "Uscita 17:40 · prevista 17:25" (giornata chiusa) o "Uscita prevista 17:25" (in corso). */
+function testoUscita(uscita: number | null, prevista: number, inCorso: boolean): string {
+  if (inCorso || uscita === null) return `Uscita prevista ${formattaOra(prevista)}`;
+  return `Uscita ${formattaOra(uscita)} · prevista ${formattaOra(prevista)}`;
 }
 
 /** Cella di una colonna del giorno: il valore, o un trattino se è zero. */

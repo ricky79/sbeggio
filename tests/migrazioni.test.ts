@@ -96,6 +96,15 @@ describe('migrazioni', () => {
     expect(luogo(true)).toBeUndefined();
   });
 
+  it('luogo automatico: conservato solo con un luogo', () => {
+    const g = (v: Record<string, unknown>) =>
+      migra({ version: 1, giornate: { '2026-10-01': { data: '2026-10-01', permessoInizioMinuti: 0, eventi: [], ...v } } })
+        .giornate['2026-10-01'];
+    expect(g({ luogo: 'smart', luogoAutomatico: true })?.luogoAutomatico).toBe(true);
+    expect(g({ luogo: 'smart', luogoAutomatico: 'si' })?.luogoAutomatico).toBeUndefined();
+    expect(g({ luogoAutomatico: true })?.luogoAutomatico).toBeUndefined();
+  });
+
   it('sigarette non conteggiate: conservate quelle valide, campo assente se non ce ne sono', () => {
     const sigarette = (v: unknown) =>
       migra({ version: 1, giornate: { '2026-10-01': { data: '2026-10-01', permessoInizioMinuti: 0, sigaretteNonConteggiate: v, eventi: [{ tipo: 'ENTRATA', minuti: 510 }] } } })

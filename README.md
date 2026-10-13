@@ -150,7 +150,10 @@ un'altra chiave (per esempio una build di prova). Fai il backup JSON, disinstall
   **Permesso** (un trattino significa zero). Lo straordinario e il permesso sono a blocchi da
   30 minuti: 20 minuti di extra non contano, 50 minuti valgono 30. Se mancano ore compare
   "Mancano …". In alto il riepilogo del mese somma le tre voci e mostra il saldo esatto, senza
-  arrotondamenti. Con *+ Giornata dimenticata* inserisci un giorno passato.
+  arrotondamenti. Con *+ Giornata dimenticata* inserisci un giorno passato. Sotto ogni giorno
+  chiuso c'è "Uscita 17:40 · prevista 17:25": l'uscita prevista è salvata alla chiusura (campo
+  `uscitaPrevista`, anche nel backup e nella colonna *Uscita prevista* del CSV); per i giorni che
+  non la hanno (dati di prima, backup, CSV) si calcola dalle timbrature all'apertura o all'import.
 - **Impostazioni**: ore dovute (anche diverse per giorno della settimana), fascia pranzo,
   pausa da scalare, pausa minima, orario di inizio conteggio, tolleranza e tipo della pausa sigaretta, export e import dei dati.
 - **Aiuto**: risposte ai dubbi più comuni (per esempio la differenza tra *Esco in permesso*
@@ -270,6 +273,27 @@ Va configurato una volta sola:
 
 A mano: `npm run build && npx wrangler deploy`. Il `base` in `vite.config.ts` è `/`: il sito è servito
 dalla radice del dominio.
+
+### Posta di supporto (risposta automatica)
+
+Il Worker `sbeggio` riceve anche la posta di **supporto@sbeggio.app** (`src/email.ts`): inoltra ogni
+mail all'indirizzo del secret `INOLTRO` e risponde a chi scrive con "grazie della segnalazione, le
+risponderemo prima possibile". Non risponde a risponditori automatici, mailing list, bounce e
+indirizzi `noreply` (niente risposte a ping-pong). Se la risposta non può partire (es. il mittente
+non supera i controlli DMARC) la mail viene comunque inoltrata.
+
+Configurazione, una volta sola (dopo il deploy del Worker con il gestore email):
+
+1. **Secret dell'inoltro**: in Cloudflare apri *Workers & Pages → sbeggio → Settings → Variables and
+   Secrets → Add*, tipo **Secret**, nome `INOLTRO`, valore il tuo indirizzo (lo stesso già verificato
+   in Email Routing). In alternativa: `npx wrangler secret put INOLTRO`. Non va nel repository.
+2. **Regola di instradamento**: in *sbeggio.app → Email → Email Routing → Routing rules* modifica la
+   regola di `supporto@sbeggio.app`: azione **Send to a Worker**, Worker **sbeggio** (al posto di
+   *Send to an email*).
+3. Prova scrivendo a supporto@sbeggio.app da un altro indirizzo: arrivano l'inoltro e la risposta.
+
+Senza il secret `INOLTRO` il Worker rifiuta la mail (chi scrive riceve un errore di consegna) invece di
+perderla. Il testo della risposta è `TESTO_RISPOSTA` in `src/email.ts`.
 
 ### App Android
 

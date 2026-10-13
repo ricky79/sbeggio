@@ -540,6 +540,9 @@ button {
   gap: 2px 10px;
   font-size: 14px;
 }
+.giorno-uscita {
+  color: var(--testo-2);
+}
 .statistiche.tre {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

@@ -1,4 +1,5 @@
 import { ID_VALIDO, MESSAGGIO_MASSIMO } from './core/collega';
+import { gestisciEmail, type EnvEmail, type MailInArrivo } from './email';
 
 export { Collegamento } from './collegamento';
 
@@ -8,8 +9,9 @@ export { Collegamento } from './collegamento';
  * - sbeggio.app serve la PWA;
  * - web.sbeggio.app serve il sito per scaricare le timbrature (web.html) e il relay /collega/<id>,
  *   un Durable Object per collegamento (src/collegamento.ts). In locale il relay risponde anche su localhost.
+ * Riceve anche la posta di supporto@sbeggio.app (src/email.ts).
  */
-interface Env {
+interface Env extends EnvEmail {
   ASSETS: { fetch(richiesta: Request): Promise<Response> };
   COLLEGAMENTI: {
     idFromName(nome: string): unknown;
@@ -70,5 +72,12 @@ export default {
     if ((url.hostname === SITO || locale) && url.pathname.startsWith(PREFISSO_COLLEGA)) return collega(richiesta, env, url);
     if (url.hostname === SITO) return env.ASSETS.fetch(richiestaSito(richiesta, url));
     return env.ASSETS.fetch(richiesta);
+  },
+
+  async email(mail: MailInArrivo, env: Env): Promise<void> {
+    await gestisciEmail(mail, env, async (da, a, grezzo) => {
+      const { EmailMessage } = await import('cloudflare:email');
+      return new EmailMessage(da, a, grezzo);
+    });
   },
 };

@@ -15,8 +15,12 @@ export const iconaCasa = (classe?: string): HTMLElement => icona(CASA, classe);
 
 /** Segna la giornata come lavorata da casa (smart) o in sede: è una scelta, la posizione non la cambia più. */
 export function impostaLuogo(data: string, luogo: Luogo): void {
-  if (store.giornata(data).luogo === luogo) return;
-  store.modificaGiornata(data, (g) => void (g.luogo = luogo));
+  const g = store.giornata(data);
+  if (g.luogo === luogo && !g.luogoAutomatico) return;
+  store.modificaGiornata(data, (g) => {
+    g.luogo = luogo;
+    delete g.luogoAutomatico; // scelto a mano: resta anche senza timbrature
+  });
 }
 
 /**
