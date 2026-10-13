@@ -34,8 +34,9 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        // web.html è il sito web.sbeggio.app; l'app Android non lo include.
-        input: (android ? { index: 'index.html' } : { index: 'index.html', web: 'web.html' }) as Record<string, string>,
+        // web.html è il sito web.sbeggio.app; l'app Android non lo include. Il nome "sito" dà ai suoi file
+        // assets/sito-*: "web" si confonderebbe con i web.js delle librerie (es. @capacitor/local-notifications).
+        input: (android ? { index: 'index.html' } : { index: 'index.html', sito: 'web.html' }) as Record<string, string>,
       },
     },
     plugins: [
@@ -70,7 +71,7 @@ export default defineConfig(({ mode }) => {
         injectManifest: {
           globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
           // Il sito web.sbeggio.app non serve alla PWA.
-          globIgnores: ['web.html', 'assets/web-*.js', 'assets/web-*.css'],
+          globIgnores: ['web.html', 'assets/sito-*.js', 'assets/sito-*.css'],
         },
       }),
       sitoSenzaManifest(),
