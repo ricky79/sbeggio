@@ -84,17 +84,29 @@ export async function scansionaQr<T>(valida: (testo: string) => T | null): Promi
     );
     let finito = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    // App in background (tasto indietro o Home su Android, cambio app su iPhone): il sistema toglie la
+    // fotocamera e al ritorno resterebbe uno scanner nero. Meglio chiudere: si riapre con un tocco.
+    const nascosta = () => {
+      if (document.visibilityState === 'hidden') fine(null);
+    };
+    const tracciaFinita = () => fine(null);
     const fine = (valore: T | null) => {
       if (finito) return;
       finito = true;
       clearTimeout(timer);
-      flusso.getTracks().forEach((t) => t.stop());
+      document.removeEventListener('visibilitychange', nascosta);
+      flusso.getTracks().forEach((t) => {
+        t.removeEventListener('ended', tracciaFinita);
+        t.stop();
+      });
       if (dlg.open) dlg.close();
       dlg.remove();
       risolvi(valore);
     };
-    // Annulla, Esc o "indietro" di Android.
+    // Annulla o Esc.
     dlg.addEventListener('close', () => fine(null));
+    document.addEventListener('visibilitychange', nascosta);
+    flusso.getTracks().forEach((t) => t.addEventListener('ended', tracciaFinita));
 
     const ciclo = async () => {
       if (finito) return;
