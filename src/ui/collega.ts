@@ -16,8 +16,16 @@ export async function collegaComputer(): Promise<void> {
   }
   if (!collegamento) return;
   if (!(await conferma('Collega al computer', 'Inviare tutte le timbrature al computer?', 'Invia'))) return;
-  // Sola lettura: l'invio non modifica i dati.
-  const esito = await inviaCollegamento(collegamento, store.tutto);
+  toast('Invio in corso…');
+  let esito;
+  try {
+    // Sola lettura: l'invio non modifica i dati.
+    esito = await inviaCollegamento(collegamento, store.tutto);
+  } catch {
+    // Cifratura non disponibile (es. iOS prima della 16.4) o altro errore imprevisto: mai in silenzio.
+    await avviso('Invio non riuscito', 'Qualcosa non ha funzionato durante l\'invio. Riprova; se succede ancora, aggiorna il sistema del telefono.');
+    return;
+  }
   if (esito === 'inviato') toast(messaggioEsito(esito));
   else await avviso('Invio non riuscito', messaggioEsito(esito));
 }
