@@ -50,6 +50,9 @@
     <!-- Casa o ufficio: la posizione si legge solo ad app aperta (navigator.geolocation nella WebView). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Collega al computer: lo scanner QR usa la fotocamera nella WebView (la richiesta la fa Capacitor). -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <!-- Non obbligatorio: l'app resta installabile sui telefoni senza NFC. -->
     <uses-feature android:name="android.hardware.nfc" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 </manifest>
