@@ -1449,3 +1449,57 @@ input:disabled {
   accent-color: var(--accento);
   flex: none;
 }
+
+/* Scanner QR di "Collega al computer" (src/ui/scanner.ts): a tutto schermo, su fondo nero. */
+.scanner {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: #fff;
+}
+.scanner::backdrop {
+  background: #000;
+}
+.scanner-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.scanner-mirino {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: min(70vw, 280px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.45);
+}
+.scanner-barra {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  gap: 12px;
+  padding: 16px calc(var(--sicuro-dx) + 16px) calc(var(--sicuro-basso) + 16px) calc(var(--sicuro-sx) + 16px);
+  text-align: center;
+}
+.scanner-nota {
+  margin: 0;
+  font-size: 16px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.scanner-barra .btn {
+  color: var(--testo);
+}
