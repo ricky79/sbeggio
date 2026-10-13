@@ -46,12 +46,13 @@ export function giornateDelMese(giornate: Record<string, Giornata>, mese: string
 
 /**
  * Il mese proposto dal selettore: il corrente se ha giornate, altrimenti il più recente non futuro
- * (le ferie si possono inserire in anticipo), altrimenti il primo.
+ * (le ferie si possono inserire in anticipo), altrimenti il futuro più vicino.
+ * `mesi` è ordinato dal più recente, come lo restituisce mesiPresenti.
  */
 export function meseIniziale(mesi: readonly string[], oggi: string): string | null {
   const corrente = oggi.slice(0, 7);
   if (mesi.includes(corrente)) return corrente;
-  return mesi.find((m) => m < corrente) ?? mesi[0] ?? null;
+  return mesi.find((m) => m < corrente) ?? mesi[mesi.length - 1] ?? null;
 }
 
 /** JSON con le stesse informazioni del CSV, tipizzate. Non è un backup: non si reimporta nell'app. */

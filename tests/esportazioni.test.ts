@@ -45,6 +45,8 @@ describe('mesi', () => {
     // Ferie inserite in anticipo: dicembre non deve vincere su settembre.
     expect(meseIniziale(['2026-12', '2026-09'], '2026-10-13')).toBe('2026-09');
     expect(meseIniziale(['2026-12'], '2026-10-13')).toBe('2026-12');
+    // Solo ferie future: il mese più vicino, non il più lontano.
+    expect(meseIniziale(['2027-02', '2026-12'], '2026-10-13')).toBe('2026-12');
     expect(meseIniziale([], '2026-10-13')).toBeNull();
   });
 
