@@ -2,7 +2,7 @@
 
 Web app installabile (PWA) per registrare le timbrature di lavoro da iPhone o Android e sapere
 a che ora si può uscire. Funziona offline, non ha backend: **i dati restano sul telefono**
-(localStorage del browser).
+(localStorage del browser), salvo quando li mandi tu al computer con *Collega al computer*, cifrati da un capo all'altro.
 
 App pubblicata: **https://sbeggio.app/**
 
@@ -183,6 +183,17 @@ Se la sequenza degli eventi è incoerente (per esempio *Fine pausa pranzo* senza
 l'app non va in crash: segnala la giornata come **da correggere**, spiega il problema
 e calcola i totali ignorando gli eventi incoerenti.
 
+## Scaricare le timbrature dal computer
+
+1. Sul computer apri **https://web.sbeggio.app**: compare un codice QR (vale 5 minuti, poi se ne genera uno nuovo).
+2. Sul telefono: *Impostazioni → Collega al computer…*, inquadra il codice e conferma con **Invia**.
+3. Sul computer scegli il mese e scarica **CSV** (lo stesso dell'app) o **JSON**, oppure scarica tutto.
+
+Le timbrature viaggiano cifrate (AES-GCM) con una chiave che sta solo nel QR: il relay su Cloudflare che le
+passa al browser non può leggerle e non le salva. Ogni codice si usa una volta; chiudendo la pagina i dati
+spariscono dal computer. Il JSON del sito è "leggibile" (ore in minuti, timbrature con orario e tipo) e non si
+reimporta nell'app: per il backup completo usa *Esporta backup completo (JSON)* nell'app.
+
 ## Export CSV
 
 Il CSV usa `;` come separatore e la virgola per i decimali, con BOM UTF-8: si apre
@@ -242,7 +253,16 @@ Application → Service workers → *Push* simula un push senza passare dal back
 La PWA è un Worker Cloudflare (`wrangler.jsonc`, nome `sbeggio`) che serve i file statici su
 `https://sbeggio.app`; `src/worker.ts` rimanda `www.sbeggio.app` alla radice con un 301. I due domini
 sono *custom domain* del Worker: i loro record DNS li crea il deploy, non vanno aggiunti a mano. Il workflow `.github/workflows/deploy.yml` esegue test e build a ogni PR e,
-a ogni push su `main`, pubblica `dist/` con `wrangler deploy`. Va configurato una volta sola:
+a ogni push su `main`, pubblica `dist/` con `wrangler deploy`.
+
+Lo stesso Worker serve anche `https://web.sbeggio.app` (custom domain): la pagina `web.html` (sorgenti in
+`src/sito/`) e il relay `/collega/<id>`, un Durable Object `Collegamento` (`src/collegamento.ts`, migrazione `v1`
+in `wrangler.jsonc`) che tiene il WebSocket del browser e gli inoltra una volta il messaggio cifrato dall'app.
+Per provarlo in locale: `npm run build && npx wrangler@4.147.0 dev --port 8787 --local-upstream web.sbeggio.app`
+(senza `--local-upstream` wrangler presenta ogni richiesta come `sbeggio.app`, cioè la PWA); la pagina è su
+`http://localhost:8787/`, le prove automatiche sono in `tests/collegamento.e2e.test.ts` (vedi il commento in testa).
+
+Va configurato una volta sola:
 
 1. Su Cloudflare apri **My Profile → API Tokens → Create Token** e usa il modello
    **Edit Cloudflare Workers** (account e zona `sbeggio.app`).

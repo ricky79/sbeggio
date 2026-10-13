@@ -20,6 +20,17 @@ describe('aiuto', () => {
     for (const s of SEZIONI_AIUTO) expect(voci.some((v) => v.sezione === s)).toBe(true);
   });
 
+  it('spiega come scaricare le timbrature sul computer, e che i dati partono solo così', () => {
+    const computer = voci.find((x) => x.id === 'computer')!;
+    expect(computer.sezione).toBe('Dati e backup');
+    const testo = computer.testo.join(' ');
+    expect(testo).toContain('web.sbeggio.app');
+    expect(testo).toContain('Collega al computer');
+    expect(testo).toContain('cifrat');
+    const dove = voci.find((x) => x.id === 'dove-dati')!.testo.join(' ');
+    expect(dove).toContain('Collega al computer');
+  });
+
   it('gli avvisi spiegano anche la PWA', () => {
     const avvisi = voci.find((x) => x.id === 'avvisi')!.testo.join(' ');
     expect(avvisi).toContain('PWA');
