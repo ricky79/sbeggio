@@ -382,3 +382,19 @@ I dati sono salvati nella chiave `timbrature` di localStorage, con un campo `ver
 Se lo schema cambia, aggiungi un passo in `MIGRAZIONI` (`src/storage/migrazioni.ts`)
 e incrementa `VERSIONE_CORRENTE`. Se i dati salvati non sono leggibili, l'app ne conserva
 una copia in una chiave `timbrature-corrotto-<timestamp>` e riparte da zero.
+
+## Licenza
+
+Copyright (C) 2026 Riccardo Oliosi
+
+Sbeggio è software libero: puoi ridistribuirlo e modificarlo secondo i termini della
+[GNU General Public License](LICENSE) pubblicata dalla Free Software Foundation, versione 3 o (a tua
+scelta) qualunque versione successiva. È distribuito sperando che sia utile, ma **senza alcuna garanzia**,
+nemmeno quella implicita di commerciabilità o di idoneità a uno scopo particolare: i dettagli sono nella
+licenza.
+
+Chi ridistribuisce l'app, anche modificata, deve farlo con la stessa licenza e rendere disponibile il
+codice sorgente.
+
+Il nome **Sbeggio** e il logo non sono coperti dalla licenza: una versione modificata va pubblicata con un
+altro nome e un altro logo.
