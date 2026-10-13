@@ -19,9 +19,18 @@ export class ErroreFotocamera extends Error {
 }
 
 /** BarcodeDetector dove c'è; altrimenti (iPhone) jsQR, caricato solo ora per non pesare sull'avvio. */
+export async function rilevatoreQrDisponibile(Rilevatore: CostruttoreRilevatore | undefined): Promise<boolean> {
+  if (!Rilevatore) return false;
+  try {
+    return (await Rilevatore.getSupportedFormats()).includes('qr_code');
+  } catch {
+    return false;
+  }
+}
+
 async function creaDecodifica(): Promise<Decodifica> {
   const Rilevatore = (globalThis as { BarcodeDetector?: CostruttoreRilevatore }).BarcodeDetector;
-  if (Rilevatore && (await Rilevatore.getSupportedFormats()).includes('qr_code')) {
+  if (Rilevatore && (await rilevatoreQrDisponibile(Rilevatore))) {
     const rilevatore = new Rilevatore({ formats: ['qr_code'] });
     return async (video) => (await rilevatore.detect(video))[0]?.rawValue ?? null;
   }
