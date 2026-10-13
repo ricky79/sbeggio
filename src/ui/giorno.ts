@@ -54,7 +54,8 @@ export function vistaGiorno(data: string, adesso: Adesso, onIndietro: (() => voi
     oggi && !soloFerie ? pulsantiAzione(data, r, adesso.minuti) : null,
     oggi && !soloFerie ? riquadroPausaSaltata(data, adesso.minuti) : null,
     soloFerie ? null : timeline(data, giornata, analisi.idScartati, r, oggi ? adesso.minuti : 9 * 60),
-    data in store.giornate ? pulsanteElimina(data) : null,
+    // In una giornata di sole ferie basta "Togli le ferie": un secondo pulsante farebbe la stessa cosa.
+    data in store.giornate && !soloFerie ? pulsanteElimina(data) : null,
   );
 }
 
