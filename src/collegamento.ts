@@ -54,6 +54,31 @@ declare const WebSocketRequestResponsePair: { new (richiesta: string, risposta: 
 
 const USATO = 'usato';
 
+/** Legge il corpo fino a `massimo` byte; null appena lo supera, senza leggere il resto. */
+async function leggiCorpo(richiesta: Request, massimo: number): Promise<Uint8Array | null> {
+  if (!richiesta.body) return new Uint8Array(0);
+  const lettore = richiesta.body.getReader();
+  const pezzi: Uint8Array[] = [];
+  let totale = 0;
+  for (;;) {
+    const { done, value } = await lettore.read();
+    if (done) break;
+    totale += value.byteLength;
+    if (totale > massimo) {
+      await lettore.cancel();
+      return null;
+    }
+    pezzi.push(value);
+  }
+  const corpo = new Uint8Array(totale);
+  let posizione = 0;
+  for (const p of pezzi) {
+    corpo.set(p, posizione);
+    posizione += p.byteLength;
+  }
+  return corpo;
+}
+
 export class Collegamento {
   constructor(private readonly stato: StatoDurable) {
     // Il ping del sito riceve "pong" senza svegliare l'oggetto. Nel costruttore vale a ogni risveglio.
@@ -61,13 +86,14 @@ export class Collegamento {
   }
 
   async fetch(richiesta: Request): Promise<Response> {
-    const corpo = richiesta.method === 'POST' ? new Uint8Array(await richiesta.arrayBuffer()) : null;
+    // null: corpo oltre il massimo, non letto tutto (decidi risponde 413).
+    const corpo = richiesta.method === 'POST' ? await leggiCorpo(richiesta, MESSAGGIO_MASSIMO) : new Uint8Array(0);
     const browser = this.stato.getWebSockets()[0];
     const decisione = decidi(
       {
         metodo: richiesta.method,
         websocket: richiesta.headers.get('Upgrade')?.toLowerCase() === 'websocket',
-        dimensione: corpo?.byteLength ?? 0,
+        dimensione: corpo === null ? MESSAGGIO_MASSIMO + 1 : corpo.byteLength,
       },
       { browser: browser !== undefined, usato: (await this.stato.storage.get<boolean>(USATO)) === true },
     );

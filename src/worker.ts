@@ -1,4 +1,4 @@
-import { ID_VALIDO } from './core/collega';
+import { ID_VALIDO, MESSAGGIO_MASSIMO } from './core/collega';
 
 export { Collegamento } from './collegamento';
 
@@ -38,6 +38,10 @@ async function collega(richiesta: Request, env: Env, url: URL): Promise<Response
     cors.set('Access-Control-Allow-Headers', 'Content-Type');
     cors.set('Access-Control-Max-Age', '86400');
     return new Response(null, { status: 204, headers: cors });
+  }
+  // Troppo grande già a dichiararlo: non serve svegliare il relay (che comunque ricontrolla leggendo).
+  if (Number(richiesta.headers.get('Content-Length')) > MESSAGGIO_MASSIMO) {
+    return new Response(null, { status: 413, headers: cors });
   }
   const risposta = await env.COLLEGAMENTI.get(env.COLLEGAMENTI.idFromName(id)).fetch(richiesta);
   // Il 101 del WebSocket va restituito così com'è (porta con sé il socket).

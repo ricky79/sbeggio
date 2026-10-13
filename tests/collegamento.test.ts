@@ -104,6 +104,27 @@ describe('Durable Object Collegamento', () => {
     expect(f.memoria.get('usato')).toBe(true);
   });
 
+  it('un corpo oltre la dimensione massima: 413 e la lettura si ferma appena superato il limite', async () => {
+    const f = statoFinto(true);
+    const MEGA = 1024 * 1024;
+    let letti = 0;
+    // Senza Content-Length: 20 MB a pezzi da 1 MB, di cui ne servono al massimo 6 per superare i 5 MB.
+    const corpo = new ReadableStream<Uint8Array>({
+      pull(c) {
+        if (letti === 20) return c.close();
+        letti++;
+        c.enqueue(new Uint8Array(MEGA));
+      },
+    });
+    const r = await new Collegamento(f.stato).fetch(
+      new Request('https://web.sbeggio.app/collega/x', { method: 'POST', body: corpo, duplex: 'half' } as RequestInit),
+    );
+    expect(r.status).toBe(413);
+    expect(letti).toBeLessThanOrEqual(Math.ceil(MESSAGGIO_MASSIMO / MEGA) + 2);
+    expect(f.ws.send).not.toHaveBeenCalled();
+    expect(f.memoria.size).toBe(0);
+  });
+
   it('senza browser risponde 404 e non salva nulla', async () => {
     const f = statoFinto(false);
     const r = await new Collegamento(f.stato).fetch(invio(new Uint8Array([1])));

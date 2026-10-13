@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { MESSAGGIO_MASSIMO } from '../src/core/collega';
 import worker from '../src/worker';
 
 const ID = 'AAAAAAAAAAAAAAAAAAAAAA';
@@ -79,6 +80,21 @@ describe('worker di web.sbeggio.app', () => {
     expect(relay).toHaveBeenCalledOnce();
     expect(r.status).toBe(404);
     expect(r.headers.get('Access-Control-Allow-Origin')).toBe('https://localhost');
+  });
+
+  it('un invio dichiarato oltre la dimensione massima è rifiutato senza svegliare il relay', async () => {
+    const { env, relay } = envFinto();
+    const r = await worker.fetch(
+      new Request(`https://web.sbeggio.app/collega/${ID}`, {
+        method: 'POST',
+        headers: { Origin: 'https://sbeggio.app', 'Content-Length': String(MESSAGGIO_MASSIMO + 1) },
+        body: 'x',
+      }),
+      env,
+    );
+    expect(r.status).toBe(413);
+    expect(r.headers.get('Access-Control-Allow-Origin')).toBe('https://sbeggio.app');
+    expect(relay).not.toHaveBeenCalled();
   });
 
   it('in locale (wrangler dev) il relay risponde anche su localhost', async () => {
