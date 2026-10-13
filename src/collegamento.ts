@@ -55,7 +55,10 @@ declare const WebSocketRequestResponsePair: { new (richiesta: string, risposta: 
 const USATO = 'usato';
 
 export class Collegamento {
-  constructor(private readonly stato: StatoDurable) {}
+  constructor(private readonly stato: StatoDurable) {
+    // Il ping del sito riceve "pong" senza svegliare l'oggetto. Nel costruttore vale a ogni risveglio.
+    this.stato.setWebSocketAutoResponse(new WebSocketRequestResponsePair(PING, PONG));
+  }
 
   async fetch(richiesta: Request): Promise<Response> {
     const corpo = richiesta.method === 'POST' ? new Uint8Array(await richiesta.arrayBuffer()) : null;
@@ -74,8 +77,6 @@ export class Collegamento {
       case 'apri': {
         const coppia = new WebSocketPair();
         this.stato.acceptWebSocket(coppia[1]);
-        // Il ping del sito riceve "pong" senza svegliare l'oggetto.
-        this.stato.setWebSocketAutoResponse(new WebSocketRequestResponsePair(PING, PONG));
         await this.stato.storage.setAlarm(Date.now() + DURATA_COLLEGAMENTO_MS);
         return new Response(null, { status: 101, webSocket: coppia[0] } as ResponseInit);
       }

@@ -1,6 +1,17 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Collegamento, decidi, type StatoDurable } from '../src/collegamento';
-import { CHIUSURA_SCADUTO, MESSAGGIO_MASSIMO } from '../src/core/collega';
+import { CHIUSURA_SCADUTO, MESSAGGIO_MASSIMO, PING, PONG } from '../src/core/collega';
+
+/** Nel runtime Workers è globale; qui una copia che ricorda richiesta e risposta. */
+class CoppiaFinta {
+  constructor(
+    readonly richiesta: string,
+    readonly risposta: string,
+  ) {}
+}
+beforeEach(() => {
+  vi.stubGlobal('WebSocketRequestResponsePair', CoppiaFinta);
+});
 
 const get = (websocket = true) => ({ metodo: 'GET', websocket, dimensione: 0 });
 const post = (dimensione = 100) => ({ metodo: 'POST', websocket: false, dimensione });
@@ -55,6 +66,12 @@ const invio = (corpo: Uint8Array<ArrayBuffer>) =>
   new Request('https://web.sbeggio.app/collega/x', { method: 'POST', body: corpo });
 
 describe('Durable Object Collegamento', () => {
+  it('risponde pong al ping da quando l\'oggetto esiste, anche dopo l\'ibernazione', () => {
+    const f = statoFinto(false);
+    new Collegamento(f.stato);
+    expect(f.stato.setWebSocketAutoResponse).toHaveBeenCalledWith(new CoppiaFinta(PING, PONG));
+  });
+
   it('inoltra il messaggio al browser, chiude e rifiuta altri invii', async () => {
     const f = statoFinto(true);
     const relay = new Collegamento(f.stato);
