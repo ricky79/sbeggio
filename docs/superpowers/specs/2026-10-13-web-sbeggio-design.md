@@ -259,7 +259,7 @@ Il deploy resta quello di `.github/workflows/deploy.yml` (`wrangler deploy`), se
 - precache del service worker: `web.html` e i chunk usati solo dal sito esclusi
   (`injectManifest.globIgnores`); il chunk di jsqr resta nel precache (lo usa l'app).
 
-### Dipendenze nuove (MIT, piccole, senza dipendenze proprie)
+### Dipendenze nuove (piccole, senza dipendenze proprie; `qrcode-generator` MIT, `jsqr` Apache-2.0)
 
 - `qrcode-generator`: disegna il QR nella pagina web;
 - `jsqr`: decodifica nello scanner dove manca `BarcodeDetector`.
