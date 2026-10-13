@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sbeggio sul computer</title>
+    <meta name="description" content="Scarica sul computer le timbrature registrate con Sbeggio." />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Stesso tema dell'app (variabili in src/style.css), qui solo dal sistema: il sito non ha impostazioni.
+      document.documentElement.setAttribute('data-tema', matchMedia('(prefers-color-scheme: dark)').matches ? 'scuro' : 'chiaro');
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main id="sito" class="sito"></main>
+    <noscript>Per usare Sbeggio sul computer attiva JavaScript.</noscript>
+    <script type="module" src="/src/sito/main.ts"></script>
+  </body>
+</html>

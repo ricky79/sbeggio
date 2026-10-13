@@ -5,6 +5,7 @@ import { salvaFile } from '../native/file';
 import { migra } from '../storage/migrazioni';
 import { store } from '../storage/store';
 import { avviso, conferma, toast } from './dialoghi';
+import { scaricaFile } from './scarica';
 import type { Adesso } from './giorno';
 
 /**
@@ -31,14 +32,7 @@ async function condividiFile(nome: string, contenuto: string, tipo: string): Pro
       // altrimenti prosegui con il download
     }
   }
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = nome;
-  document.body.append(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  scaricaFile(nome, contenuto, tipo);
 }
 
 function contaGiornate(): number {
