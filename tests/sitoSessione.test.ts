@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { cifra, creaCollegamento, DURATA_COLLEGAMENTO_MS, INTERVALLO_PING_MS, type Collegamento } from '../src/core/collega';
 import { datiVuoti } from '../src/storage/migrazioni';
-import { avviaSessione, type Presa, type StatoSito } from '../src/sito/sessione';
+import { ATTESA_APERTURA_MS, avviaSessione, type Presa, type StatoSito } from '../src/sito/sessione';
 
 interface PresaFinta extends Presa {
   url: string;
@@ -9,19 +9,22 @@ interface PresaFinta extends Presa {
   close: Mock<() => void>;
 }
 
-function prova(origine = 'https://web.sbeggio.app') {
+function prova(origine = 'https://web.sbeggio.app', opz: { aperta?: boolean } = {}) {
   const prese: PresaFinta[] = [];
   const stati: StatoSito[] = [];
   const sessione = avviaSessione(
     origine,
     (url) => {
-      const p: PresaFinta = { url, binaryType: 'blob', onmessage: null, onclose: null, send: vi.fn<(dati: string) => void>(), close: vi.fn<() => void>() };
+      const p: PresaFinta = { url, binaryType: 'blob', onopen: null, onmessage: null, onclose: null, send: vi.fn<(dati: string) => void>(), close: vi.fn<() => void>() };
       prese.push(p);
       return p;
     },
     (s) => stati.push(s),
   );
   const ultima = () => prese[prese.length - 1]!;
+  /** Il relay accetta il WebSocket più recente. */
+  const apri = () => ultima().onopen?.(new Event('open'));
+  if (opz.aperta !== false) apri();
   const stato = () => stati[stati.length - 1]!;
   const collegamento = () => (stato() as Extract<StatoSito, { tipo: 'attesa' }>).collegamento;
   const ricevi = async (dati: unknown, c: Collegamento = collegamento()) => {
@@ -30,7 +33,7 @@ function prova(origine = 'https://web.sbeggio.app') {
   };
   /** Attende la decifratura (asincrona) del messaggio ricevuto. */
   const finché = (tipo: StatoSito['tipo']) => vi.waitFor(() => expect(stato().tipo).toBe(tipo));
-  return { sessione, prese, stati, ultima, stato, collegamento, ricevi, finché };
+  return { sessione, prese, stati, ultima, apri, stato, collegamento, ricevi, finché };
 }
 
 beforeEach(() => {
@@ -52,6 +55,28 @@ describe('sessione del sito', () => {
     if (s.tipo !== 'attesa') return;
     expect(t.ultima().url).toBe(`wss://web.sbeggio.app/collega/${s.collegamento.id}`);
     expect(s.scadenza).toBe(Date.now() + DURATA_COLLEGAMENTO_MS);
+  });
+
+  it('mostra il QR solo quando il WebSocket è aperto', () => {
+    const t = prova('https://web.sbeggio.app', { aperta: false });
+    expect(t.stato()).toEqual({ tipo: 'apertura' });
+    t.apri();
+    expect(t.stato().tipo).toBe('attesa');
+  });
+
+  it('relay irraggiungibile (proxy che blocca il WebSocket): dopo 10 secondi errore di connessione', () => {
+    const t = prova('https://web.sbeggio.app', { aperta: false });
+    vi.advanceTimersByTime(ATTESA_APERTURA_MS);
+    expect(t.stato()).toEqual({ tipo: 'errore', motivo: 'connessione' });
+    expect(t.ultima().close).toHaveBeenCalled();
+    vi.advanceTimersByTime(DURATA_COLLEGAMENTO_MS);
+    expect(t.prese).toHaveLength(1);
+  });
+
+  it('aperto in tempo, il limite di apertura non scatta', () => {
+    const t = prova();
+    vi.advanceTimersByTime(ATTESA_APERTURA_MS * 2);
+    expect(t.stato().tipo).toBe('attesa');
   });
 
   it('in locale usa ws://', () => {
@@ -96,6 +121,7 @@ describe('sessione del sito', () => {
     const primo = t.collegamento();
     t.ultima().onclose?.({ code: 4000 } as CloseEvent);
     expect(t.prese).toHaveLength(2);
+    t.apri();
     expect(t.collegamento().id).not.toBe(primo.id);
   });
 
@@ -138,6 +164,8 @@ describe('sessione del sito', () => {
     await t.ricevi(datiVuoti());
     await t.finché('collegato');
     t.sessione.nuovo();
+    expect(t.stato().tipo).toBe('apertura');
+    t.apri();
     expect(t.stato().tipo).toBe('attesa');
     expect(t.prese).toHaveLength(2);
   });

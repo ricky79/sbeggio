@@ -13,7 +13,11 @@ import { migra, VERSIONE_CORRENTE, type DatiSalvati } from '../storage/migrazion
  * Ciclo di vita del collegamento nella pagina web.sbeggio.app: un QR (id + chiave) per volta, il
  * WebSocket verso il relay, la scadenza dopo 5 minuti, il ping contro i proxy e la ricezione dei dati.
  */
+/** Senza risposta dal relay entro questo tempo (proxy che blocca il WebSocket) è un errore di connessione. */
+export const ATTESA_APERTURA_MS = 10_000;
+
 export type StatoSito =
+  | { tipo: 'apertura' }
   | { tipo: 'attesa'; collegamento: Collegamento; scadenza: number }
   | { tipo: 'collegato'; dati: DatiSalvati; ricevuti: number }
   | { tipo: 'errore'; motivo: 'connessione' | 'illeggibili' | 'versione' };
@@ -21,6 +25,7 @@ export type StatoSito =
 /** La parte di WebSocket che usiamo (nei test una presa finta). */
 export interface Presa {
   binaryType: BinaryType;
+  onopen: ((ev: Event) => void) | null;
   onmessage: ((ev: MessageEvent) => void) | null;
   onclose: ((ev: CloseEvent) => void) | null;
   send(dati: string): void;
@@ -35,12 +40,15 @@ export function avviaSessione(
   let presa: Presa | null = null;
   let scadenza: ReturnType<typeof setTimeout> | undefined;
   let ping: ReturnType<typeof setInterval> | undefined;
+  let apertura: ReturnType<typeof setTimeout> | undefined;
 
   /** Ferma timer e WebSocket correnti, senza che la loro chiusura arrivi alla sessione. */
   const ferma = () => {
     clearTimeout(scadenza);
     clearInterval(ping);
+    clearTimeout(apertura);
     if (presa) {
+      presa.onopen = null;
       presa.onmessage = null;
       presa.onclose = null;
       presa.close();
@@ -72,6 +80,12 @@ export function avviaSessione(
     const p = apri(`${origine.replace(/^http/, 'ws')}/collega/${c.id}`);
     presa = p;
     p.binaryType = 'arraybuffer';
+    const scade = Date.now() + DURATA_COLLEGAMENTO_MS;
+    // Il QR si mostra solo a WebSocket aperto: un QR senza relay non potrebbe mai funzionare.
+    p.onopen = () => {
+      clearTimeout(apertura);
+      alCambio({ tipo: 'attesa', collegamento: c, scadenza: scade });
+    };
     p.onmessage = (ev) => {
       if (!(ev.data instanceof ArrayBuffer)) return; // "pong"
       ferma();
@@ -90,7 +104,11 @@ export function avviaSessione(
         // WebSocket non ancora aperto: il prossimo ping riprova
       }
     }, INTERVALLO_PING_MS);
-    alCambio({ tipo: 'attesa', collegamento: c, scadenza: Date.now() + DURATA_COLLEGAMENTO_MS });
+    apertura = setTimeout(() => {
+      ferma();
+      alCambio({ tipo: 'errore', motivo: 'connessione' });
+    }, ATTESA_APERTURA_MS);
+    alCambio({ tipo: 'apertura' });
   };
 
   nuovo();

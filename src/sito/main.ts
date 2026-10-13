@@ -118,6 +118,7 @@ function vistaErrore(motivo: 'connessione' | 'illeggibili' | 'versione'): Node[]
 function mostra(s: StatoSito): void {
   clearInterval(orologio);
   const viste = {
+    apertura: () => [titolo(), el('div', { class: 'scheda' }, el('p', {}, 'Connessione in corso…'))],
     attesa: () => (s.tipo === 'attesa' ? vistaAttesa(s.collegamento, s.scadenza) : []),
     collegato: () => (s.tipo === 'collegato' ? vistaCollegato(s.dati, s.ricevuti) : []),
     errore: () => (s.tipo === 'errore' ? vistaErrore(s.motivo) : []),
