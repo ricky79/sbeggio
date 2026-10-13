@@ -80,9 +80,18 @@ export class Collegamento {
         return new Response(null, { status: 101, webSocket: coppia[0] } as ResponseInit);
       }
       case 'consegna':
-        browser!.send(corpo!);
+        try {
+          browser!.send(corpo!);
+        } catch {
+          // Il browser se ne sta andando (scheda chiusa, QR appena scaduto): per l'app è un codice scaduto.
+          return new Response(null, { status: 404 });
+        }
         await this.stato.storage.put(USATO, true);
-        browser!.close(1000, 'consegnato');
+        try {
+          browser!.close(1000, 'consegnato');
+        } catch {
+          // già chiuso: il messaggio è comunque arrivato
+        }
         return new Response(null, { status: 200 });
     }
   }

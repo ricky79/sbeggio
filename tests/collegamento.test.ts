@@ -67,6 +67,26 @@ describe('Durable Object Collegamento', () => {
     expect(f.ws.send).toHaveBeenCalledTimes(1);
   });
 
+  it('browser che si sta chiudendo (scheda chiusa durante l\'invio): 404 e codice ancora libero', async () => {
+    const f = statoFinto(true);
+    f.ws.send.mockImplementation(() => {
+      throw new TypeError('WebSocket già chiuso');
+    });
+    const r = await new Collegamento(f.stato).fetch(invio(new Uint8Array([1])));
+    expect(r.status).toBe(404);
+    expect(f.memoria.size).toBe(0);
+  });
+
+  it('consegnato ma la chiusura fallisce: resta 200 e il codice è usato', async () => {
+    const f = statoFinto(true);
+    f.ws.close.mockImplementation(() => {
+      throw new TypeError('WebSocket già chiuso');
+    });
+    const r = await new Collegamento(f.stato).fetch(invio(new Uint8Array([1])));
+    expect(r.status).toBe(200);
+    expect(f.memoria.get('usato')).toBe(true);
+  });
+
   it('senza browser risponde 404 e non salva nulla', async () => {
     const f = statoFinto(false);
     const r = await new Collegamento(f.stato).fetch(invio(new Uint8Array([1])));
