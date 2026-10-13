@@ -34,5 +34,8 @@
     "@capacitor/local-notifications": "^8.3.1",
     "jsqr": "^1.4.0",
     "qrcode-generator": "^2.0.4"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }
