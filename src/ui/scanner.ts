@@ -75,7 +75,7 @@ export async function scansionaQr<T>(valida: (testo: string) => T | null): Promi
     const nota = el('p', { class: 'scanner-nota' }, 'Inquadra il codice QR mostrato da web.sbeggio.app');
     const dlg = el(
       'dialog',
-      { class: 'scanner', 'aria-label': 'Collega al computer' },
+      { class: 'scanner', 'aria-label': 'Collega un dispositivo' },
       video,
       el('div', { class: 'scanner-mirino', 'aria-hidden': 'true' }),
       el(

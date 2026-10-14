@@ -1537,7 +1537,7 @@ input:disabled {
   flex: none;
 }
 
-/* Scanner QR di "Collega al computer" (src/ui/scanner.ts): a tutto schermo, su fondo nero. */
+/* Scanner QR di "+ Collega un dispositivo" (src/ui/scanner.ts): a tutto schermo, su fondo nero. */
 .scanner {
   position: fixed;
   inset: 0;

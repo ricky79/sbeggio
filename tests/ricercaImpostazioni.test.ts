@@ -36,7 +36,7 @@ describe('cercaImpostazioni', () => {
     expect(ids('dark')).toEqual(['tema']);
     expect(ids('gps')).toEqual(['posizione-ufficio']);
     expect(ids('sabato')).toEqual(['ore-per-giorno']);
-    expect(ids('qr')).toContain('collega-computer');
+    expect(ids('qr')).toContain('collega-dispositivo');
     expect(ids('excel')).toContain('esporta-excel');
     expect(ids('Avvisi').length).toBeGreaterThan(3);
   });

@@ -19,6 +19,7 @@ export interface VoceImpostazione {
 }
 
 export const VOCI_IMPOSTAZIONI: readonly VoceImpostazione[] = [
+  { id: 'collega-dispositivo', nome: 'Collega un dispositivo', sezione: 'Dispositivi collegati', sinonimi: 'computer pc qr web sito ufficio scarica collega' },
   { id: 'ore-predefinite', nome: 'Ore dovute predefinite', sezione: 'Ore dovute', sinonimi: 'orario giornaliero ore al giorno contratto' },
   { id: 'ore-per-giorno', nome: 'Ore per giorno della settimana', sezione: 'Ore dovute', sinonimi: 'lunedì martedì mercoledì giovedì venerdì sabato domenica giorno libero part time' },
   { id: 'inizio-pranzo', nome: 'Inizio fascia pranzo', sezione: 'Pausa pranzo', sinonimi: 'orario mensa' },
@@ -41,7 +42,6 @@ export const VOCI_IMPOSTAZIONI: readonly VoceImpostazione[] = [
   { id: 'esporta-excel', nome: 'Esporta Excel', sezione: 'Dati e backup', sinonimi: 'xlsx foglio di calcolo scarica' },
   { id: 'esporta-csv', nome: 'Esporta CSV', sezione: 'Dati e backup', sinonimi: 'scarica' },
   { id: 'backup-json', nome: 'Esporta backup completo', sezione: 'Dati e backup', sinonimi: 'json salva copia' },
-  { id: 'collega-computer', nome: 'Collega al computer', sezione: 'Dati e backup', sinonimi: 'pc qr web sito ufficio scarica' },
   { id: 'importa', nome: 'Importa CSV o backup', sezione: 'Dati e backup', sinonimi: 'json ripristina carica' },
 ];
 

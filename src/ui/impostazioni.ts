@@ -312,6 +312,15 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
     'div',
     {},
     sezione(
+      'Dispositivi collegati',
+      el('p', { class: 'nota' }, 'Collega il computer (web.sbeggio.app) per scaricare le timbrature in Excel, CSV o JSON.'),
+      el(
+        'div',
+        { class: 'pila-pulsanti' },
+        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-collega-dispositivo', onclick: () => void collegaComputer() }, '+ Collega un dispositivo'),
+      ),
+    ),
+    sezione(
       'Ore dovute',
       riga(
         'Predefinite',
@@ -394,7 +403,6 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
         el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-esporta-excel', onclick: () => void esportaExcelCondividi(adesso) }, 'Esporta Excel'),
         el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-esporta-csv', onclick: () => void esportaCsvCondividi(adesso) }, 'Esporta CSV'),
         el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-backup-json', onclick: () => void esportaBackupJson(adesso) }, 'Esporta backup completo (JSON)'),
-        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-collega-computer', onclick: () => void collegaComputer() }, 'Collega al computer…'),
         el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-importa', onclick: () => fileInput.click() }, 'Importa CSV o backup JSON…'),
         fileInput,
       ),

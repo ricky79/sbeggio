@@ -7,7 +7,7 @@ import { store } from '../storage/store';
 import { avviso, conferma, toast } from './dialoghi';
 import { ErroreFotocamera, scansionaQr } from './scanner';
 
-/** Impostazioni → Collega al computer: inquadra il QR di web.sbeggio.app e manda le timbrature cifrate. */
+/** Impostazioni → Dispositivi collegati → + Collega un dispositivo: inquadra il QR di web.sbeggio.app e manda le timbrature cifrate. */
 export async function collegaComputer(): Promise<void> {
   let collegamento: Collegamento | null;
   try {
@@ -18,7 +18,7 @@ export async function collegaComputer(): Promise<void> {
     return;
   }
   if (!collegamento) return;
-  if (!(await conferma('Collega al computer', 'Inviare tutte le timbrature al computer?', 'Invia'))) return;
+  if (!(await conferma('Collega un dispositivo', 'Inviare tutte le timbrature al computer?', 'Invia'))) return;
   toast('Invio in corso…');
   let esito;
   try {

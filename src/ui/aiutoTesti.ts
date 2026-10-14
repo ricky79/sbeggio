@@ -351,7 +351,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       sezione: 'Dati e backup',
       domanda: 'Dove sono salvati i miei dati?',
       testo: [
-        'Solo su questo telefono, nella memoria dell\'app: non vengono inviati a nessun server, salvo quando li mandi tu al computer con "Collega al computer" (cifrati da un capo all\'altro).',
+        'Solo su questo telefono, nella memoria dell\'app: non vengono inviati a nessun server, salvo quando li mandi tu al computer con "+ Collega un dispositivo" (cifrati da un capo all\'altro).',
         '• iPhone: se elimini l\'app dalla schermata Home, iOS cancella anche i dati.',
         '• Android: l\'app condivide i dati con Chrome, quindi se cancelli i dati del sito o disinstalli l\'app perdi le timbrature.',
         'In ogni caso, fai un backup ogni tanto.',
@@ -374,7 +374,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       domanda: 'Come scarico le timbrature sul computer?',
       testo: [
         'Sul computer apri web.sbeggio.app: compare un codice QR.',
-        'Sul telefono vai in Impostazioni → Collega al computer, inquadra il codice e conferma con Invia.',
+        'Sul telefono vai in Impostazioni → Dispositivi collegati → "+ Collega un dispositivo", inquadra il codice e conferma con Invia.',
         'Dal computer scarichi il file Excel, il CSV o il JSON di un mese a scelta o di tutte le timbrature.',
         '• Le timbrature viaggiano cifrate: il server che le passa al computer non può leggerle e non le conserva.',
         '• Il codice vale 5 minuti e una sola volta; chiudendo la pagina i dati spariscono dal computer.',

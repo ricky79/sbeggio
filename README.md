@@ -2,7 +2,7 @@
 
 Web app installabile (PWA) per registrare le timbrature di lavoro da iPhone o Android e sapere
 a che ora si può uscire. Funziona offline, non ha backend: **i dati restano sul telefono**
-(localStorage del browser), salvo quando li mandi tu al computer con *Collega al computer*, cifrati da un capo all'altro.
+(localStorage del browser), salvo quando li mandi tu al computer con *+ Collega un dispositivo*, cifrati da un capo all'altro.
 
 App pubblicata: **https://sbeggio.app/**
 
@@ -189,7 +189,7 @@ e calcola i totali ignorando gli eventi incoerenti.
 ## Scaricare le timbrature dal computer
 
 1. Sul computer apri **https://web.sbeggio.app**: compare un codice QR (vale 5 minuti, poi se ne genera uno nuovo).
-2. Sul telefono: *Impostazioni → Collega al computer…*, inquadra il codice e conferma con **Invia**.
+2. Sul telefono: *Impostazioni → Dispositivi collegati → + Collega un dispositivo*, inquadra il codice e conferma con **Invia**.
 3. Sul computer scegli il mese e scarica **Excel**, **CSV** (lo stesso dell'app) o **JSON**, oppure scarica tutto.
 
 Le timbrature viaggiano cifrate (AES-GCM) con una chiave che sta solo nel QR: il relay su Cloudflare che le

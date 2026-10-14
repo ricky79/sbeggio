@@ -28,10 +28,10 @@ describe('aiuto', () => {
     expect(computer.sezione).toBe('Dati e backup');
     const testo = computer.testo.join(' ');
     expect(testo).toContain('web.sbeggio.app');
-    expect(testo).toContain('Collega al computer');
+    expect(testo).toContain('Dispositivi collegati → "+ Collega un dispositivo"');
     expect(testo).toContain('cifrat');
     const dove = voci.find((x) => x.id === 'dove-dati')!.testo.join(' ');
-    expect(dove).toContain('Collega al computer');
+    expect(dove).toContain('+ Collega un dispositivo');
   });
 
   it('gli avvisi spiegano anche la PWA', () => {
