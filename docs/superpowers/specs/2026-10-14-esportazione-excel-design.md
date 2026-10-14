@@ -55,7 +55,7 @@ importazione di file .xlsx.
 | M | Permesso | durata | `oreGiorno(r).permesso` (a blocchi da 30 min, sigarette comprese) |
 | N | Ferie | durata | `r.ferie` |
 | O | Saldo | testo | `+0:15`, `−0:30`, `0:00` (segno meno tipografico come nell'app) |
-| P | Note | testo | "In corso" per la giornata di oggi non chiusa; i problemi di `r.problemi` uniti da " · " per una giornata da correggere; altrimenti vuota |
+| P | Note | testo | "In corso" per la giornata di oggi in corso (stato `AL_LAVORO`, `IN_PAUSA` o `IN_PERMESSO`); i problemi di `r.problemi` uniti da " · " per una giornata da correggere; altrimenti vuota |
 
 `r` è `calcolaGiornata(g, imp, oggi.data === g.data ? oggi.minuti : null)`, `oreGiorno` e
 `uscitaReale` vengono da `riepilogo.ts`: i numeri sono per costruzione quelli dello Storico.
