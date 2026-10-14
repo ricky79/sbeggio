@@ -4,6 +4,7 @@
 import { DURATA_PAUSA_PROPOSTA, OFFSET_PAUSA_PROPOSTA } from '../core/pausaPranzo';
 import { RAGGIO_UFFICIO } from '../core/posizione';
 import type { Azione } from '../core/statoGiornata';
+import { corrisponde } from '../core/testi';
 import { formattaDurata, formattaOra } from '../core/tempo';
 import type { Impostazioni } from '../core/tipi';
 import { URL_APK } from './aggiornamento';
@@ -494,13 +495,7 @@ function testoVisibile(riga: string): string {
 }
 
 export function filtraAiuto(voci: VoceAiuto[], query: string): VoceAiuto[] {
-  const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-  const parole = norm(query).split(/\s+/).filter(Boolean);
-  if (parole.length === 0) return voci;
-  return voci.filter((v) => {
-    const t = norm(`${v.domanda} ${v.sezione} ${v.testo.map(testoVisibile).join(' ')}`);
-    return parole.every((p) => t.includes(p));
-  });
+  return voci.filter((v) => corrisponde(`${v.domanda} ${v.sezione} ${v.testo.map(testoVisibile).join(' ')}`, query));
 }
 
 /** Voce di aiuto per un'azione (per i link contestuali). */

@@ -21,6 +21,7 @@ import { apriImpostazioniNfc, statoNfc, type StatoNfc } from '../native/nfc';
 import { PRECISIONE_MASSIMA, RAGGIO_UFFICIO } from '../core/posizione';
 import { leggiPosizione } from './posizione';
 import { pulsanteNovita } from './novita';
+import { cercaImpostazioni, type VoceImpostazione } from './ricercaImpostazioni';
 
 /** Lunedì → domenica, come in un calendario italiano. */
 const ORDINE_GIORNI = [1, 2, 3, 4, 5, 6, 0];
@@ -44,10 +45,11 @@ function inputMinuti(valore: number, onCambio: (v: number) => void, aria: string
   return i;
 }
 
-function riga(etichetta: string, controllo: HTMLElement, nota?: string): HTMLElement {
+/** Riga etichetta + controllo; `voce` è l'id della ricerca (ricercaImpostazioni.ts). */
+function riga(etichetta: string, controllo: HTMLElement, nota?: string, voce?: string): HTMLElement {
   return el(
     'div',
-    { class: 'riga-impostazione' },
+    { class: 'riga-impostazione', id: voce ? `imp-${voce}` : undefined },
     el('div', {}, el('span', { class: 'riga-etichetta' }, etichetta), nota ? el('small', {}, nota) : null),
     controllo,
   );
@@ -62,12 +64,30 @@ const sezioniAperte = new Set<string>();
 function sezione(titolo: string, ...contenuto: (Node | Node[] | null)[]): HTMLDetailsElement {
   const d = el(
     'details',
-    { class: 'scheda sezione-impostazioni', open: sezioniAperte.has(titolo) },
+    { class: 'scheda sezione-impostazioni', 'data-sezione': titolo, open: sezioniAperte.has(titolo) },
     el('summary', {}, el('h2', { class: 'titolo-sezione' }, titolo)),
     ...contenuto,
   );
   d.addEventListener('toggle', () => (d.open ? sezioniAperte.add(titolo) : sezioniAperte.delete(titolo)));
   return d;
+}
+
+/** Testo della ricerca: resta tra un ridisegno e l'altro, come le sezioni aperte. */
+let ricerca = '';
+
+/** Apre la sezione della voce, la porta in vista e la evidenzia per un attimo. */
+function mostraVoce(pagina: HTMLElement, v: VoceImpostazione): void {
+  const elemento = document.getElementById(`imp-${v.id}`);
+  const scheda = elemento?.closest('details') ?? pagina.querySelector<HTMLDetailsElement>(`details[data-sezione="${CSS.escape(v.sezione)}"]`);
+  if (scheda) scheda.open = true;
+  // Se la riga non c'è (per esempio il tag NFC su un telefono senza NFC) basta la sezione.
+  const bersaglio = elemento ?? scheda;
+  if (!bersaglio) return;
+  requestAnimationFrame(() => {
+    bersaglio.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    bersaglio.classList.add('evidenziata');
+    bersaglio.addEventListener('animationend', () => bersaglio.classList.remove('evidenziata'), { once: true });
+  });
 }
 
 /** Casella di spunta delle impostazioni. */
@@ -102,7 +122,7 @@ function sezioneAvvisi(): HTMLElement {
   const nativa = inApp();
   const piattaforma = nativa ? avvisiApp : avvisiPwa;
   const testi = nativa ? TESTO_PERMESSI_APP : TESTO_PERMESSI_PWA;
-  const stato = el('small', { class: 'nota' }, 'Controllo dei permessi…');
+  const stato = el('small', { class: 'nota', id: 'imp-permessi-avvisi' }, 'Controllo dei permessi…');
   const pulsante = el('button', { type: 'button', class: 'btn btn-secondario', hidden: true }, 'Autorizza gli avvisi');
   const comeInstallare = linkAiuto('Come aggiungo l\'app alla schermata Home?', 'installazione');
   comeInstallare.hidden = true;
@@ -127,11 +147,11 @@ function sezioneAvvisi(): HTMLElement {
     stato,
     pulsante,
     comeInstallare,
-    riga('Uscita prevista', interruttore(avvisi.uscita, (v) => cambia((a) => void (a.uscita = v)), 'Avviso di uscita prevista'), 'quando puoi andare via'),
-    riga('Rientro dal pranzo', interruttore(avvisi.pranzo, (v) => cambia((a) => void (a.pranzo = v)), 'Avviso di rientro dalla pausa pranzo'), 'dopo la durata qui sotto'),
-    riga('Durata del pranzo (min)', inputMinuti(avvisi.pranzoMinuti, (v) => cambia((a) => void (a.pranzoMinuti = v)), 'Durata della pausa pranzo in minuti', 240, 5, 1), 'di quanto avvisare dopo l\'inizio della pausa'),
-    riga('Rientro dalla sigaretta', interruttore(avvisi.sigaretta, (v) => cambia((a) => void (a.sigaretta = v)), 'Avviso di rientro dalla pausa sigaretta'), 'prima della fine della tolleranza, vedi sotto'),
-    riga('Anticipo sigaretta (min)', inputMinuti(avvisi.sigarettaAnticipo, (v) => cambia((a) => void (a.sigarettaAnticipo = v)), 'Anticipo dell\'avviso della pausa sigaretta in minuti', 30, 1), '0 = allo scadere della tolleranza'),
+    riga('Uscita prevista', interruttore(avvisi.uscita, (v) => cambia((a) => void (a.uscita = v)), 'Avviso di uscita prevista'), 'quando puoi andare via', 'avviso-uscita'),
+    riga('Rientro dal pranzo', interruttore(avvisi.pranzo, (v) => cambia((a) => void (a.pranzo = v)), 'Avviso di rientro dalla pausa pranzo'), 'dopo la durata qui sotto', 'avviso-pranzo'),
+    riga('Durata del pranzo (min)', inputMinuti(avvisi.pranzoMinuti, (v) => cambia((a) => void (a.pranzoMinuti = v)), 'Durata della pausa pranzo in minuti', 240, 5, 1), 'di quanto avvisare dopo l\'inizio della pausa', 'durata-pranzo'),
+    riga('Rientro dalla sigaretta', interruttore(avvisi.sigaretta, (v) => cambia((a) => void (a.sigaretta = v)), 'Avviso di rientro dalla pausa sigaretta'), 'prima della fine della tolleranza, vedi sotto', 'avviso-sigaretta'),
+    riga('Anticipo sigaretta (min)', inputMinuti(avvisi.sigarettaAnticipo, (v) => cambia((a) => void (a.sigarettaAnticipo = v)), 'Anticipo dell\'avviso della pausa sigaretta in minuti', 30, 1), '0 = allo scadere della tolleranza', 'anticipo-sigaretta'),
     linkAiuto('Come funzionano gli avvisi?', 'avvisi'),
   );
 }
@@ -169,7 +189,7 @@ function sezioneSede(): HTMLElement {
     ),
     el(
       'div',
-      { class: 'riga-pulsanti' },
+      { class: 'riga-pulsanti', id: 'imp-posizione-ufficio' },
       salva,
       ufficio
         ? el(
@@ -199,7 +219,7 @@ function sezioneTagNfc(): HTMLElement {
   const apri = el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void apriImpostazioniNfc() }, 'Apri impostazioni NFC');
   const scheda = sezione(
     'Tag NFC',
-    el('p', { class: 'nota' }, 'Avvicina il tag NFC di Sbeggio (per esempio quello ai tornelli) per timbrare l\'azione del pulsante principale, anche ad app chiusa.'),
+    el('p', { class: 'nota', id: 'imp-tag-nfc' }, 'Avvicina il tag NFC di Sbeggio (per esempio quello ai tornelli) per timbrare l\'azione del pulsante principale, anche ad app chiusa.'),
     nota,
     apri,
     linkAiuto('Come funziona il tag NFC?', 'tag-nfc'),
@@ -244,7 +264,7 @@ function selettoreTema(): HTMLElement {
       testo,
     ),
   );
-  return el('div', { class: 'preset', role: 'group', 'aria-label': 'Tema' }, pulsanti);
+  return el('div', { class: 'preset', role: 'group', 'aria-label': 'Tema', id: 'imp-tema' }, pulsanti);
 }
 
 const OPZIONI_SIGARETTA: [TipoSigaretta, string][] = [
@@ -312,10 +332,9 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
     if (f) void importaFile(f);
   });
 
-  return el(
-    'section',
-    { class: 'vista' },
-    el('header', { class: 'intestazione' }, el('h1', {}, 'Impostazioni'), linkAiuto('Come vengono usati questi valori?', 'come-si-calcola')),
+  const sezioni = el(
+    'div',
+    {},
     sezione(
       'Ore dovute',
       riga(
@@ -325,8 +344,9 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
           salvato();
         }, 'Ore dovute predefinite'),
         'ore:minuti al giorno',
+        'ore-predefinite',
       ),
-      el('p', { class: 'nota' }, 'Per giorno della settimana (togli "predefinito" per un valore diverso, 00:00 = giorno libero):'),
+      el('p', { class: 'nota', id: 'imp-ore-per-giorno' }, 'Per giorno della settimana (togli "predefinito" per un valore diverso, 00:00 = giorno libero):'),
       righeGiorni,
     ),
     sezione(
@@ -335,28 +355,28 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
         if (v >= store.impostazioni.pranzo.fine) return void toast('L\'inizio deve precedere la fine');
         store.modificaImpostazioni((i) => void (i.pranzo.inizio = v));
         salvato();
-      }, 'Inizio fascia pranzo')),
+      }, 'Inizio fascia pranzo'), undefined, 'inizio-pranzo'),
       riga('Fine fascia pranzo', inputHHMM(imp.pranzo.fine, (v) => {
         if (v <= store.impostazioni.pranzo.inizio) return void toast('La fine deve seguire l\'inizio');
         store.modificaImpostazioni((i) => void (i.pranzo.fine = v));
         salvato();
-      }, 'Fine fascia pranzo')),
+      }, 'Fine fascia pranzo'), undefined, 'fine-pranzo'),
       riga('Pausa da scalare (min)', inputMinuti(imp.pausaDaScalare, (v) => {
         store.modificaImpostazioni((i) => void (i.pausaDaScalare = v));
         salvato();
-      }, 'Pausa da scalare in minuti'), 'se un permesso copre la fascia pranzo senza pausa registrata'),
+      }, 'Pausa da scalare in minuti'), 'se un permesso copre la fascia pranzo senza pausa registrata', 'pausa-scalare'),
       riga('Pausa minima (min)', inputMinuti(imp.pausaMinima, (v) => {
         store.modificaImpostazioni((i) => void (i.pausaMinima = v));
         salvato();
-      }, 'Pausa minima in minuti'), 'una pausa più breve conta come questa durata'),
+      }, 'Pausa minima in minuti'), 'una pausa più breve conta come questa durata', 'pausa-minima'),
     ),
     sezione(
       'Pausa sigaretta',
-      riga('Tipo', selettoreSigaretta(imp.tipoSigaretta)),
+      riga('Tipo', selettoreSigaretta(imp.tipoSigaretta), undefined, 'tipo-sigaretta'),
       riga('Tolleranza (min)', inputMinuti(imp.tolleranzaSigaretta, (v) => {
         store.modificaImpostazioni((i) => void (i.tolleranzaSigaretta = v));
         salvato();
-      }, 'Tolleranza della pausa sigaretta in minuti', 60, 1), 'entro questo tempo la pausa non viene conteggiata'),
+      }, 'Tolleranza della pausa sigaretta in minuti', 60, 1), 'entro questo tempo la pausa non viene conteggiata', 'tolleranza-sigaretta'),
       linkAiuto('Come funziona la pausa sigaretta?', 'pausa-sigaretta'),
     ),
     sezioneSede(),
@@ -367,12 +387,13 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
       riga('Inizio conteggio', inputHHMM(imp.orarioMinimoConteggio, (v) => {
         store.modificaImpostazioni((i) => void (i.orarioMinimoConteggio = v));
         salvato();
-      }, 'Orario di inizio conteggio'), 'le timbrature precedenti contano da quest\'ora'),
+      }, 'Orario di inizio conteggio'), 'le timbrature precedenti contano da quest\'ora', 'inizio-conteggio'),
       el(
         'button',
         {
           type: 'button',
           class: 'btn btn-secondario',
+          id: 'imp-ripristina',
           onclick: async () => {
             if (await conferma('Ripristinare le impostazioni?', 'Tornano i valori predefiniti (8h lun–ven, pranzo 12:15–14:30, 30 min da scalare, tolleranza sigaretta 11 min, sigaretta normale, avvisi attivi con pranzo da 30 min e sigaretta 2 min prima). Le timbrature non vengono toccate.', 'Ripristina', true)) {
               store.modificaImpostazioni((i) => Object.assign(i, clonaImpostazioni(IMPOSTAZIONI_PREDEFINITE)));
@@ -394,14 +415,73 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
       el(
         'div',
         { class: 'pila-pulsanti' },
-        el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void esportaExcelCondividi(adesso) }, 'Esporta Excel'),
-        el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void esportaCsvCondividi(adesso) }, 'Esporta CSV'),
-        el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void esportaBackupJson(adesso) }, 'Esporta backup completo (JSON)'),
-        el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void collegaComputer() }, 'Collega al computer…'),
-        el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => fileInput.click() }, 'Importa CSV o backup JSON…'),
+        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-esporta-excel', onclick: () => void esportaExcelCondividi(adesso) }, 'Esporta Excel'),
+        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-esporta-csv', onclick: () => void esportaCsvCondividi(adesso) }, 'Esporta CSV'),
+        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-backup-json', onclick: () => void esportaBackupJson(adesso) }, 'Esporta backup completo (JSON)'),
+        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-collega-computer', onclick: () => void collegaComputer() }, 'Collega al computer…'),
+        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-importa', onclick: () => fileInput.click() }, 'Importa CSV o backup JSON…'),
         fileInput,
       ),
     ),
     el('p', { class: 'versione' }, `Sbeggio v${__VERSIONE_APP__}`, ' · ', pulsanteNovita('link-novita')),
+  );
+
+  // Ricerca come sull'iPhone: mentre scrivi, al posto delle sezioni compare l'elenco delle voci.
+  const risultati = el('div', {});
+  const campo = el('input', {
+    type: 'search',
+    class: 'ricerca-aiuto',
+    placeholder: 'Cerca nelle impostazioni',
+    'aria-label': 'Cerca nelle impostazioni',
+    value: ricerca,
+    enterkeyhint: 'search',
+  });
+  const disegna = () => {
+    const attiva = ricerca.trim() !== '';
+    const trovate = cercaImpostazioni(ricerca, { app: inApp() });
+    sezioni.hidden = attiva;
+    risultati.replaceChildren(
+      ...(!attiva
+        ? []
+        : trovate.length === 0
+          ? [el('p', { class: 'vuoto' }, 'Nessun risultato. Prova con altre parole, per esempio "pausa" o "notifiche".')]
+          : [
+              el(
+                'div',
+                { class: 'scheda elenco-risultati' },
+                trovate.map((v) =>
+                  el(
+                    'button',
+                    {
+                      type: 'button',
+                      class: 'risultato-impostazione',
+                      onclick: () => {
+                        ricerca = '';
+                        campo.value = '';
+                        disegna();
+                        mostraVoce(sezioni, v);
+                      },
+                    },
+                    el('span', { class: 'riga-etichetta' }, v.nome),
+                    el('small', {}, v.sezione),
+                  ),
+                ),
+              ),
+            ]),
+    );
+  };
+  campo.addEventListener('input', () => {
+    ricerca = campo.value;
+    disegna();
+  });
+  disegna();
+
+  return el(
+    'section',
+    { class: 'vista' },
+    el('header', { class: 'intestazione' }, el('h1', {}, 'Impostazioni'), linkAiuto('Come vengono usati questi valori?', 'come-si-calcola')),
+    campo,
+    risultati,
+    sezioni,
   );
 }
