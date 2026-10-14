@@ -190,17 +190,27 @@ e calcola i totali ignorando gli eventi incoerenti.
 
 1. Sul computer apri **https://web.sbeggio.app**: compare un codice QR (vale 5 minuti, poi se ne genera uno nuovo).
 2. Sul telefono: *Impostazioni → Collega al computer…*, inquadra il codice e conferma con **Invia**.
-3. Sul computer scegli il mese e scarica **CSV** (lo stesso dell'app) o **JSON**, oppure scarica tutto.
+3. Sul computer scegli il mese e scarica **Excel**, **CSV** (lo stesso dell'app) o **JSON**, oppure scarica tutto.
 
 Le timbrature viaggiano cifrate (AES-GCM) con una chiave che sta solo nel QR: il relay su Cloudflare che le
 passa al browser non può leggerle e non le salva. Ogni codice si usa una volta; chiudendo la pagina i dati
 spariscono dal computer. Il JSON del sito è "leggibile" (ore in minuti, timbrature con orario e tipo) e non si
 reimporta nell'app: per il backup completo usa *Esporta backup completo (JSON)* nell'app.
 
+## Export Excel
+
+*Impostazioni → Esporta Excel* (e il pulsante **Excel** del sito) genera un vero file `.xlsx`, che si apre
+uguale in Excel di qualunque lingua. Un foglio per mese e una riga per giorno: data, giorno, luogo
+(Sede/Smart/Ferie), entrata, inizio e fine pausa, uscita, permessi (a inizio giornata, intermedi, in uscita;
+senza le pause sigaretta), uscita prevista, ore dovute, lavorate, straordinario, permesso, ferie (durate
+`h:mm` sommabili), saldo e note (giornata in corso o da correggere). In fondo la riga *Totale*. Il file è
+generato a mano (`src/core/zip.ts`, `src/core/xlsx.ts`, `src/core/excel.ts`), senza dipendenze.
+
 ## Export CSV
 
 Il CSV usa `;` come separatore e la virgola per i decimali, con BOM UTF-8: si apre
-direttamente con Excel in italiano. Contiene una riga per giorno (ore dovute, lavorate,
+direttamente con Excel in italiano (per un Excel in un'altra lingua usa l'export Excel) e serve
+soprattutto a reimportare le giornate. Contiene una riga per giorno (ore dovute, lavorate,
 permesso, saldo in ore decimali, i permessi a inizio giornata e in uscita e l'elenco delle timbrature). Su iPhone e Android si apre il foglio
 di condivisione (Mail, File, Drive, WhatsApp…); dove la condivisione non è disponibile il file
 viene scaricato. Lo stesso CSV si può reimportare: le giornate presenti vengono

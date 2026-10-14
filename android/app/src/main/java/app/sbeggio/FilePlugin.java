@@ -6,6 +6,7 @@ package app.sbeggio;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Base64;
 
 import androidx.activity.result.ActivityResult;
 
@@ -23,7 +24,8 @@ import java.nio.charset.StandardCharsets;
 /**
  * Esportazioni dell'app Android. Nella WebView il download di un blob (<a download>) viene ignorato e la
  * Web Share API con i file non esiste, quindi il file si salva con la schermata "Salva con nome" di
- * sistema (ACTION_CREATE_DOCUMENT), che permette anche di sceglierlo su Drive.
+ * sistema (ACTION_CREATE_DOCUMENT), che permette anche di sceglierlo su Drive. I file binari (Excel)
+ * arrivano in base64 con codifica = "base64".
  */
 @CapacitorPlugin(name = "File")
 public class FilePlugin extends Plugin {
@@ -53,12 +55,19 @@ public class FilePlugin extends Plugin {
         }
         try (OutputStream out = getContext().getContentResolver().openOutputStream(uri, "wt")) {
             if (out == null) throw new IOException("impossibile aprire il file");
-            out.write(call.getString("contenuto", "").getBytes(StandardCharsets.UTF_8));
+            out.write(dati(call));
             risolvi(call, true);
-        } catch (IOException | SecurityException e) {
+        } catch (IOException | SecurityException | IllegalArgumentException e) {
             call.reject("Salvataggio non riuscito: " + e.getMessage());
             getBridge().releaseCall(call);
         }
+    }
+
+    /** Il contenuto da scrivere: testo in UTF-8, oppure byte in base64 (file Excel) se codifica = "base64". */
+    private static byte[] dati(PluginCall call) {
+        String contenuto = call.getString("contenuto", "");
+        if ("base64".equals(call.getString("codifica"))) return Base64.decode(contenuto, Base64.DEFAULT);
+        return contenuto.getBytes(StandardCharsets.UTF_8);
     }
 
     private void risolvi(PluginCall call, boolean salvato) {

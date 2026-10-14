@@ -19,6 +19,15 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.11.0',
+    data: '2026-10-14',
+    voci: [
+      'Esporta in Excel: un foglio per mese con entrata, pausa, uscita, permessi, uscita prevista e le ore del giorno, con i totali in fondo. Si apre in Excel in qualunque lingua, dall\'app e da web.sbeggio.app.',
+      'Impostazioni e Aiuto sono divisi in sezioni che si aprono toccando il titolo.',
+      'Nuova ricerca nelle impostazioni, come sull\'iPhone: scrivi, tocca il risultato e ti porta all\'impostazione. Anche la ricerca dell\'Aiuto ora mostra l\'elenco delle domande.',
+    ],
+  },
+  {
     versione: '2.10.0',
     data: '2026-10-14',
     voci: [

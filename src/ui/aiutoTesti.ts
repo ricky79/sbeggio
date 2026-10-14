@@ -4,6 +4,7 @@
 import { DURATA_PAUSA_PROPOSTA, OFFSET_PAUSA_PROPOSTA } from '../core/pausaPranzo';
 import { RAGGIO_UFFICIO } from '../core/posizione';
 import type { Azione } from '../core/statoGiornata';
+import { corrisponde } from '../core/testi';
 import { formattaDurata, formattaOra } from '../core/tempo';
 import type { Impostazioni } from '../core/tipi';
 import { URL_APK } from './aggiornamento';
@@ -361,7 +362,8 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       sezione: 'Dati e backup',
       domanda: 'Come faccio un backup o esporto in Excel?',
       testo: [
-        '• Esporta CSV (Excel): una riga per giorno, separatore ";" e decimali con la virgola, si apre direttamente in Excel.',
+        '• Esporta Excel: un foglio per mese, una riga per giorno con entrata, pausa, uscita, permessi, uscita prevista e le ore (dovute, lavorate, straordinario, permesso, ferie, saldo), con i totali in fondo. Si apre in Excel in qualunque lingua.',
+        '• Esporta CSV: le stesse giornate in un file di testo (separatore ";"), da reimportare in Sbeggio.',
         '• Esporta backup completo (JSON): tutte le timbrature e le impostazioni. Salvalo in File o iCloud Drive (iPhone), oppure in Drive o File (Android).',
         '• Importa: un backup JSON sostituisce tutti i dati; un CSV aggiunge le giornate (sovrascrivendo quelle con la stessa data) senza toccare le impostazioni.',
       ],
@@ -373,7 +375,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       testo: [
         'Sul computer apri web.sbeggio.app: compare un codice QR.',
         'Sul telefono vai in Impostazioni → Collega al computer, inquadra il codice e conferma con Invia.',
-        'Dal computer scarichi il CSV (Excel) o il JSON di un mese a scelta o di tutte le timbrature.',
+        'Dal computer scarichi il file Excel, il CSV o il JSON di un mese a scelta o di tutte le timbrature.',
         '• Le timbrature viaggiano cifrate: il server che le passa al computer non può leggerle e non le conserva.',
         '• Il codice vale 5 minuti e una sola volta; chiudendo la pagina i dati spariscono dal computer.',
         '• Servono la connessione a internet e il permesso di usare la fotocamera.',
@@ -493,13 +495,11 @@ function testoVisibile(riga: string): string {
 }
 
 export function filtraAiuto(voci: VoceAiuto[], query: string): VoceAiuto[] {
-  const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-  const parole = norm(query).split(/\s+/).filter(Boolean);
-  if (parole.length === 0) return voci;
-  return voci.filter((v) => {
-    const t = norm(`${v.domanda} ${v.sezione} ${v.testo.map(testoVisibile).join(' ')}`);
-    return parole.every((p) => t.includes(p));
-  });
+  const trovate = voci.filter((v) => corrisponde(`${v.domanda} ${v.sezione} ${v.testo.map(testoVisibile).join(' ')}`, query));
+  // Prima le domande che contengono le parole cercate (come sull'iPhone); sort è stabile, quindi a parità
+  // resta l'ordine della pagina.
+  const nelTitolo = (v: VoceAiuto) => (corrisponde(v.domanda, query) ? 0 : 1);
+  return trovate.sort((a, b) => nelTitolo(a) - nelTitolo(b));
 }
 
 /** Voce di aiuto per un'azione (per i link contestuali). */
