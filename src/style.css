@@ -573,10 +573,10 @@ button {
 }
 
 /* Impostazioni */
-.sezione-impostazioni {
+.sezione-richiudibile {
   padding-block: 0;
 }
-.sezione-impostazioni summary {
+.sezione-richiudibile > summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -585,30 +585,30 @@ button {
   cursor: pointer;
   list-style: none;
 }
-.sezione-impostazioni summary::-webkit-details-marker {
+.sezione-richiudibile > summary::-webkit-details-marker {
   display: none;
 }
-.sezione-impostazioni summary .titolo-sezione {
+.sezione-richiudibile > summary .titolo-sezione {
   margin: 0;
 }
-.sezione-impostazioni summary::after {
+.sezione-richiudibile > summary::after {
   content: '›';
   color: var(--testo-2);
   font-size: 22px;
   transition: transform 0.2s;
   flex: none;
 }
-.sezione-impostazioni[open] summary::after {
+.sezione-richiudibile[open] > summary::after {
   transform: rotate(90deg);
 }
-.sezione-impostazioni[open] {
+.sezione-richiudibile[open] {
   padding-bottom: 16px;
 }
-/* Ricerca nelle impostazioni: risultati come righe con la sezione sotto, freccia a destra. */
+/* Ricerca (Impostazioni e Aiuto): risultati come righe con la sezione sotto, freccia a destra. */
 .elenco-risultati {
   padding-block: 4px;
 }
-.risultato-impostazione {
+.risultato-ricerca {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
@@ -623,15 +623,15 @@ button {
   text-align: left;
   cursor: pointer;
 }
-.risultato-impostazione + .risultato-impostazione {
+.risultato-ricerca + .risultato-ricerca {
   border-top: 1px solid var(--bordo);
 }
-.risultato-impostazione small {
+.risultato-ricerca small {
   grid-column: 1;
   color: var(--testo-2);
   font-size: 13px;
 }
-.risultato-impostazione::after {
+.risultato-ricerca::after {
   content: '›';
   grid-column: 2;
   grid-row: 1 / span 2;
