@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CHIAVE_VAPID } from '../src/core/avvisiPush';
 import { giornata, impostazioni } from './helpers';

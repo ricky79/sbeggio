@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { formattaOra, MINUTI_GIORNO } from './tempo';
 import { ETICHETTE_EVENTO, type Evento, type Giornata, type StatoGiornata, type TipoEvento } from './tipi';
 

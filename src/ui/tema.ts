@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /** Scelta dell'utente: 'auto' segue il tema del telefono. */
 export type PreferenzaTema = 'auto' | 'chiaro' | 'scuro';
 export type Tema = 'chiaro' | 'scuro';

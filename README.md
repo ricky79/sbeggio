@@ -344,9 +344,14 @@ Ogni PR approvata su `main` è un rilascio:
    `npm version patch --no-git-tag-version` per le correzioni, `minor` per le novità, `major` per i
    cambiamenti incompatibili. Il controllo **Versione** (`.github/workflows/versione.yml`) fallisce se
    la versione non è più alta dell'ultimo tag.
-2. Approvando la PR, `deploy.yml` pubblica la PWA e `rilascio.yml` crea il tag `v<versione>` con la
-   release (note generate dalle PR) e ci allega l'APK costruito da `android.yml`: PWA e APK escono
-   insieme, con la stessa versione.
+2. Nello stesso commit aggiungi in cima a `src/core/novita.ts` le novità della versione: versione, data e
+   2–3 frasi brevi per chi usa l'app. Un test fallisce se la versione di `package.json` non ha la sua voce.
+   Da lì nascono il foglio "Novità" che l'app mostra una volta dopo l'aggiornamento, *Aiuto → Novità*, la
+   pagina [web.sbeggio.app/novita](https://web.sbeggio.app/novita) (anche da sbeggio.app/novita) e le note
+   della release su GitHub.
+3. Approvando la PR, `deploy.yml` pubblica la PWA e `rilascio.yml` crea il tag `v<versione>` con la
+   release (prima le novità, poi l'elenco delle PR generato da GitHub) e ci allega l'APK costruito da
+   `android.yml`: PWA e APK escono insieme, con la stessa versione.
 
 Se la versione ha già un tag (per esempio un push su `main` senza aggiornarla), `rilascio.yml` non
 pubblica nulla. Il versionCode di Android deriva dalla versione: major × 10000 + minor × 100 + patch
@@ -382,3 +387,25 @@ I dati sono salvati nella chiave `timbrature` di localStorage, con un campo `ver
 Se lo schema cambia, aggiungi un passo in `MIGRAZIONI` (`src/storage/migrazioni.ts`)
 e incrementa `VERSIONE_CORRENTE`. Se i dati salvati non sono leggibili, l'app ne conserva
 una copia in una chiave `timbrature-corrotto-<timestamp>` e riparte da zero.
+
+## Licenza
+
+Copyright (C) 2026 Riccardo Oliosi
+
+Sviluppato con l'aiuto di Claude (Anthropic).
+
+Sbeggio è software libero: puoi ridistribuirlo e modificarlo secondo i termini della
+[GNU General Public License](LICENSE) pubblicata dalla Free Software Foundation, versione 3 o (a tua
+scelta) qualunque versione successiva. È distribuito sperando che sia utile, ma **senza alcuna garanzia**,
+nemmeno quella implicita di commerciabilità o di idoneità a uno scopo particolare: i dettagli sono nella
+licenza.
+
+Chi ridistribuisce l'app, anche modificata, deve farlo con la stessa licenza e rendere disponibile il
+codice sorgente.
+
+Ogni file sorgente riporta all'inizio l'autore e la licenza nel formato [SPDX](https://spdx.dev/):
+`SPDX-License-Identifier: GPL-3.0-or-later` e `Copyright (C) 2026 Riccardo Oliosi`. Nei file nuovi vanno
+aggiunte le stesse due righe.
+
+Il nome **Sbeggio** e il logo non sono coperti dalla licenza: una versione modificata va pubblicata con un
+altro nome e un altro logo.

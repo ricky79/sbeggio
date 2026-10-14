@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { NOMI_GIORNI } from '../core/tempo';
 import { selettoreOra } from './campi';
 import { IMPOSTAZIONI_PREDEFINITE, type TipoSigaretta } from '../core/tipi';
@@ -17,6 +20,7 @@ import type { StatoPermessi } from '../core/avvisi';
 import { apriImpostazioniNfc, statoNfc, type StatoNfc } from '../native/nfc';
 import { PRECISIONE_MASSIMA, RAGGIO_UFFICIO } from '../core/posizione';
 import { leggiPosizione } from './posizione';
+import { pulsanteNovita } from './novita';
 
 /** Lunedì → domenica, come in un calendario italiano. */
 const ORDINE_GIORNI = [1, 2, 3, 4, 5, 6, 0];
@@ -400,6 +404,6 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
         fileInput,
       ),
     ),
-    el('p', { class: 'versione' }, `Sbeggio v${__VERSIONE_APP__}`),
+    el('p', { class: 'versione' }, `Sbeggio v${__VERSIONE_APP__}`, ' · ', pulsanteNovita('link-novita')),
   );
 }

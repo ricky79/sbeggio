@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright (C) 2026 Riccardo Oliosi */
+
 /* Pagina web.sbeggio.app: si appoggia alle variabili e ai componenti di src/style.css. */
 .sito {
   max-width: 560px;
@@ -42,4 +45,7 @@
   border: 1px solid var(--bordo);
   border-radius: 12px;
   background: var(--superficie);
+}
+.sito a {
+  color: var(--accento);
 }

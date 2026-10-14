@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { riepilogoMese } from '../core/riepilogo';
 import { statoLeggibile } from '../core/testi';
 import { formattaDataBreve, formattaDurata, formattaOra, formattaSaldo, nomeMese, spostaMese } from '../core/tempo';

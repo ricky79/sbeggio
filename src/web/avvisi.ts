@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { pianificaAvvisi, type StatoPermessi } from '../core/avvisi';
 import {
   CACHE_AVVISI,

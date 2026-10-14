@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { nuovoId } from '../core/id';
 import { dataValida } from '../core/tempo';
 import { aggiornaUscitaPrevista } from '../core/uscitaPrevista';

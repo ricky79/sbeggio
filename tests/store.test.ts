@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { datiVuoti } from '../src/storage/migrazioni';
 import { GIOVEDI, giornata } from './helpers';

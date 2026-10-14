@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { ETICHETTE_STATO } from './statoGiornata';
 import { formattaDurata } from './tempo';
 import type { RisultatoGiornata, SigarettaNonConteggiata } from './tipi';

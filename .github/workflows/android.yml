@@ -96,6 +96,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --generate-notes --target "$GITHUB_SHA"
+          # Prima le novità per gli utenti (src/core/novita.ts), poi l'elenco delle PR generato da GitHub.
+          node --experimental-strip-types scripts/rilascio.ts note > note-rilascio.md
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --notes-file note-rilascio.md --generate-notes --target "$GITHUB_SHA"
           cp sbeggio-${{ steps.versione.outputs.numero }}.apk sbeggio.apk
           gh release upload "$TAG" sbeggio-${{ steps.versione.outputs.numero }}.apk sbeggio.apk --clobber
