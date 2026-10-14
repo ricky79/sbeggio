@@ -10,7 +10,7 @@ import { conferma, toast } from './dialoghi';
 import { el } from './dom';
 import { linkAiuto } from './aiuto';
 import { collegaComputer } from './collega';
-import { esportaBackupJson, esportaCsvCondividi, importaFile } from './dati';
+import { esportaBackupJson, esportaCsvCondividi, esportaExcelCondividi, importaFile } from './dati';
 import type { Adesso } from './giorno';
 import { impostaPreferenza, preferenzaTema, type PreferenzaTema } from './tema';
 import { inApp } from '../native/app';
@@ -397,7 +397,8 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
       el(
         'div',
         { class: 'pila-pulsanti' },
-        el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void esportaCsvCondividi(adesso) }, 'Esporta CSV (Excel)'),
+        el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void esportaExcelCondividi(adesso) }, 'Esporta Excel'),
+        el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void esportaCsvCondividi(adesso) }, 'Esporta CSV'),
         el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void esportaBackupJson(adesso) }, 'Esporta backup completo (JSON)'),
         el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void collegaComputer() }, 'Collega al computer…'),
         el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => fileInput.click() }, 'Importa CSV o backup JSON…'),

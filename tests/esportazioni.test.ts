@@ -56,6 +56,8 @@ describe('mesi', () => {
   it('nomi dei file', () => {
     expect(nomeFile('2026-10', '2026-10-13', 'csv')).toBe('sbeggio-2026-10.csv');
     expect(nomeFile(TUTTO, '2026-10-13', 'json')).toBe('sbeggio-tutto-2026-10-13.json');
+    expect(nomeFile('2026-10', '2026-10-13', 'xlsx')).toBe('sbeggio-2026-10.xlsx');
+    expect(nomeFile(TUTTO, '2026-10-13', 'xlsx')).toBe('sbeggio-tutto-2026-10-13.xlsx');
   });
 });
 

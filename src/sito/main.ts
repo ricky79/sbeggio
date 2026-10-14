@@ -6,6 +6,7 @@ import './sito.css';
 import qrcode from 'qrcode-generator';
 import { leggiFragment, urlQr, type Collegamento } from '../core/collega';
 import { esportaCsv } from '../core/csv';
+import { esportaExcel, TIPO_XLSX } from '../core/excel';
 import { esportaJson, giornateDelMese, meseIniziale, mesiPresenti, nomeFile, TUTTO } from '../core/esportazioni';
 import { haContenuto } from '../core/giornata';
 import { adessoRoma, formattaOra, nomeMese } from '../core/tempo';
@@ -46,7 +47,7 @@ function vistaAttesa(c: Collegamento, scadenza: number): Node[] {
   orologio = setInterval(aggiorna, 1000);
   return [
     titolo(),
-    el('p', { class: 'nota' }, 'Scarica le timbrature in CSV o JSON, del mese o tutte.'),
+    el('p', { class: 'nota' }, 'Scarica le timbrature in Excel, CSV o JSON, del mese o tutte.'),
     el(
       'div',
       { class: 'scheda sito-attesa' },
@@ -64,19 +65,23 @@ function vistaAttesa(c: Collegamento, scadenza: number): Node[] {
   ];
 }
 
-function scarica(dati: DatiSalvati, periodo: string, formato: 'csv' | 'json'): void {
+type Formato = 'xlsx' | 'csv' | 'json';
+
+function scarica(dati: DatiSalvati, periodo: string, formato: Formato): void {
   const ora = adessoRoma();
   const giornate = periodo === TUTTO ? dati.giornate : giornateDelMese(dati.giornate, periodo);
   const nome = nomeFile(periodo, ora.data, formato);
-  if (formato === 'csv') scaricaFile(nome, esportaCsv(giornate, dati.impostazioni, ora), 'text/csv');
+  if (formato === 'xlsx') scaricaFile(nome, esportaExcel(giornate, dati.impostazioni, ora), TIPO_XLSX);
+  else if (formato === 'csv') scaricaFile(nome, esportaCsv(giornate, dati.impostazioni, ora), 'text/csv');
   else scaricaFile(nome, esportaJson(giornate, dati.impostazioni, ora, periodo, __VERSIONE_APP__), 'application/json');
 }
 
-function pulsanti(azione: (formato: 'csv' | 'json') => void): HTMLElement {
+function pulsanti(azione: (formato: Formato) => void): HTMLElement {
   return el(
     'div',
     { class: 'riga-pulsanti' },
-    el('button', { type: 'button', class: 'btn btn-primario', onclick: () => azione('csv') }, 'CSV (Excel)'),
+    el('button', { type: 'button', class: 'btn btn-primario', onclick: () => azione('xlsx') }, 'Excel'),
+    el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => azione('csv') }, 'CSV'),
     el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => azione('json') }, 'JSON'),
   );
 }
