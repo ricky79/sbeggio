@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /** Tipi di evento registrabili con un orario. */
 export type TipoEvento =
   | 'ENTRATA'

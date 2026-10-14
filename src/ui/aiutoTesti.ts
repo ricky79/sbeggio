@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { DURATA_PAUSA_PROPOSTA, OFFSET_PAUSA_PROPOSTA } from '../core/pausaPranzo';
 import { RAGGIO_UFFICIO } from '../core/posizione';
 import type { Azione } from '../core/statoGiornata';

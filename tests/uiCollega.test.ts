@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Scanner, dialoghi e store sono finti: si verifica cosa vede l'utente dopo "Invia".

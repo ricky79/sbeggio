@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /** Scarica un file con un link temporaneo (browser e PWA; nell'app Android serve il plugin nativo). */
 export function scaricaFile(nome: string, contenuto: string, tipo: string): void {
   const url = URL.createObjectURL(new Blob([contenuto], { type: tipo }));

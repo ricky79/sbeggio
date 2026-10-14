@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { describe, expect, it } from 'vitest';
 import { IMPOSTAZIONI_PREDEFINITE } from '../src/core/tipi';
 import { ErroreMigrazione, migra, VERSIONE_CORRENTE } from '../src/storage/migrazioni';

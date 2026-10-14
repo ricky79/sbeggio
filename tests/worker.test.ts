@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { describe, expect, it, vi } from 'vitest';
 import { MESSAGGIO_MASSIMO } from '../src/core/collega';
 import worker from '../src/worker';

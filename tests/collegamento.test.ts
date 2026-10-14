@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Collegamento, decidi, type StatoDurable } from '../src/collegamento';
 import { CHIUSURA_SCADUTO, MESSAGGIO_MASSIMO, PING, PONG } from '../src/core/collega';

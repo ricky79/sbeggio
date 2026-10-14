@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { ID_AVVISO, pianificaAvvisi, type Avviso, type StatoPermessi } from '../core/avvisi';
 import { istanteDaMinuti } from '../core/sigaretta';
 import { adessoRoma } from '../core/tempo';

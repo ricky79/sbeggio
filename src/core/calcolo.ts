@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { INIZIO_PAUSA_OBBLIGATORIA, pausaObbligatoria } from './pausaObbligatoria';
 import { permessoABlocchi } from './permessi';
 import { permessoSigaretta } from './sigaretta';

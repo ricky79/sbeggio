@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import type { TipoSigaretta } from '../core/tipi';
 
 /** Lunghezza della cartina nel disegno (unità SVG): si accorcia fino a 0. */

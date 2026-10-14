@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { BLOCCO_PERMESSO, permessoABlocchi } from './permessi';
 import { analizzaGiornata } from './statoGiornata';
 import { adessoRoma } from './tempo';

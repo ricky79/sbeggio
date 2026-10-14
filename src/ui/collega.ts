@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { inviaCollegamento, leggiQr, messaggioEsito, messaggioFotocamera, type Collegamento } from '../core/collega';
 import { inApp } from '../native/app';
 import { store } from '../storage/store';
