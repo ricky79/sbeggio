@@ -29,3 +29,17 @@ export function testoPausa(r: RisultatoGiornata): { valore: string; nota: string
 export function dettaglioSigarettaNonConteggiata(s: SigarettaNonConteggiata): string {
   return `${formattaDurata(s.durata)} · non conteggiata`;
 }
+
+/** Minuscole e senza accenti, per le ricerche: "Lunedì" → "lunedi". */
+export function normalizzaRicerca(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+/** True se il testo contiene tutte le parole della ricerca (senza badare ad accenti e maiuscole). */
+export function corrisponde(testo: string, query: string): boolean {
+  const t = normalizzaRicerca(testo);
+  return normalizzaRicerca(query)
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((p) => t.includes(p));
+}

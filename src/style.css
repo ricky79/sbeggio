@@ -604,6 +604,56 @@ button {
 .sezione-impostazioni[open] {
   padding-bottom: 16px;
 }
+/* Ricerca nelle impostazioni: risultati come righe con la sezione sotto, freccia a destra. */
+.elenco-risultati {
+  padding-block: 4px;
+}
+.risultato-impostazione {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: var(--testo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.risultato-impostazione + .risultato-impostazione {
+  border-top: 1px solid var(--bordo);
+}
+.risultato-impostazione small {
+  grid-column: 1;
+  color: var(--testo-2);
+  font-size: 13px;
+}
+.risultato-impostazione::after {
+  content: '›';
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--testo-2);
+  font-size: 22px;
+}
+/* Voce raggiunta dalla ricerca: si illumina e torna normale. */
+.evidenziata {
+  border-radius: 8px;
+  animation: evidenzia 1.6s ease-out;
+}
+@keyframes evidenzia {
+  0%,
+  40% {
+    background: color-mix(in srgb, var(--accento) 22%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accento) 22%, transparent);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
 .riga-impostazione {
   display: flex;
   align-items: center;
