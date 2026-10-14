@@ -7,7 +7,7 @@ import { statoLeggibile } from './testi';
 import { formattaOra, giornoSettimana, NOMI_GIORNI } from './tempo';
 import { ETICHETTE_EVENTO, type Giornata, type Impostazioni, type TipoEvento } from './tipi';
 
-/** Esportazioni del sito web.sbeggio.app: un mese a scelta o tutto, in CSV (csv.ts) o JSON leggibile. */
+/** Esportazioni del sito web.sbeggio.app: un mese a scelta o tutto, in Excel (excel.ts), CSV (csv.ts) o JSON leggibile. */
 export const TUTTO = 'tutto';
 
 export interface GiornataJson {
@@ -98,6 +98,6 @@ export function esportaJson(
   return JSON.stringify(esportazione, null, 2);
 }
 
-export function nomeFile(periodo: string, oggi: string, estensione: 'csv' | 'json'): string {
+export function nomeFile(periodo: string, oggi: string, estensione: 'csv' | 'json' | 'xlsx'): string {
   return periodo === TUTTO ? `sbeggio-tutto-${oggi}.${estensione}` : `sbeggio-${periodo}.${estensione}`;
 }

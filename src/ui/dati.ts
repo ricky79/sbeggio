@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { esportaCsv, importaCsv } from '../core/csv';
+import { esportaExcel, TIPO_XLSX } from '../core/excel';
 import { haContenuto } from '../core/riepilogo';
 import { inApp } from '../native/app';
 import { salvaFile } from '../native/file';
@@ -15,7 +16,7 @@ import type { Adesso } from './giorno';
  * Condivide un file con la Web Share API (foglio di condivisione iOS) o lo scarica. Nell'app Android
  * nessuno dei due funziona nella WebView: lo salva il plugin nativo con "Salva con nome".
  */
-async function condividiFile(nome: string, contenuto: string, tipo: string): Promise<void> {
+async function condividiFile(nome: string, contenuto: string | Uint8Array<ArrayBuffer>, tipo: string): Promise<void> {
   if (inApp()) {
     try {
       if (await salvaFile(nome, contenuto, tipo)) toast('File salvato');
@@ -42,11 +43,20 @@ function contaGiornate(): number {
   return Object.values(store.giornate).filter(haContenuto).length;
 }
 
+/** False (dopo averlo detto) se non c'è ancora nessuna giornata da esportare. */
+async function ciSonoGiornate(): Promise<boolean> {
+  if (contaGiornate() > 0) return true;
+  await avviso('Niente da esportare', 'Non ci sono ancora giornate registrate.');
+  return false;
+}
+
+export async function esportaExcelCondividi(adesso: Adesso): Promise<void> {
+  if (!(await ciSonoGiornate())) return;
+  await condividiFile(`sbeggio-${adesso.data}.xlsx`, esportaExcel(store.giornate, store.impostazioni, adesso), TIPO_XLSX);
+}
+
 export async function esportaCsvCondividi(adesso: Adesso): Promise<void> {
-  if (contaGiornate() === 0) {
-    await avviso('Niente da esportare', 'Non ci sono ancora giornate registrate.');
-    return;
-  }
+  if (!(await ciSonoGiornate())) return;
   await condividiFile(`sbeggio-${adesso.data}.csv`, esportaCsv(store.giornate, store.impostazioni, adesso), 'text/csv');
 }
 
