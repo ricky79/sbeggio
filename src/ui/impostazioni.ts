@@ -55,6 +55,21 @@ function riga(etichetta: string, controllo: HTMLElement, nota?: string): HTMLEle
 
 const salvato = () => toast('Impostazioni salvate');
 
+/** Sezioni aperte: ogni salvataggio ridisegna la vista, così restano aperte. */
+const sezioniAperte = new Set<string>();
+
+/** Scheda richiudibile con il titolo dell'argomento; parte chiusa. */
+function sezione(titolo: string, ...contenuto: (Node | Node[] | null)[]): HTMLDetailsElement {
+  const d = el(
+    'details',
+    { class: 'scheda sezione-impostazioni', open: sezioniAperte.has(titolo) },
+    el('summary', {}, el('h2', { class: 'titolo-sezione' }, titolo)),
+    ...contenuto,
+  );
+  d.addEventListener('toggle', () => (d.open ? sezioniAperte.add(titolo) : sezioniAperte.delete(titolo)));
+  return d;
+}
+
 /** Casella di spunta delle impostazioni. */
 function interruttore(valore: boolean, onCambio: (v: boolean) => void, aria: string): HTMLInputElement {
   const i = el('input', { type: 'checkbox', checked: valore, 'aria-label': aria, class: 'interruttore' });
@@ -107,10 +122,8 @@ function sezioneAvvisi(): HTMLElement {
     store.modificaImpostazioni((i) => modifica(i.avvisi));
     salvato();
   };
-  return el(
-    'div',
-    { class: 'scheda' },
-    el('h2', { class: 'titolo-sezione' }, 'Avvisi'),
+  return sezione(
+    'Avvisi',
     stato,
     pulsante,
     comeInstallare,
@@ -145,10 +158,8 @@ function sezioneSede(): HTMLElement {
       .catch((e: Error) => toast(e.message))
       .finally(() => (salva.disabled = false));
   });
-  return el(
-    'div',
-    { class: 'scheda' },
-    el('h2', { class: 'titolo-sezione' }, 'Sede di lavoro'),
+  return sezione(
+    'Sede di lavoro',
     el(
       'p',
       { class: 'nota' },
@@ -186,10 +197,8 @@ let ultimoStatoNfc: StatoNfc = 'assente';
 function sezioneTagNfc(): HTMLElement {
   const nota = el('small', { class: 'nota' });
   const apri = el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void apriImpostazioniNfc() }, 'Apri impostazioni NFC');
-  const sezione = el(
-    'div',
-    { class: 'scheda' },
-    el('h2', { class: 'titolo-sezione' }, 'Tag NFC'),
+  const scheda = sezione(
+    'Tag NFC',
     el('p', { class: 'nota' }, 'Avvicina il tag NFC di Sbeggio (per esempio quello ai tornelli) per timbrare l\'azione del pulsante principale, anche ad app chiusa.'),
     nota,
     apri,
@@ -197,7 +206,7 @@ function sezioneTagNfc(): HTMLElement {
   );
   const mostra = (s: StatoNfc) => {
     ultimoStatoNfc = s;
-    sezione.hidden = s === 'assente';
+    scheda.hidden = s === 'assente';
     nota.textContent = s === 'attivo' ? 'NFC attivo.' : 'NFC disattivato: attivalo per usare il tag.';
     apri.hidden = s !== 'spento';
   };
@@ -205,11 +214,11 @@ function sezioneTagNfc(): HTMLElement {
   void statoNfc().then(mostra);
   // Di ritorno dalle impostazioni di Android si rilegge lo stato, finché la sezione è nella pagina.
   const alRitorno = () => {
-    if (!sezione.isConnected) return document.removeEventListener('visibilitychange', alRitorno);
+    if (!scheda.isConnected) return document.removeEventListener('visibilitychange', alRitorno);
     if (document.visibilityState === 'visible') void statoNfc().then(mostra);
   };
   document.addEventListener('visibilitychange', alRitorno);
-  return sezione;
+  return scheda;
 }
 
 const OPZIONI_TEMA: [PreferenzaTema, string][] = [
@@ -307,10 +316,8 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
     'section',
     { class: 'vista' },
     el('header', { class: 'intestazione' }, el('h1', {}, 'Impostazioni'), linkAiuto('Come vengono usati questi valori?', 'come-si-calcola')),
-    el(
-      'div',
-      { class: 'scheda' },
-      el('h2', { class: 'titolo-sezione' }, 'Ore dovute'),
+    sezione(
+      'Ore dovute',
       riga(
         'Predefinite',
         inputHHMM(imp.minutiDovuti.predefinito, (v) => {
@@ -322,10 +329,8 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
       el('p', { class: 'nota' }, 'Per giorno della settimana (togli "predefinito" per un valore diverso, 00:00 = giorno libero):'),
       righeGiorni,
     ),
-    el(
-      'div',
-      { class: 'scheda' },
-      el('h2', { class: 'titolo-sezione' }, 'Pausa pranzo'),
+    sezione(
+      'Pausa pranzo',
       riga('Inizio fascia pranzo', inputHHMM(imp.pranzo.inizio, (v) => {
         if (v >= store.impostazioni.pranzo.fine) return void toast('L\'inizio deve precedere la fine');
         store.modificaImpostazioni((i) => void (i.pranzo.inizio = v));
@@ -345,10 +350,8 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
         salvato();
       }, 'Pausa minima in minuti'), 'una pausa più breve conta come questa durata'),
     ),
-    el(
-      'div',
-      { class: 'scheda' },
-      el('h2', { class: 'titolo-sezione' }, 'Pausa sigaretta'),
+    sezione(
+      'Pausa sigaretta',
       riga('Tipo', selettoreSigaretta(imp.tipoSigaretta)),
       riga('Tolleranza (min)', inputMinuti(imp.tolleranzaSigaretta, (v) => {
         store.modificaImpostazioni((i) => void (i.tolleranzaSigaretta = v));
@@ -359,10 +362,8 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
     sezioneSede(),
     sezioneAvvisi(),
     inApp() ? sezioneTagNfc() : null,
-    el(
-      'div',
-      { class: 'scheda' },
-      el('h2', { class: 'titolo-sezione' }, 'Conteggio'),
+    sezione(
+      'Conteggio',
       riga('Inizio conteggio', inputHHMM(imp.orarioMinimoConteggio, (v) => {
         store.modificaImpostazioni((i) => void (i.orarioMinimoConteggio = v));
         salvato();
@@ -382,17 +383,13 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
         'Ripristina valori predefiniti',
       ),
     ),
-    el(
-      'div',
-      { class: 'scheda' },
-      el('h2', { class: 'titolo-sezione' }, 'Aspetto'),
+    sezione(
+      'Aspetto',
       selettoreTema(),
       el('p', { class: 'nota' }, 'Automatico segue il tema chiaro o scuro del telefono.'),
     ),
-    el(
-      'div',
-      { class: 'scheda' },
-      el('h2', { class: 'titolo-sezione' }, 'Dati e backup'),
+    sezione(
+      'Dati e backup',
       el('p', { class: 'nota' }, 'I dati restano solo su questo iPhone. Esporta un backup ogni tanto.'),
       el(
         'div',

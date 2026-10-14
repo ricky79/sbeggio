@@ -573,6 +573,37 @@ button {
 }
 
 /* Impostazioni */
+.sezione-impostazioni {
+  padding-block: 0;
+}
+.sezione-impostazioni summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  cursor: pointer;
+  list-style: none;
+}
+.sezione-impostazioni summary::-webkit-details-marker {
+  display: none;
+}
+.sezione-impostazioni summary .titolo-sezione {
+  margin: 0;
+}
+.sezione-impostazioni summary::after {
+  content: '›';
+  color: var(--testo-2);
+  font-size: 22px;
+  transition: transform 0.2s;
+  flex: none;
+}
+.sezione-impostazioni[open] summary::after {
+  transform: rotate(90deg);
+}
+.sezione-impostazioni[open] {
+  padding-bottom: 16px;
+}
 .riga-impostazione {
   display: flex;
   align-items: center;
