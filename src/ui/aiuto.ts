@@ -5,6 +5,7 @@ import { filtraAiuto, pezziRiga, SEZIONI_AIUTO, vociAiuto, type VoceAiuto } from
 import { el } from './dom';
 import { inModalitaApp } from './installa';
 import { preferenzaTema } from './tema';
+import { pulsanteNovita } from './novita';
 
 export const EVENTO_APRI_AIUTO = 'apri-aiuto';
 
@@ -77,6 +78,7 @@ export function vistaAiuto(destinazione: string | null): HTMLElement {
     el('header', { class: 'intestazione' }, el('h1', {}, 'Aiuto'), el('p', { class: 'sottotitolo' }, 'Risposte ai dubbi più comuni')),
     campo,
     elenco,
+    el('div', { class: 'scheda' }, el('h2', { class: 'titolo-sezione' }, 'Novità'), el('p', { class: 'nota' }, 'Cosa è cambiato in ogni versione di Sbeggio.'), pulsanteNovita()),
     schedaContatti(),
   );
 }

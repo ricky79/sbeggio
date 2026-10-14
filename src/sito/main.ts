@@ -10,6 +10,8 @@ import type { DatiSalvati } from '../storage/migrazioni';
 import { el, monta } from '../ui/dom';
 import { scaricaFile } from '../ui/scarica';
 import { avviaSessione, type StatoSito } from './sessione';
+import { NOVITA } from '../core/novita';
+import { elencoNovita } from '../ui/novita';
 
 /** Pagina web.sbeggio.app: QR da inquadrare con l'app, poi i download. I dati stanno solo in memoria. */
 const radice = document.getElementById('sito')!;
@@ -126,7 +128,16 @@ function mostra(s: StatoSito): void {
   monta(radice, ...viste[s.tipo]());
 }
 
-if (leggiFragment(location.hash)) {
+if (/^\/novita\/?$/.test(location.pathname)) {
+  // web.sbeggio.app/novita: le novità di ogni versione, da condividere (stesso elenco dell'app).
+  document.title = 'Novità di Sbeggio';
+  monta(
+    radice,
+    el('h1', {}, 'Novità di Sbeggio'),
+    el('p', { class: 'nota' }, 'Cosa è cambiato in ogni versione. ', el('a', { href: 'https://sbeggio.app' }, 'Apri Sbeggio')),
+    el('div', { class: 'scheda' }, elencoNovita(NOVITA)),
+  );
+} else if (leggiFragment(location.hash)) {
   // Il QR inquadrato con la fotocamera del telefono apre questa pagina: va usata l'app.
   monta(
     radice,

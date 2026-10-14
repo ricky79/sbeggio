@@ -344,9 +344,14 @@ Ogni PR approvata su `main` è un rilascio:
    `npm version patch --no-git-tag-version` per le correzioni, `minor` per le novità, `major` per i
    cambiamenti incompatibili. Il controllo **Versione** (`.github/workflows/versione.yml`) fallisce se
    la versione non è più alta dell'ultimo tag.
-2. Approvando la PR, `deploy.yml` pubblica la PWA e `rilascio.yml` crea il tag `v<versione>` con la
-   release (note generate dalle PR) e ci allega l'APK costruito da `android.yml`: PWA e APK escono
-   insieme, con la stessa versione.
+2. Nello stesso commit aggiungi in cima a `src/core/novita.ts` le novità della versione: versione, data e
+   2–3 frasi brevi per chi usa l'app. Un test fallisce se la versione di `package.json` non ha la sua voce.
+   Da lì nascono il foglio "Novità" che l'app mostra una volta dopo l'aggiornamento, *Aiuto → Novità*, la
+   pagina [web.sbeggio.app/novita](https://web.sbeggio.app/novita) (anche da sbeggio.app/novita) e le note
+   della release su GitHub.
+3. Approvando la PR, `deploy.yml` pubblica la PWA e `rilascio.yml` crea il tag `v<versione>` con la
+   release (prima le novità, poi l'elenco delle PR generato da GitHub) e ci allega l'APK costruito da
+   `android.yml`: PWA e APK escono insieme, con la stessa versione.
 
 Se la versione ha già un tag (per esempio un push su `main` senza aggiornarla), `rilascio.yml` non
 pubblica nulla. Il versionCode di Android deriva dalla versione: major × 10000 + minor × 100 + patch

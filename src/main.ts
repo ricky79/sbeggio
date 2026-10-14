@@ -11,6 +11,7 @@ import { vistaStorico } from './ui/storico';
 import { apriAiuto, EVENTO_APRI_AIUTO, vistaAiuto } from './ui/aiuto';
 import { registraServiceWorker } from './pwa';
 import { avviaTema } from './ui/tema';
+import { avviaNovita } from './ui/novita';
 import { avviaBannerInstallazione } from './ui/installa';
 import { avviaControlloAggiornamenti } from './ui/aggiornamento';
 import { avviaTagNfc } from './ui/tagNfc';
@@ -128,3 +129,5 @@ if (inApp()) {
   avviaBannerInstallazione(() => apriAiuto('installazione'));
 }
 if (store.erroreCaricamento) void avviso('Attenzione', store.erroreCaricamento);
+// Dopo un aggiornamento: una volta sola, cosa è cambiato.
+avviaNovita(__VERSIONE_APP__);

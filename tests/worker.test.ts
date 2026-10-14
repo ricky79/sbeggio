@@ -13,6 +13,14 @@ function envFinto() {
 }
 
 describe('worker di sbeggio.app', () => {
+  it('sbeggio.app/novita rimanda alla pagina delle novità del sito', async () => {
+    const { env, fetch } = envFinto();
+    const r = await worker.fetch(new Request('https://sbeggio.app/novita'), env);
+    expect(r.status).toBe(302);
+    expect(r.headers.get('Location')).toBe('https://web.sbeggio.app/novita');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('www.sbeggio.app rimanda a sbeggio.app con 301, tenendo percorso e query', async () => {
     const { env, fetch } = envFinto();
     const r = await worker.fetch(new Request('http://www.sbeggio.app/prova?x=1'), env);
