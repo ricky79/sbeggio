@@ -29,3 +29,35 @@ export function leggiZip(dati: Uint8Array): Map<string, string> {
   if (v.getUint32(fine + 16, true) !== p) throw new Error('offset della central directory errato');
   return file;
 }
+
+const ENTITA: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&apos;': "'" };
+const togliEscape = (s: string) => s.replace(/&(amp|lt|gt|quot|apos);/g, (e) => ENTITA[e]!);
+
+/** Celle di un foglio: riferimento ("D2") → stile, valore (numero come testo, o il testo) e se è testo. */
+export function celle(xml: string): Map<string, { stile: number; valore: string; testo: boolean }> {
+  const out = new Map<string, { stile: number; valore: string; testo: boolean }>();
+  for (const m of xml.matchAll(/<c r="([A-Z]+\d+)" s="(\d+)"( t="inlineStr")?>(.*?)<\/c>/g)) {
+    const testo = m[3] !== undefined;
+    const valore = testo ? /<t[^>]*>(.*?)<\/t>/.exec(m[4]!)![1]! : /<v>(.*?)<\/v>/.exec(m[4]!)![1]!;
+    out.set(m[1]!, { stile: Number(m[2]), valore: testo ? togliEscape(valore) : valore, testo });
+  }
+  return out;
+}
+
+/** Nomi dei fogli nell'ordine di xl/workbook.xml. */
+export function nomiDeiFogli(file: Map<string, string>): string[] {
+  return [...file.get('xl/workbook.xml')!.matchAll(/<sheet name="([^"]*)"/g)].map((m) => togliEscape(m[1]!));
+}
+
+/** Controllo semplice: dichiarazione iniziale, tag aperti e chiusi in ordine, niente & non escapati. */
+export function xmlBenFormato(xml: string): boolean {
+  if (!xml.startsWith('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')) return false;
+  if (/&(?!(amp|lt|gt|quot|apos);)/.test(xml)) return false;
+  const pila: string[] = [];
+  for (const m of xml.replace(/^<\?xml[^>]*\?>/, '').matchAll(/<(\/?)([A-Za-z_][\w:.-]*)[^>]*?(\/?)>/g)) {
+    if (m[1]) {
+      if (pila.pop() !== m[2]) return false;
+    } else if (!m[3]) pila.push(m[2]!);
+  }
+  return pila.length === 0;
+}
