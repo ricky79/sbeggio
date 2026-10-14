@@ -387,6 +387,8 @@ una copia in una chiave `timbrature-corrotto-<timestamp>` e riparte da zero.
 
 Copyright (C) 2026 Riccardo Oliosi
 
+Sviluppato con l'aiuto di Claude (Anthropic).
+
 Sbeggio è software libero: puoi ridistribuirlo e modificarlo secondo i termini della
 [GNU General Public License](LICENSE) pubblicata dalla Free Software Foundation, versione 3 o (a tua
 scelta) qualunque versione successiva. È distribuito sperando che sia utile, ma **senza alcuna garanzia**,
