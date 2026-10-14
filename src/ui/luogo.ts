@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import type { Luogo } from '../core/tipi';
 import { store } from '../storage/store';
 import { el } from './dom';

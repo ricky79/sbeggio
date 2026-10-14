@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import './style.css';
 import { adessoRoma } from './core/tempo';
 import { richiediPersistenza, seguiAltreSchede, store } from './storage/store';

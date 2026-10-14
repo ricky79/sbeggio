@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import type { Coordinate, Luogo } from './tipi';
 
 /** Entro questa distanza dall'ufficio (metri) si propone la sede. */

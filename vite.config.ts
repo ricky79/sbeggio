@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 import type { Plugin } from 'vite';

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { aggiornaUscitaPrevista } from '../core/uscitaPrevista';
 import { giornataVuota, haTimbrature } from '../core/giornata';
 import type { Giornata, Impostazioni, Luogo } from '../core/tipi';

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /**
  * Comandi per la CI (Node 22 esegue il TypeScript con --experimental-strip-types):
  *   controlla  la versione di package.json deve essere più alta dell'ultimo tag (PR verso main)

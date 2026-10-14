@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { cifra, creaCollegamento, DURATA_COLLEGAMENTO_MS, INTERVALLO_PING_MS, type Collegamento } from '../src/core/collega';
 import { datiVuoti } from '../src/storage/migrazioni';

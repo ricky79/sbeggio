@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { describe, expect, it } from 'vitest';
 import { BLOCCO_PERMESSO, permessoABlocchi } from '../src/core/permessi';
 import { permessoSigaretta } from '../src/core/sigaretta';

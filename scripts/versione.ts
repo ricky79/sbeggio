@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /**
  * Versioni dei rilasci (logica pura, con test in tests/versione.test.ts).
  * La versione sta in package.json; ogni rilascio ha il tag v<versione>.

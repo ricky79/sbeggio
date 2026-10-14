@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { anteprimaSigaretta } from '../core/calcolo';
 import { nuovoId } from '../core/id';
 import {

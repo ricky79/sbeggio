@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { parseOra } from '../src/core/tempo';
 import { IMPOSTAZIONI_PREDEFINITE, type Evento, type Giornata, type Impostazioni, type TipoEvento } from '../src/core/tipi';
 import { clonaImpostazioni } from '../src/storage/migrazioni';

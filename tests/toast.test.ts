@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Elementi finti (i test girano senza DOM): si verifica che il toast vada nel top layer.
