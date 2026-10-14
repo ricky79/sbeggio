@@ -46,3 +46,6 @@
   border-radius: 12px;
   background: var(--superficie);
 }
+.sito a {
+  color: var(--accento);
+}

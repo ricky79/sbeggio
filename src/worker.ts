@@ -71,6 +71,8 @@ export default {
       url.hostname = DOMINIO;
       return Response.redirect(url.toString(), 301);
     }
+    // sbeggio.app/novita: la pagina delle novità sta sul sito (qui c'è la PWA).
+    if (url.hostname === DOMINIO && /^\/novita\/?$/.test(url.pathname)) return Response.redirect(`https://${SITO}/novita`, 302);
     const locale = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
     if ((url.hostname === SITO || locale) && url.pathname.startsWith(PREFISSO_COLLEGA)) return collega(richiesta, env, url);
     if (url.hostname === SITO) return env.ASSETS.fetch(richiestaSito(richiesta, url));
