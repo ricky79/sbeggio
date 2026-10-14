@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /**
  * Posta di supporto@sbeggio.app (Cloudflare Email Routing → Worker "sbeggio"): ogni mail viene inoltrata
  * all'indirizzo nel secret INOLTRO e chi scrive riceve una risposta automatica di cortesia.

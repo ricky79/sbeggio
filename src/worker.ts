@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { ID_VALIDO, MESSAGGIO_MASSIMO } from './core/collega';
 import { gestisciEmail, type EnvEmail, type MailInArrivo } from './email';
 

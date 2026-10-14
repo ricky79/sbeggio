@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { NOMI_GIORNI } from '../core/tempo';
 import { selettoreOra } from './campi';
 import { IMPOSTAZIONI_PREDEFINITE, type TipoSigaretta } from '../core/tipi';

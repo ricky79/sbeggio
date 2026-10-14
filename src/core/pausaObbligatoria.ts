@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /**
  * Pausa pranzo obbligatoria (D.Lgs. 66/2003, art. 8): con almeno 6 ore la pausa non si può saltare.
  *

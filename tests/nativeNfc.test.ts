@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Il plugin è finto: si verifica solo come il ponte traduce le risposte di Android.

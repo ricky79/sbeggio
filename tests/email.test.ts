@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { describe, expect, it, vi } from 'vitest';
 import { codificaIntestazione, deveRispondere, gestisciEmail, oggettoRisposta, rispostaAutomatica, TESTO_RISPOSTA, type MailInArrivo } from '../src/email';
 import worker from '../src/worker';

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { describe, expect, it } from 'vitest';
 import { EMAIL_CONTATTO, linkSegnalazione, type ContestoApp } from '../src/core/segnalazione';
 import { impostazioni } from './helpers';

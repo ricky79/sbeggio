@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { describe, expect, it } from 'vitest';
 import { analizzaGiornata, azioniDisponibili } from '../src/core/statoGiornata';
 import { giornata } from './helpers';

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 let contatore = 0;
 
 /** Id univoco; usa crypto.randomUUID quando disponibile (Safari ≥ 15.4). */

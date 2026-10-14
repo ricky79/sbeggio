@@ -392,6 +392,8 @@ una copia in una chiave `timbrature-corrotto-<timestamp>` e riparte da zero.
 
 Copyright (C) 2026 Riccardo Oliosi
 
+Sviluppato con l'aiuto di Claude (Anthropic).
+
 Sbeggio è software libero: puoi ridistribuirlo e modificarlo secondo i termini della
 [GNU General Public License](LICENSE) pubblicata dalla Free Software Foundation, versione 3 o (a tua
 scelta) qualunque versione successiva. È distribuito sperando che sia utile, ma **senza alcuna garanzia**,
@@ -400,6 +402,10 @@ licenza.
 
 Chi ridistribuisce l'app, anche modificata, deve farlo con la stessa licenza e rendere disponibile il
 codice sorgente.
+
+Ogni file sorgente riporta all'inizio l'autore e la licenza nel formato [SPDX](https://spdx.dev/):
+`SPDX-License-Identifier: GPL-3.0-or-later` e `Copyright (C) 2026 Riccardo Oliosi`. Nei file nuovi vanno
+aggiunte le stesse due righe.
 
 Il nome **Sbeggio** e il logo non sono coperti dalla licenza: una versione modificata va pubblicata con un
 altro nome e un altro logo.

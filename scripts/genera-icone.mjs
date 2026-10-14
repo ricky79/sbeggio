@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 // Genera le icone PNG della PWA e dell'app Android dal logo vettoriale in scripts/logo/:
 // sfondo.svg (verde a tutta superficie), personaggio.svg (il tesserino, su fondo trasparente)
 // e badge.svg (sagoma per le notifiche). La favicon è public/favicon.svg, usata così com'è.

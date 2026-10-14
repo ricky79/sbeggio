@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /**
  * Istante preciso (epoch ms) in cui è iniziata la pausa sigaretta in corso. È uno stato del
  * dispositivo, non dei dati (come tema e banner): serve alla schermata col conto alla rovescia e

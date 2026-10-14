@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 /** Ogni permesso usato vale un multiplo di questa durata (minuti). */
 export const BLOCCO_PERMESSO = 30;
 

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { calcolaGiornata } from './calcolo';
 import { haContenuto } from './giornata';
 import { straordinarioABlocchi } from './permessi';

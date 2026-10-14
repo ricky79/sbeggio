@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Riccardo Oliosi
+
 import { describe, expect, it } from 'vitest';
 import { creaCollegamento, decifra, inviaCollegamento, leggiQr, PING, PONG } from '../src/core/collega';
 import { datiVuoti } from '../src/storage/migrazioni';
