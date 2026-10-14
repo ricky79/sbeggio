@@ -495,7 +495,11 @@ function testoVisibile(riga: string): string {
 }
 
 export function filtraAiuto(voci: VoceAiuto[], query: string): VoceAiuto[] {
-  return voci.filter((v) => corrisponde(`${v.domanda} ${v.sezione} ${v.testo.map(testoVisibile).join(' ')}`, query));
+  const trovate = voci.filter((v) => corrisponde(`${v.domanda} ${v.sezione} ${v.testo.map(testoVisibile).join(' ')}`, query));
+  // Prima le domande che contengono le parole cercate (come sull'iPhone); sort è stabile, quindi a parità
+  // resta l'ordine della pagina.
+  const nelTitolo = (v: VoceAiuto) => (corrisponde(v.domanda, query) ? 0 : 1);
+  return trovate.sort((a, b) => nelTitolo(a) - nelTitolo(b));
 }
 
 /** Voce di aiuto per un'azione (per i link contestuali). */

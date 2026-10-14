@@ -21,7 +21,8 @@ import { apriImpostazioniNfc, statoNfc, type StatoNfc } from '../native/nfc';
 import { PRECISIONE_MASSIMA, RAGGIO_UFFICIO } from '../core/posizione';
 import { leggiPosizione } from './posizione';
 import { pulsanteNovita } from './novita';
-import { cercaImpostazioni, type VoceImpostazione } from './ricercaImpostazioni';
+import { cercaImpostazioni } from './ricercaImpostazioni';
+import { elencoRisultati, mostraVoce, sezioneRichiudibile } from './sezioni';
 
 /** Lunedì → domenica, come in un calendario italiano. */
 const ORDINE_GIORNI = [1, 2, 3, 4, 5, 6, 0];
@@ -60,35 +61,10 @@ const salvato = () => toast('Impostazioni salvate');
 /** Sezioni aperte: ogni salvataggio ridisegna la vista, così restano aperte. */
 const sezioniAperte = new Set<string>();
 
-/** Scheda richiudibile con il titolo dell'argomento; parte chiusa. */
-function sezione(titolo: string, ...contenuto: (Node | Node[] | null)[]): HTMLDetailsElement {
-  const d = el(
-    'details',
-    { class: 'scheda sezione-impostazioni', 'data-sezione': titolo, open: sezioniAperte.has(titolo) },
-    el('summary', {}, el('h2', { class: 'titolo-sezione' }, titolo)),
-    ...contenuto,
-  );
-  d.addEventListener('toggle', () => (d.open ? sezioniAperte.add(titolo) : sezioniAperte.delete(titolo)));
-  return d;
-}
+const sezione = (titolo: string, ...contenuto: (Node | Node[] | null)[]) => sezioneRichiudibile(titolo, sezioniAperte, contenuto);
 
 /** Testo della ricerca: resta tra un ridisegno e l'altro, come le sezioni aperte. */
 let ricerca = '';
-
-/** Apre la sezione della voce, la porta in vista e la evidenzia per un attimo. */
-function mostraVoce(pagina: HTMLElement, v: VoceImpostazione): void {
-  const elemento = document.getElementById(`imp-${v.id}`);
-  const scheda = elemento?.closest('details') ?? pagina.querySelector<HTMLDetailsElement>(`details[data-sezione="${CSS.escape(v.sezione)}"]`);
-  if (scheda) scheda.open = true;
-  // Se la riga non c'è (per esempio il tag NFC su un telefono senza NFC) basta la sezione.
-  const bersaglio = elemento ?? scheda;
-  if (!bersaglio) return;
-  requestAnimationFrame(() => {
-    bersaglio.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    bersaglio.classList.add('evidenziata');
-    bersaglio.addEventListener('animationend', () => bersaglio.classList.remove('evidenziata'), { once: true });
-  });
-}
 
 /** Casella di spunta delle impostazioni. */
 function interruttore(valore: boolean, onCambio: (v: boolean) => void, aria: string): HTMLInputElement {
@@ -441,33 +417,23 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
     const trovate = cercaImpostazioni(ricerca, { app: inApp() });
     sezioni.hidden = attiva;
     risultati.replaceChildren(
-      ...(!attiva
-        ? []
-        : trovate.length === 0
-          ? [el('p', { class: 'vuoto' }, 'Nessun risultato. Prova con altre parole, per esempio "pausa" o "notifiche".')]
-          : [
-              el(
-                'div',
-                { class: 'scheda elenco-risultati' },
-                trovate.map((v) =>
-                  el(
-                    'button',
-                    {
-                      type: 'button',
-                      class: 'risultato-impostazione',
-                      onclick: () => {
-                        ricerca = '';
-                        campo.value = '';
-                        disegna();
-                        mostraVoce(sezioni, v);
-                      },
-                    },
-                    el('span', { class: 'riga-etichetta' }, v.nome),
-                    el('small', {}, v.sezione),
-                  ),
-                ),
-              ),
-            ]),
+      ...(attiva
+        ? [
+            elencoRisultati(
+              trovate.map((v) => ({
+                nome: v.nome,
+                sezione: v.sezione,
+                scegli: () => {
+                  ricerca = '';
+                  campo.value = '';
+                  disegna();
+                  mostraVoce(sezioni, document.getElementById(`imp-${v.id}`), v.sezione);
+                },
+              })),
+              'Nessun risultato. Prova con altre parole, per esempio "pausa" o "notifiche".',
+            ),
+          ]
+        : []),
     );
   };
   campo.addEventListener('input', () => {

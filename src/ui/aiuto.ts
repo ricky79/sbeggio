@@ -6,6 +6,7 @@ import { inApp } from '../native/app';
 import { store } from '../storage/store';
 import { filtraAiuto, pezziRiga, SEZIONI_AIUTO, vociAiuto, type VoceAiuto } from './aiutoTesti';
 import { el } from './dom';
+import { elencoRisultati, mostraVoce, sezioneRichiudibile } from './sezioni';
 import { inModalitaApp } from './installa';
 import { preferenzaTema } from './tema';
 import { pulsanteNovita } from './novita';
@@ -23,41 +24,64 @@ export function linkAiuto(testo: string, destinazione: string): HTMLElement {
 }
 
 let ricerca = '';
+/** Sezioni aperte: restano come le ha lasciate l'utente tornando sull'Aiuto. */
+const sezioniAperte = new Set<string>();
 
 export function vistaAiuto(destinazione: string | null): HTMLElement {
   const voci = vociAiuto(store.impostazioni);
-  const elenco = el('div', { class: 'elenco-aiuto' });
-
-  const disegna = () => {
-    const trovate = filtraAiuto(voci, ricerca);
-    if (ricerca.trim()) {
-      elenco.replaceChildren(
-        trovate.length === 0
-          ? el('p', { class: 'vuoto' }, 'Nessun risultato. Prova con altre parole, per esempio "permesso" o "pausa".')
-          : el('div', { class: 'scheda' }, trovate.map((v) => voce(v, true))),
-      );
-      return;
-    }
-    elenco.replaceChildren(
-      ...SEZIONI_AIUTO.map((s) =>
-        el(
-          'div',
-          { class: 'scheda', id: `aiuto-sezione-${slug(s)}` },
-          el('h2', { class: 'titolo-sezione' }, s),
-          voci.filter((v) => v.sezione === s).map((v) => voce(v, v.id === destinazione)),
-        ),
+  const sezioni = el(
+    'div',
+    { class: 'elenco-aiuto' },
+    SEZIONI_AIUTO.map((s) =>
+      sezioneRichiudibile(
+        s,
+        sezioniAperte,
+        voci.filter((v) => v.sezione === s).map((v) => voce(v, v.id === destinazione)),
+        `aiuto-sezione-${slug(s)}`,
       ),
-    );
-  };
+    ),
+  );
+  const risultati = el('div', {});
 
   const campo = el('input', {
     type: 'search',
     class: 'ricerca-aiuto',
     placeholder: 'Cerca: permesso, pausa, backup…',
     'aria-label': 'Cerca nell\'aiuto',
-    value: ricerca,
     enterkeyhint: 'search',
   });
+
+  /** Apre la sezione e la risposta della voce, ci scorre e la evidenzia. */
+  const apri = (id: string, sezione: string) => {
+    const dettaglio = sezioni.querySelector<HTMLDetailsElement>(`#aiuto-${CSS.escape(id)}`);
+    if (dettaglio) dettaglio.open = true;
+    mostraVoce(sezioni, dettaglio, sezione);
+  };
+
+  // Ricerca come nelle impostazioni: mentre scrivi, al posto delle sezioni compare l'elenco delle domande.
+  const disegna = () => {
+    const attiva = ricerca.trim() !== '';
+    sezioni.hidden = attiva;
+    risultati.replaceChildren(
+      ...(attiva
+        ? [
+            elencoRisultati(
+              filtraAiuto(voci, ricerca).map((v) => ({
+                nome: v.domanda,
+                sezione: v.sezione,
+                scegli: () => {
+                  ricerca = '';
+                  campo.value = '';
+                  disegna();
+                  apri(v.id, v.sezione);
+                },
+              })),
+              'Nessun risultato. Prova con altre parole, per esempio "permesso" o "pausa".',
+            ),
+          ]
+        : []),
+    );
+  };
   campo.addEventListener('input', () => {
     ricerca = campo.value;
     disegna();
@@ -68,11 +92,12 @@ export function vistaAiuto(destinazione: string | null): HTMLElement {
   disegna();
 
   if (destinazione) {
-    // Dopo il montaggio: porta in vista la voce (o la sezione) richiesta.
-    requestAnimationFrame(() => {
-      const bersaglio = document.getElementById(`aiuto-${destinazione}`) ?? document.getElementById(`aiuto-sezione-${slug(destinazione)}`);
-      bersaglio?.scrollIntoView({ block: 'start' });
-    });
+    // Una voce (link "?" dell'app), una sezione, oppure un'altra scheda della pagina (es. contatti).
+    const v = voci.find((x) => x.id === destinazione);
+    const s = SEZIONI_AIUTO.find((x) => slug(x) === slug(destinazione));
+    if (v) apri(v.id, v.sezione);
+    else if (s) mostraVoce(sezioni, null, s);
+    else requestAnimationFrame(() => document.getElementById(`aiuto-${destinazione}`)?.scrollIntoView({ block: 'start' }));
   }
 
   return el(
@@ -80,7 +105,8 @@ export function vistaAiuto(destinazione: string | null): HTMLElement {
     { class: 'vista' },
     el('header', { class: 'intestazione' }, el('h1', {}, 'Aiuto'), el('p', { class: 'sottotitolo' }, 'Risposte ai dubbi più comuni')),
     campo,
-    elenco,
+    risultati,
+    sezioni,
     el('div', { class: 'scheda' }, el('h2', { class: 'titolo-sezione' }, 'Novità'), el('p', { class: 'nota' }, 'Cosa è cambiato in ogni versione di Sbeggio.'), pulsanteNovita()),
     schedaContatti(),
   );

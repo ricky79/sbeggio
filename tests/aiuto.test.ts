@@ -129,6 +129,18 @@ describe('aiuto', () => {
     expect(filtraAiuto(voci, '  ')).toHaveLength(voci.length);
   });
 
+  it('mette prima le domande che contengono le parole cercate, poi le altre nell\'ordine della pagina', () => {
+    const trovate = filtraAiuto(voci, 'permesso');
+    const nelTitolo = (d: string) => d.toLowerCase().includes('permesso');
+    const primaAltra = trovate.findIndex((v) => !nelTitolo(v.domanda));
+    expect(primaAltra).toBeGreaterThan(0);
+    expect(trovate.slice(primaAltra).every((v) => !nelTitolo(v.domanda))).toBe(true);
+    // A parità, resta l'ordine della pagina.
+    const ordine = (v: { id: string }) => voci.findIndex((x) => x.id === v.id);
+    const titoli = trovate.slice(0, primaAltra);
+    expect(titoli.map(ordine)).toEqual([...titoli.map(ordine)].sort((a, b) => a - b));
+  });
+
   it('il tag NFC spiega uso e preparazione', () => {
     const uso = voci.find((x) => x.id === 'tag-nfc')!.testo.join(' ');
     expect(uso).toContain('Annulla');
