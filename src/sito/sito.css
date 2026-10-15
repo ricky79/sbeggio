@@ -1,42 +1,207 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright (C) 2026 Riccardo Oliosi */
 
-/* Pagina web.sbeggio.app: si appoggia alle variabili e ai componenti di src/style.css. */
-.sito {
-  max-width: 560px;
+/* Pagina web.sbeggio.app: si appoggia alle variabili e ai componenti di src/style.css. I verdi vengono dal logo. */
+.pagina-sito {
+  --verde-logo: #249a4c;
+  --verde-logo-chiaro: #7fd65c;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(1100px 520px at 50% -180px, rgba(127, 214, 92, 0.32), transparent 70%),
+    radial-gradient(700px 400px at 100% 0, rgba(15, 118, 110, 0.12), transparent 70%),
+    var(--sfondo);
+  background-repeat: no-repeat;
+}
+:root[data-tema='scuro'] .pagina-sito {
+  background:
+    radial-gradient(1100px 520px at 50% -180px, rgba(36, 154, 76, 0.34), transparent 70%),
+    radial-gradient(700px 400px at 100% 0, rgba(45, 212, 191, 0.1), transparent 70%),
+    var(--sfondo);
+  background-repeat: no-repeat;
+}
+
+/* Testata: logo e nome a sinistra, collegamenti a destra. */
+.sito-testata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 880px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
+  padding: 16px;
+  box-sizing: border-box;
 }
-.sito h1 {
-  margin: 8px 4px 4px;
-  font-size: 28px;
-  letter-spacing: -0.02em;
+.sito-marchio {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--testo);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
 }
-.sito > .nota {
-  margin: 0 4px 12px;
+.sito-marchio img {
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba(18, 63, 34, 0.25);
 }
+.sito-menu {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sito-menu a {
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--testo);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.sito-menu a:hover,
+.sito-menu a[aria-current='page'] {
+  background: var(--superficie-2);
+}
+.sito-menu .sito-menu-app {
+  background: var(--verde-logo);
+  color: #ffffff;
+}
+.sito-menu .sito-menu-app:hover {
+  background: #1e8441;
+}
+
+.sito {
+  flex: 1;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 8px 16px 40px;
+  box-sizing: border-box;
+}
+
+/* Apertura: titolo grande e centrato. */
+.sito-eroe {
+  margin: 24px auto 28px;
+  max-width: 620px;
+  text-align: center;
+}
+.sito-eroe-logo {
+  display: block;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(18, 63, 34, 0.3);
+}
+.sito-eroe h1 {
+  margin: 0 0 10px;
+  font-size: clamp(30px, 6vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.sito-sottotitolo {
+  margin: 0;
+  text-wrap: balance;
+  font-size: 18px;
+  color: var(--testo-2);
+}
+
+/* Due colonne sul computer, una sul telefono. */
+.sito-griglia {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 720px) {
+  .sito-griglia {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.sito .scheda {
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--bordo);
+  box-shadow: 0 10px 30px rgba(18, 63, 34, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.sito .scheda + .scheda,
+.sito > .scheda {
+  margin-top: 16px;
+}
+.sito-griglia > .scheda + .scheda {
+  margin-top: 0;
+}
+
 .sito-attesa {
   text-align: center;
 }
 /* Sempre bianco, anche col tema scuro: il contrasto serve alla fotocamera. */
 .sito-qr {
-  width: min(320px, 100%);
-  margin: 8px auto 16px;
+  width: min(300px, 100%);
+  margin: 0 auto 12px;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #ffffff;
+  box-sizing: border-box;
 }
 .sito-qr svg {
   display: block;
   width: 100%;
   height: auto;
 }
+
+/* Passi numerati con il pallino verde. */
 .sito-passi {
-  max-width: 320px;
-  margin: 0 auto 8px;
-  padding-left: 20px;
-  text-align: left;
+  margin: 4px 0 16px;
+  padding: 0;
+  list-style: none;
+  counter-reset: passo;
 }
+.sito-passi li {
+  position: relative;
+  min-height: 32px;
+  margin: 0 0 14px;
+  padding: 4px 0 0 44px;
+  counter-increment: passo;
+}
+.sito-passi li::before {
+  content: counter(passo);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--verde-logo-chiaro), var(--verde-logo));
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 32px;
+  text-align: center;
+}
+
+.sito-riservatezza {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--accento-tenue);
+  color: var(--testo);
+  font-size: 14px;
+}
+.sito-riservatezza-icona {
+  flex: none;
+  color: var(--accento);
+}
+.sito-riservatezza-icona svg {
+  display: block;
+}
+
 .sito-mese {
   width: 100%;
   min-height: 48px;
@@ -45,7 +210,53 @@
   border: 1px solid var(--bordo);
   border-radius: 12px;
   background: var(--superficie);
+  color: var(--testo);
+  font-size: 16px;
+}
+.sito-tutto {
+  min-height: 48px;
+  margin: 4px 0 0;
+  display: flex;
+  align-items: center;
+}
+.sito-scollega {
+  max-width: 320px;
+  margin: 16px auto 0;
+}
+.sito .sito-novita {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sito-feed {
+  max-width: 680px;
+  margin: 16px auto 0;
+  text-align: center;
 }
 .sito a {
   color: var(--accento);
+}
+
+/* Piede: licenza e contatti. */
+.sito-piede {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px 32px;
+  border-top: 1px solid var(--bordo);
+  color: var(--testo-2);
+  font-size: 13px;
+  text-align: center;
+}
+.sito-piede p {
+  margin: 0;
+  max-width: 560px;
+}
+.sito-piede img {
+  border-radius: 6px;
+  opacity: 0.9;
+}
+.sito-piede a {
+  color: inherit;
 }
