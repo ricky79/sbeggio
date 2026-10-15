@@ -722,12 +722,46 @@ input:disabled {
     opacity: 0;
   }
 }
-.foglio-corpo {
-  padding: 20px calc(var(--sicuro-dx) + 16px) calc(var(--sicuro-basso) + 16px) calc(var(--sicuro-sx) + 16px);
+.foglio-testa {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 8px;
+  padding: 8px calc(var(--sicuro-dx) + 12px) 8px calc(var(--sicuro-sx) + 16px);
+  background: var(--superficie);
+}
+/* Maniglia: dice che il foglio si può trascinare giù per chiuderlo. */
+.foglio-maniglia {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bordo);
 }
 .foglio h2 {
-  margin: 0 0 12px;
+  margin: 4px 0 0;
   font-size: 22px;
+}
+.foglio-chiudi {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--superficie-2);
+  color: var(--testo-2);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+.foglio-corpo {
+  padding: 4px calc(var(--sicuro-dx) + 16px) calc(var(--sicuro-basso) + 16px) calc(var(--sicuro-sx) + 16px);
 }
 .foglio-azioni {
   display: grid;
