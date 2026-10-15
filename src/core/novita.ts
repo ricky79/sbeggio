@@ -19,6 +19,16 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.12.0',
+    data: '2026-10-15',
+    voci: [
+      'Impostazioni rinnovate, come sull\'iPhone: un elenco con le icone colorate, ogni voce apre la sua pagina e una sola ricerca trova impostazioni e risposte dell\'Aiuto.',
+      'L\'Aiuto e le Novità ora sono in Impostazioni: la barra in basso ha tre schede.',
+      'I fogli che si aprono dal basso si chiudono con la ✕ in alto a destra o trascinandoli verso il basso.',
+      'Nuova sezione "Dispositivi collegati": "+ Collega un dispositivo" per aprire Sbeggio sul computer.',
+    ],
+  },
+  {
     versione: '2.11.0',
     data: '2026-10-14',
     voci: [
