@@ -12,7 +12,7 @@ export interface PaginaImpostazioni {
   gruppo: number;
   /** Colore del quadratino dell'icona. */
   colore: string;
-  /** Simbolo bianco (SVG 24×24 a tratto). Icone Feather (licenza MIT). */
+  /** Simbolo bianco (SVG 24×24 a tratto). Icone Feather (licenza MIT, vedi THIRD_PARTY_LICENSES.md). */
   icona: string;
   soloApp?: boolean;
 }

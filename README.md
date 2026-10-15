@@ -422,3 +422,7 @@ aggiunte le stesse due righe.
 
 Il nome **Sbeggio** e il logo non sono coperti dalla licenza: una versione modificata va pubblicata con un
 altro nome e un altro logo.
+
+Le icone vengono da [Feather](https://feathericons.com/) (licenza MIT) e l'app include alcune librerie di
+terze parti con licenze MIT e Apache 2.0: le note di copyright e i testi delle licenze sono in
+[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
