@@ -9,11 +9,10 @@ import { el } from './dom';
 import { elencoRisultati, mostraVoce, sezioneRichiudibile } from './sezioni';
 import { inModalitaApp } from './installa';
 import { preferenzaTema } from './tema';
-import { pulsanteNovita } from './novita';
 
 export const EVENTO_APRI_AIUTO = 'apri-aiuto';
 
-/** Apre la scheda Aiuto, eventualmente su una voce precisa (id) o una sezione. */
+/** Apre Impostazioni → Aiuto, eventualmente su una voce precisa (id) o una sezione. */
 export function apriAiuto(destinazione?: string): void {
   window.dispatchEvent(new CustomEvent(EVENTO_APRI_AIUTO, { detail: destinazione }));
 }
@@ -27,7 +26,8 @@ let ricerca = '';
 /** Sezioni aperte: restano come le ha lasciate l'utente tornando sull'Aiuto. */
 const sezioniAperte = new Set<string>();
 
-export function vistaAiuto(destinazione: string | null): HTMLElement {
+/** Pagina Aiuto (Impostazioni → Aiuto); `indietro` torna all'elenco o alla schermata del link "?". */
+export function vistaAiuto(destinazione: string | null, indietro: { etichetta: string; azione: () => void }): HTMLElement {
   const voci = vociAiuto(store.impostazioni);
   const sezioni = el(
     'div',
@@ -103,11 +103,16 @@ export function vistaAiuto(destinazione: string | null): HTMLElement {
   return el(
     'section',
     { class: 'vista' },
-    el('header', { class: 'intestazione' }, el('h1', {}, 'Aiuto'), el('p', { class: 'sottotitolo' }, 'Risposte ai dubbi più comuni')),
+    el(
+      'header',
+      { class: 'intestazione' },
+      el('button', { type: 'button', class: 'link-indietro', onclick: indietro.azione }, `‹ ${indietro.etichetta}`),
+      el('h1', {}, 'Aiuto'),
+      el('p', { class: 'sottotitolo' }, 'Risposte ai dubbi più comuni'),
+    ),
     campo,
     risultati,
     sezioni,
-    el('div', { class: 'scheda' }, el('h2', { class: 'titolo-sezione' }, 'Novità'), el('p', { class: 'nota' }, 'Cosa è cambiato in ogni versione di Sbeggio.'), pulsanteNovita()),
     schedaContatti(),
   );
 }

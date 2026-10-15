@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 /**
- * Novità di ogni versione, per chi usa l'app: il foglio dopo un aggiornamento, Aiuto → Novità, la pagina
+ * Novità di ogni versione, per chi usa l'app: il foglio dopo un aggiornamento, Impostazioni → Novità, la pagina
  * web.sbeggio.app/novita e le note dei rilasci su GitHub nascono tutti da qui.
  *
  * A ogni cambio di versione in package.json si aggiunge una voce in cima (un test lo controlla).

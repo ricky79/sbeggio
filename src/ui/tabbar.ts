@@ -3,14 +3,15 @@
 
 import { el } from './dom';
 
-export type Scheda = 'oggi' | 'storico' | 'impostazioni' | 'aiuto';
+export type Scheda = 'oggi' | 'storico' | 'impostazioni';
 
-export const SCHEDE: readonly Scheda[] = ['oggi', 'storico', 'impostazioni', 'aiuto'];
+/** L'Aiuto sta dentro le Impostazioni (src/ui/impostazioni.ts). */
+export const SCHEDE: readonly Scheda[] = ['oggi', 'storico', 'impostazioni'];
 
 /**
  * Icone 24×24 in stile iOS: a tratto quando la scheda non è attiva, piene quando lo è (come in
  * WhatsApp). I dettagli delle icone piene sono "ritagliati" col colore della barra.
- * Ingranaggio e punto di domanda dalle icone Feather (licenza MIT).
+ * Ingranaggio dalle icone Feather (licenza MIT).
  */
 const INGRANAGGIO =
   'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z';
@@ -29,17 +30,12 @@ const ICONE: Record<Scheda, { vuota: string; piena: string }> = {
     vuota: `<circle cx="12" cy="12" r="3"/><path d="${INGRANAGGIO}"/>`,
     piena: `<path d="${INGRANAGGIO}" fill="currentColor"/><circle ${RITAGLIO} cx="12" cy="12" r="3" fill="none"/>`,
   },
-  aiuto: {
-    vuota: '<circle cx="12" cy="12" r="9.5"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
-    piena: `<circle cx="12" cy="12" r="10" fill="currentColor"/><path ${RITAGLIO} d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>`,
-  },
 };
 
 const ETICHETTE: Record<Scheda, string> = {
   oggi: 'Oggi',
   storico: 'Storico',
   impostazioni: 'Impostazioni',
-  aiuto: 'Aiuto',
 };
 
 function icona(scheda: Scheda): HTMLElement {

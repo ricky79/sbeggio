@@ -20,9 +20,10 @@ import type { StatoPermessi } from '../core/avvisi';
 import { apriImpostazioniNfc, statoNfc, type StatoNfc } from '../native/nfc';
 import { PRECISIONE_MASSIMA, RAGGIO_UFFICIO } from '../core/posizione';
 import { leggiPosizione } from './posizione';
-import { pulsanteNovita } from './novita';
-import { cercaImpostazioni } from './ricercaImpostazioni';
-import { elencoRisultati, mostraVoce, sezioneRichiudibile } from './sezioni';
+import { apriNovita } from './novita';
+import { cercaImpostazioni, PAGINE_IMPOSTAZIONI, titoloPagina, type IdPagina, type PaginaImpostazioni } from './ricercaImpostazioni';
+import { elencoRisultati, mostraVoce } from './sezioni';
+import { filtraAiuto, vociAiuto } from './aiutoTesti';
 
 /** Lunedì → domenica, come in un calendario italiano. */
 const ORDINE_GIORNI = [1, 2, 3, 4, 5, 6, 0];
@@ -58,10 +59,9 @@ function riga(etichetta: string, controllo: HTMLElement, nota?: string, voce?: s
 
 const salvato = () => toast('Impostazioni salvate');
 
-/** Sezioni aperte: ogni salvataggio ridisegna la vista, così restano aperte. */
-const sezioniAperte = new Set<string>();
-
-const sezione = (titolo: string, ...contenuto: (Node | Node[] | null)[]) => sezioneRichiudibile(titolo, sezioniAperte, contenuto);
+/** Scheda di una pagina delle impostazioni, con il titolo dell'argomento se la pagina ne ha più d'uno. */
+const scheda = (titolo: string | null, ...contenuto: (Node | Node[] | null)[]) =>
+  el('div', { class: 'scheda', 'data-sezione': titolo ?? undefined }, titolo ? el('h2', { class: 'titolo-sezione' }, titolo) : null, ...contenuto);
 
 /** Testo della ricerca: resta tra un ridisegno e l'altro, come le sezioni aperte. */
 let ricerca = '';
@@ -118,8 +118,8 @@ function sezioneAvvisi(): HTMLElement {
     store.modificaImpostazioni((i) => modifica(i.avvisi));
     salvato();
   };
-  return sezione(
-    'Avvisi',
+  return scheda(
+    null,
     stato,
     pulsante,
     comeInstallare,
@@ -154,8 +154,8 @@ function sezioneSede(): HTMLElement {
       .catch((e: Error) => toast(e.message))
       .finally(() => (salva.disabled = false));
   });
-  return sezione(
-    'Sede di lavoro',
+  return scheda(
+    null,
     el(
       'p',
       { class: 'nota' },
@@ -193,8 +193,8 @@ let ultimoStatoNfc: StatoNfc = 'assente';
 function sezioneTagNfc(): HTMLElement {
   const nota = el('small', { class: 'nota' });
   const apri = el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void apriImpostazioniNfc() }, 'Apri impostazioni NFC');
-  const scheda = sezione(
-    'Tag NFC',
+  const blocco = scheda(
+    null,
     el('p', { class: 'nota', id: 'imp-tag-nfc' }, 'Avvicina il tag NFC di Sbeggio (per esempio quello ai tornelli) per timbrare l\'azione del pulsante principale, anche ad app chiusa.'),
     nota,
     apri,
@@ -202,7 +202,7 @@ function sezioneTagNfc(): HTMLElement {
   );
   const mostra = (s: StatoNfc) => {
     ultimoStatoNfc = s;
-    scheda.hidden = s === 'assente';
+    blocco.hidden = s === 'assente';
     nota.textContent = s === 'attivo' ? 'NFC attivo.' : 'NFC disattivato: attivalo per usare il tag.';
     apri.hidden = s !== 'spento';
   };
@@ -210,11 +210,11 @@ function sezioneTagNfc(): HTMLElement {
   void statoNfc().then(mostra);
   // Di ritorno dalle impostazioni di Android si rilegge lo stato, finché la sezione è nella pagina.
   const alRitorno = () => {
-    if (!scheda.isConnected) return document.removeEventListener('visibilitychange', alRitorno);
+    if (!blocco.isConnected) return document.removeEventListener('visibilitychange', alRitorno);
     if (document.visibilityState === 'visible') void statoNfc().then(mostra);
   };
   document.addEventListener('visibilitychange', alRitorno);
-  return scheda;
+  return blocco;
 }
 
 const OPZIONI_TEMA: [PreferenzaTema, string][] = [
@@ -272,7 +272,18 @@ function selettoreSigaretta(attuale: TipoSigaretta): HTMLElement {
   );
 }
 
-export function vistaImpostazioni(adesso: Adesso): HTMLElement {
+/** Navigazione tra l'elenco e le pagine, gestita da main.ts (che la ricorda tra un ridisegno e l'altro). */
+export interface NavImpostazioni {
+  /** Pagina aperta; null = l'elenco. */
+  pagina: IdPagina | null;
+  /** Voce da mostrare nella pagina (id della ricerca), o destinazione nell'Aiuto. */
+  voce: string | null;
+  apri(pagina: IdPagina, voce?: string): void;
+  /** "‹ Impostazioni", o la schermata da cui si è arrivati con un link "?" all'Aiuto. */
+  indietro: { etichetta: string; azione: () => void };
+}
+
+export function vistaImpostazioni(adesso: Adesso, nav: NavImpostazioni): HTMLElement {
   const imp = store.impostazioni;
 
   const righeGiorni = ORDINE_GIORNI.map((g) => {
@@ -308,140 +319,201 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
     if (f) void importaFile(f);
   });
 
-  const sezioni = el(
-    'div',
-    {},
-    sezione(
-      'Dispositivi collegati',
-      el('p', { class: 'nota' }, 'Collega il computer (web.sbeggio.app) per scaricare le timbrature in Excel, CSV o JSON.'),
-      el(
-        'div',
-        { class: 'pila-pulsanti' },
-        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-collega-dispositivo', onclick: () => void collegaComputer() }, '+ Collega un dispositivo'),
+  const pagine: Record<Exclude<IdPagina, 'aiuto' | 'novita'>, () => (Node | null)[]> = {
+    dispositivi: () => [
+      scheda(
+        null,
+        el('p', { class: 'nota' }, 'Collega il computer (web.sbeggio.app) per scaricare le timbrature in Excel, CSV o JSON.'),
+        el(
+          'div',
+          { class: 'pila-pulsanti' },
+          el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-collega-dispositivo', onclick: () => void collegaComputer() }, '+ Collega un dispositivo'),
+        ),
       ),
-    ),
-    sezione(
-      'Ore dovute',
-      riga(
-        'Predefinite',
-        inputHHMM(imp.minutiDovuti.predefinito, (v) => {
-          store.modificaImpostazioni((i) => void (i.minutiDovuti.predefinito = v));
+    ],
+    orario: () => [
+      scheda(
+        'Ore dovute',
+        riga(
+          'Predefinite',
+          inputHHMM(imp.minutiDovuti.predefinito, (v) => {
+            store.modificaImpostazioni((i) => void (i.minutiDovuti.predefinito = v));
+            salvato();
+          }, 'Ore dovute predefinite'),
+          'ore:minuti al giorno',
+          'ore-predefinite',
+        ),
+        el('p', { class: 'nota', id: 'imp-ore-per-giorno' }, 'Per giorno della settimana (togli "predefinito" per un valore diverso, 00:00 = giorno libero):'),
+        righeGiorni,
+      ),
+      scheda(
+        'Inizio conteggio',
+        riga('Inizio conteggio', inputHHMM(imp.orarioMinimoConteggio, (v) => {
+          store.modificaImpostazioni((i) => void (i.orarioMinimoConteggio = v));
           salvato();
-        }, 'Ore dovute predefinite'),
-        'ore:minuti al giorno',
-        'ore-predefinite',
+        }, 'Orario di inizio conteggio'), 'le timbrature precedenti contano da quest\'ora', 'inizio-conteggio'),
       ),
-      el('p', { class: 'nota', id: 'imp-ore-per-giorno' }, 'Per giorno della settimana (togli "predefinito" per un valore diverso, 00:00 = giorno libero):'),
-      righeGiorni,
-    ),
-    sezione(
-      'Pausa pranzo',
-      riga('Inizio fascia pranzo', inputHHMM(imp.pranzo.inizio, (v) => {
-        if (v >= store.impostazioni.pranzo.fine) return void toast('L\'inizio deve precedere la fine');
-        store.modificaImpostazioni((i) => void (i.pranzo.inizio = v));
-        salvato();
-      }, 'Inizio fascia pranzo'), undefined, 'inizio-pranzo'),
-      riga('Fine fascia pranzo', inputHHMM(imp.pranzo.fine, (v) => {
-        if (v <= store.impostazioni.pranzo.inizio) return void toast('La fine deve seguire l\'inizio');
-        store.modificaImpostazioni((i) => void (i.pranzo.fine = v));
-        salvato();
-      }, 'Fine fascia pranzo'), undefined, 'fine-pranzo'),
-      riga('Pausa da scalare (min)', inputMinuti(imp.pausaDaScalare, (v) => {
-        store.modificaImpostazioni((i) => void (i.pausaDaScalare = v));
-        salvato();
-      }, 'Pausa da scalare in minuti'), 'se un permesso copre la fascia pranzo senza pausa registrata', 'pausa-scalare'),
-      riga('Pausa minima (min)', inputMinuti(imp.pausaMinima, (v) => {
-        store.modificaImpostazioni((i) => void (i.pausaMinima = v));
-        salvato();
-      }, 'Pausa minima in minuti'), 'una pausa più breve conta come questa durata', 'pausa-minima'),
-    ),
-    sezione(
-      'Pausa sigaretta',
-      riga('Tipo', selettoreSigaretta(imp.tipoSigaretta), undefined, 'tipo-sigaretta'),
-      riga('Tolleranza (min)', inputMinuti(imp.tolleranzaSigaretta, (v) => {
-        store.modificaImpostazioni((i) => void (i.tolleranzaSigaretta = v));
-        salvato();
-      }, 'Tolleranza della pausa sigaretta in minuti', 60, 1), 'entro questo tempo la pausa non viene conteggiata', 'tolleranza-sigaretta'),
-      linkAiuto('Come funziona la pausa sigaretta?', 'pausa-sigaretta'),
-    ),
-    sezioneSede(),
-    sezioneAvvisi(),
-    inApp() ? sezioneTagNfc() : null,
-    sezione(
-      'Conteggio',
-      riga('Inizio conteggio', inputHHMM(imp.orarioMinimoConteggio, (v) => {
-        store.modificaImpostazioni((i) => void (i.orarioMinimoConteggio = v));
-        salvato();
-      }, 'Orario di inizio conteggio'), 'le timbrature precedenti contano da quest\'ora', 'inizio-conteggio'),
-      el(
-        'button',
-        {
-          type: 'button',
-          class: 'btn btn-secondario',
-          id: 'imp-ripristina',
-          onclick: async () => {
-            if (await conferma('Ripristinare le impostazioni?', 'Tornano i valori predefiniti (8h lun–ven, pranzo 12:15–14:30, 30 min da scalare, tolleranza sigaretta 11 min, sigaretta normale, avvisi attivi con pranzo da 30 min e sigaretta 2 min prima). Le timbrature non vengono toccate.', 'Ripristina', true)) {
-              store.modificaImpostazioni((i) => Object.assign(i, clonaImpostazioni(IMPOSTAZIONI_PREDEFINITE)));
-              salvato();
-            }
+      linkAiuto('Come vengono usati questi valori?', 'come-si-calcola'),
+    ],
+    pause: () => [
+      scheda(
+        'Pausa pranzo',
+        riga('Inizio fascia pranzo', inputHHMM(imp.pranzo.inizio, (v) => {
+          if (v >= store.impostazioni.pranzo.fine) return void toast('L\'inizio deve precedere la fine');
+          store.modificaImpostazioni((i) => void (i.pranzo.inizio = v));
+          salvato();
+        }, 'Inizio fascia pranzo'), undefined, 'inizio-pranzo'),
+        riga('Fine fascia pranzo', inputHHMM(imp.pranzo.fine, (v) => {
+          if (v <= store.impostazioni.pranzo.inizio) return void toast('La fine deve seguire l\'inizio');
+          store.modificaImpostazioni((i) => void (i.pranzo.fine = v));
+          salvato();
+        }, 'Fine fascia pranzo'), undefined, 'fine-pranzo'),
+        riga('Pausa da scalare (min)', inputMinuti(imp.pausaDaScalare, (v) => {
+          store.modificaImpostazioni((i) => void (i.pausaDaScalare = v));
+          salvato();
+        }, 'Pausa da scalare in minuti'), 'se un permesso copre la fascia pranzo senza pausa registrata', 'pausa-scalare'),
+        riga('Pausa minima (min)', inputMinuti(imp.pausaMinima, (v) => {
+          store.modificaImpostazioni((i) => void (i.pausaMinima = v));
+          salvato();
+        }, 'Pausa minima in minuti'), 'una pausa più breve conta come questa durata', 'pausa-minima'),
+      ),
+      scheda(
+        'Pausa sigaretta',
+        riga('Tipo', selettoreSigaretta(imp.tipoSigaretta), undefined, 'tipo-sigaretta'),
+        riga('Tolleranza (min)', inputMinuti(imp.tolleranzaSigaretta, (v) => {
+          store.modificaImpostazioni((i) => void (i.tolleranzaSigaretta = v));
+          salvato();
+        }, 'Tolleranza della pausa sigaretta in minuti', 60, 1), 'entro questo tempo la pausa non viene conteggiata', 'tolleranza-sigaretta'),
+        linkAiuto('Come funziona la pausa sigaretta?', 'pausa-sigaretta'),
+      ),
+    ],
+    sede: () => [sezioneSede()],
+    avvisi: () => [sezioneAvvisi()],
+    nfc: () => [sezioneTagNfc()],
+    aspetto: () => [scheda(null, selettoreTema(), el('p', { class: 'nota' }, 'Automatico segue il tema chiaro o scuro del telefono.'))],
+    dati: () => [
+      scheda(
+        null,
+        el('p', { class: 'nota' }, 'I dati restano solo su questo iPhone. Esporta un backup ogni tanto.'),
+        el(
+          'div',
+          { class: 'pila-pulsanti' },
+          el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-esporta-excel', onclick: () => void esportaExcelCondividi(adesso) }, 'Esporta Excel'),
+          el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-esporta-csv', onclick: () => void esportaCsvCondividi(adesso) }, 'Esporta CSV'),
+          el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-backup-json', onclick: () => void esportaBackupJson(adesso) }, 'Esporta backup completo (JSON)'),
+          el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-importa', onclick: () => fileInput.click() }, 'Importa CSV o backup JSON…'),
+          fileInput,
+        ),
+      ),
+      scheda(
+        'Valori predefiniti',
+        el(
+          'button',
+          {
+            type: 'button',
+            class: 'btn btn-secondario',
+            id: 'imp-ripristina',
+            onclick: async () => {
+              if (await conferma('Ripristinare le impostazioni?', 'Tornano i valori predefiniti (8h lun–ven, pranzo 12:15–14:30, 30 min da scalare, tolleranza sigaretta 11 min, sigaretta normale, avvisi attivi con pranzo da 30 min e sigaretta 2 min prima). Le timbrature non vengono toccate.', 'Ripristina', true)) {
+                store.modificaImpostazioni((i) => Object.assign(i, clonaImpostazioni(IMPOSTAZIONI_PREDEFINITE)));
+                salvato();
+              }
+            },
           },
-        },
-        'Ripristina valori predefiniti',
+          'Ripristina valori predefiniti',
+        ),
       ),
-    ),
-    sezione(
-      'Aspetto',
-      selettoreTema(),
-      el('p', { class: 'nota' }, 'Automatico segue il tema chiaro o scuro del telefono.'),
-    ),
-    sezione(
-      'Dati e backup',
-      el('p', { class: 'nota' }, 'I dati restano solo su questo iPhone. Esporta un backup ogni tanto.'),
-      el(
-        'div',
-        { class: 'pila-pulsanti' },
-        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-esporta-excel', onclick: () => void esportaExcelCondividi(adesso) }, 'Esporta Excel'),
-        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-esporta-csv', onclick: () => void esportaCsvCondividi(adesso) }, 'Esporta CSV'),
-        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-backup-json', onclick: () => void esportaBackupJson(adesso) }, 'Esporta backup completo (JSON)'),
-        el('button', { type: 'button', class: 'btn btn-secondario', id: 'imp-importa', onclick: () => fileInput.click() }, 'Importa CSV o backup JSON…'),
-        fileInput,
-      ),
-    ),
-    el('p', { class: 'versione' }, `Sbeggio v${__VERSIONE_APP__}`, ' · ', pulsanteNovita('link-novita')),
-  );
+    ],
+  };
 
-  // Ricerca come sull'iPhone: mentre scrivi, al posto delle sezioni compare l'elenco delle voci.
+  // L'Aiuto (vistaAiuto) lo monta main.ts; Novità è un foglio, non una pagina.
+  if (nav.pagina && nav.pagina !== 'aiuto' && nav.pagina !== 'novita') {
+    const vista = el(
+      'section',
+      { class: 'vista' },
+      el(
+        'header',
+        { class: 'intestazione' },
+        el('button', { type: 'button', class: 'link-indietro', onclick: nav.indietro.azione }, `‹ ${nav.indietro.etichetta}`),
+        el('h1', {}, titoloPagina(nav.pagina)),
+      ),
+      ...pagine[nav.pagina](),
+    );
+    // Arrivati da una ricerca: porta in vista la voce e la evidenzia.
+    if (nav.voce) mostraVoce(vista, vista.querySelector<HTMLElement>(`#imp-${CSS.escape(nav.voce)}`), '');
+    return vista;
+  }
+  return elencoImpostazioni(nav);
+}
+
+/** Simbolo bianco su quadratino colorato, come nelle Impostazioni dell'iPhone. */
+function iconaPagina(p: PaginaImpostazioni): HTMLElement {
+  const quadrato = el('span', { class: 'icona-menu', style: `background:${p.colore}`, 'aria-hidden': 'true' });
+  // Markup costante (nessun dato dell'utente): sicuro da inserire così.
+  quadrato.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p.icona}</svg>`;
+  return quadrato;
+}
+
+/** Elenco a gruppi delle pagine, con la ricerca unica (impostazioni e Aiuto) in cima. */
+function elencoImpostazioni(nav: NavImpostazioni): HTMLElement {
+  const visibili = PAGINE_IMPOSTAZIONI.filter((p) => inApp() || !p.soloApp);
+  const gruppi = [...new Set(visibili.map((p) => p.gruppo))].map((g) =>
+    el(
+      'div',
+      { class: 'gruppo-menu' },
+      visibili
+        .filter((p) => p.gruppo === g)
+        .map((p) =>
+          el(
+            'button',
+            {
+              type: 'button',
+              class: 'voce-menu',
+              id: `menu-${p.id}`,
+              onclick: () => (p.id === 'novita' ? void apriNovita() : nav.apri(p.id)),
+            },
+            iconaPagina(p),
+            el('span', { class: 'voce-menu-testo' }, p.titolo),
+            el('span', { class: 'voce-menu-freccia', 'aria-hidden': 'true' }, '›'),
+          ),
+        ),
+    ),
+  );
+  const menu = el('div', { class: 'menu-impostazioni' }, gruppi, el('p', { class: 'versione' }, `Sbeggio v${__VERSIONE_APP__}`));
+
+  // Ricerca unica, come sull'iPhone: mentre scrivi, al posto dell'elenco compaiono le impostazioni e
+  // le domande dell'Aiuto che corrispondono.
   const risultati = el('div', {});
   const campo = el('input', {
     type: 'search',
     class: 'ricerca-aiuto',
-    placeholder: 'Cerca nelle impostazioni',
-    'aria-label': 'Cerca nelle impostazioni',
+    placeholder: 'Cerca nelle impostazioni e nell\'aiuto',
+    'aria-label': 'Cerca nelle impostazioni e nell\'aiuto',
     value: ricerca,
     enterkeyhint: 'search',
   });
   const disegna = () => {
     const attiva = ricerca.trim() !== '';
-    const trovate = cercaImpostazioni(ricerca, { app: inApp() });
-    sezioni.hidden = attiva;
+    menu.hidden = attiva;
+    if (!attiva) return void risultati.replaceChildren();
+    const impostazioni = cercaImpostazioni(ricerca, { app: inApp() }).map((v) => ({
+      nome: v.nome,
+      sezione: v.sezione,
+      scegli: () => {
+        ricerca = '';
+        nav.apri(v.pagina, v.id);
+      },
+    }));
+    const aiuto = filtraAiuto(vociAiuto(store.impostazioni), ricerca).map((v) => ({
+      nome: v.domanda,
+      sezione: `Aiuto · ${v.sezione}`,
+      scegli: () => {
+        ricerca = '';
+        nav.apri('aiuto', v.id);
+      },
+    }));
     risultati.replaceChildren(
-      ...(attiva
-        ? [
-            elencoRisultati(
-              trovate.map((v) => ({
-                nome: v.nome,
-                sezione: v.sezione,
-                scegli: () => {
-                  ricerca = '';
-                  campo.value = '';
-                  disegna();
-                  mostraVoce(sezioni, document.getElementById(`imp-${v.id}`), v.sezione);
-                },
-              })),
-              'Nessun risultato. Prova con altre parole, per esempio "pausa" o "notifiche".',
-            ),
-          ]
-        : []),
+      elencoRisultati([...impostazioni, ...aiuto], 'Nessun risultato. Prova con altre parole, per esempio "pausa", "notifiche" o "permesso".'),
     );
   };
   campo.addEventListener('input', () => {
@@ -450,12 +522,5 @@ export function vistaImpostazioni(adesso: Adesso): HTMLElement {
   });
   disegna();
 
-  return el(
-    'section',
-    { class: 'vista' },
-    el('header', { class: 'intestazione' }, el('h1', {}, 'Impostazioni'), linkAiuto('Come vengono usati questi valori?', 'come-si-calcola')),
-    campo,
-    risultati,
-    sezioni,
-  );
+  return el('section', { class: 'vista' }, el('header', { class: 'intestazione' }, el('h1', {}, 'Impostazioni')), campo, risultati, menu);
 }
