@@ -56,7 +56,7 @@ function vistaAttesa(c: Collegamento, scadenza: number): Node[] {
         'ol',
         { class: 'sito-passi' },
         el('li', {}, 'Apri Sbeggio sul telefono'),
-        el('li', {}, 'Vai in Impostazioni → Collega al computer'),
+        el('li', {}, 'Vai in Impostazioni → Dispositivi collegati → + Collega un dispositivo'),
         el('li', {}, 'Inquadra questo codice'),
       ),
       conto,
@@ -162,7 +162,7 @@ if (/^\/novita\/?$/.test(location.pathname)) {
   monta(
     radice,
     titolo(),
-    el('div', { class: 'scheda' }, el('p', {}, 'Questo codice va inquadrato dall\'app Sbeggio: Impostazioni → Collega al computer.')),
+    el('div', { class: 'scheda' }, el('p', {}, 'Questo codice va inquadrato dall\'app Sbeggio: Impostazioni → Dispositivi collegati → + Collega un dispositivo.')),
   );
 } else {
   sessione = avviaSessione(location.origin, (url) => new WebSocket(url), mostra);

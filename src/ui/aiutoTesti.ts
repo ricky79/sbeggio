@@ -169,7 +169,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
         'Le ore coperte e l\'uscita prevista non cambiano: il tempo del blocco oltre la pausa reale passa dalle ore lavorate al permesso.',
         'Esempio: pausa di 15 min → 30 min di permesso e 15 min in meno di lavorate; pausa di 42 min → 1h di permesso.',
         'Hai toccato il bottone per sbaglio? Usa "Annulla pausa" nella schermata. Se chiudi l\'app durante la pausa, alla riapertura il conto riprende da dove era.',
-        'Tolleranza e tipo di sigaretta (normale o elettronica) si cambiano in Impostazioni → Pausa sigaretta.',
+        'Tolleranza e tipo di sigaretta (normale o elettronica) si cambiano in Impostazioni → Pause → Pausa sigaretta.',
       ],
     },
     {
@@ -270,7 +270,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       testo: [
         `Ogni timbratura precedente le ${minimo} viene considerata come se fosse alle ${minimo}, in tutti i calcoli (uscita prevista, ore lavorate e saldo).`,
         `Esempio: entrata 08:00, pausa 12:00–13:00, uscita 18:00 → lavorate 8h30 (dalle ${minimo}), saldo +30 min.`,
-        'L\'orario si cambia in Impostazioni → Conteggio.',
+        'L\'orario si cambia in Impostazioni → Orario di lavoro → Inizio conteggio.',
       ],
     },
     {
@@ -280,7 +280,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       testo: [
         `Una pausa più breve di ${pausaMin} viene conteggiata come ${pausaMin}: la differenza viene tolta dalle ore lavorate.`,
         'Esempio: pausa 12:30–12:45 (15 min) → conta 30 min, quindi 15 min in meno di lavoro.',
-        'Il valore si cambia in Impostazioni → Pausa pranzo.',
+        'Il valore si cambia in Impostazioni → Pause → Pausa pranzo.',
       ],
     },
     {
@@ -288,7 +288,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       sezione: 'Come si calcola',
       domanda: 'Come imposto le ore dovute?',
       testo: [
-        `In Impostazioni → Ore dovute: il valore predefinito (ora ${dovute}) vale per tutti i giorni con "predefinito" spuntato.`,
+        `In Impostazioni → Orario di lavoro: il valore predefinito (ora ${dovute}) vale per tutti i giorni con "predefinito" spuntato.`,
         'Per un giorno diverso (es. venerdì corto) togli la spunta e scegli le ore. 00:00 significa giorno libero: tutto ciò che lavori è straordinario.',
       ],
     },
@@ -351,7 +351,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       sezione: 'Dati e backup',
       domanda: 'Dove sono salvati i miei dati?',
       testo: [
-        'Solo su questo telefono, nella memoria dell\'app: non vengono inviati a nessun server, salvo quando li mandi tu al computer con "Collega al computer" (cifrati da un capo all\'altro).',
+        'Solo su questo telefono, nella memoria dell\'app: non vengono inviati a nessun server, salvo quando li mandi tu al computer con "+ Collega un dispositivo" (cifrati da un capo all\'altro).',
         '• iPhone: se elimini l\'app dalla schermata Home, iOS cancella anche i dati.',
         '• Android: l\'app condivide i dati con Chrome, quindi se cancelli i dati del sito o disinstalli l\'app perdi le timbrature.',
         'In ogni caso, fai un backup ogni tanto.',
@@ -374,7 +374,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       domanda: 'Come scarico le timbrature sul computer?',
       testo: [
         'Sul computer apri web.sbeggio.app: compare un codice QR.',
-        'Sul telefono vai in Impostazioni → Collega al computer, inquadra il codice e conferma con Invia.',
+        'Sul telefono vai in Impostazioni → Dispositivi collegati → "+ Collega un dispositivo", inquadra il codice e conferma con Invia.',
         'Dal computer scarichi il file Excel, il CSV o il JSON di un mese a scelta o di tutte le timbrature.',
         '• Le timbrature viaggiano cifrate: il server che le passa al computer non può leggerle e non le conserva.',
         '• Il codice vale 5 minuti e una sola volta; chiudendo la pagina i dati spariscono dal computer.',

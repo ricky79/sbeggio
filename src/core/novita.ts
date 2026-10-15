@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 /**
- * Novità di ogni versione, per chi usa l'app: il foglio dopo un aggiornamento, Aiuto → Novità, la pagina
+ * Novità di ogni versione, per chi usa l'app: il foglio dopo un aggiornamento, Impostazioni → Novità, la pagina
  * web.sbeggio.app/novita e le note dei rilasci su GitHub nascono tutti da qui.
  *
  * A ogni cambio di versione in package.json si aggiunge una voce in cima (un test lo controlla).
@@ -18,6 +18,16 @@ export interface Novita {
 }
 
 export const NOVITA: readonly Novita[] = [
+  {
+    versione: '2.12.0',
+    data: '2026-10-15',
+    voci: [
+      'Impostazioni rinnovate, come sull\'iPhone: un elenco con le icone colorate, ogni voce apre la sua pagina e una sola ricerca trova impostazioni e risposte dell\'Aiuto.',
+      'L\'Aiuto e le Novità ora sono in Impostazioni: la barra in basso ha tre schede.',
+      'I fogli che si aprono dal basso si chiudono con la ✕ in alto a destra o trascinandoli verso il basso.',
+      'Nuova sezione "Dispositivi collegati": "+ Collega un dispositivo" per aprire Sbeggio sul computer.',
+    ],
+  },
   {
     versione: '2.11.0',
     data: '2026-10-14',
