@@ -29,7 +29,7 @@ beforeEach(() => {
   finto.invia.mockReset();
 });
 
-describe('Collega al computer', () => {
+describe('Collega un dispositivo', () => {
   it('dice "Invio in corso…" prima dell\'invio e l\'esito dopo', async () => {
     finto.invia.mockImplementation(async () => {
       finto.registro.push('invio');

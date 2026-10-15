@@ -2,7 +2,7 @@
 
 Web app installabile (PWA) per registrare le timbrature di lavoro da iPhone o Android e sapere
 a che ora si può uscire. Funziona offline, non ha backend: **i dati restano sul telefono**
-(localStorage del browser), salvo quando li mandi tu al computer con *Collega al computer*, cifrati da un capo all'altro.
+(localStorage del browser), salvo quando li mandi tu al computer con *+ Collega un dispositivo*, cifrati da un capo all'altro.
 
 App pubblicata: **https://sbeggio.app/**
 
@@ -87,8 +87,8 @@ L'app chiede a GitHub l'ultima release (`api.github.com/repos/ricky79/sbeggio/re
 all'avvio e quando torna in primo piano, al massimo ogni 6 ore (`src/ui/aggiornamento.ts`). Conta solo
 una release che ha già `sbeggio.apk` allegato.
 
-**Dalla PWA all'app:** i dati sono separati. Nella PWA fai *Impostazioni → Esporta backup completo
-(JSON)*, poi nell'app *Impostazioni → Importa CSV o backup JSON…*.
+**Dalla PWA all'app:** i dati sono separati. Nella PWA fai *Impostazioni → Dati e backup → Esporta backup
+completo (JSON)*, poi nell'app *Impostazioni → Dati e backup → Importa CSV o backup JSON…*.
 
 **Se l'installazione fallisce** ("App non installata"): di solito c'è già una versione firmata con
 un'altra chiave (per esempio una build di prova). Fai il backup JSON, disinstalla Sbeggio e reinstalla.
@@ -100,7 +100,7 @@ un'altra chiave (per esempio una build di prova). Fai il backup JSON, disinstall
 - **Android**: l'app installata condivide i dati con il sito aperto in Chrome. Se cancelli i
   dati di navigazione o i "dati del sito" di Chrome, o disinstalli l'app, perdi le timbrature.
 - L'app chiede al sistema la memoria persistente (`navigator.storage.persist()`), ma
-  conviene comunque fare ogni tanto un **backup**: *Impostazioni → Esporta backup completo (JSON)*
+  conviene comunque fare ogni tanto un **backup**: *Impostazioni → Dati e backup → Esporta backup completo (JSON)*
   e salvalo in File/iCloud (iPhone) o in Drive/File (Android). Per ripristinarlo: *Impostazioni → Importa CSV o backup JSON…*.
 
 ## Come si usa
@@ -154,11 +154,14 @@ un'altra chiave (per esempio una build di prova). Fai il backup JSON, disinstall
   chiuso c'è "Uscita 17:40 · prevista 17:25": l'uscita prevista è salvata alla chiusura (campo
   `uscitaPrevista`, anche nel backup e nella colonna *Uscita prevista* del CSV); per i giorni che
   non la hanno (dati di prima, backup, CSV) si calcola dalle timbrature all'apertura o all'import.
-- **Impostazioni**: ore dovute (anche diverse per giorno della settimana), fascia pranzo,
-  pausa da scalare, pausa minima, orario di inizio conteggio, tolleranza e tipo della pausa sigaretta, export e import dei dati.
-- **Aiuto**: risposte ai dubbi più comuni (per esempio la differenza tra *Esco in permesso*
+- **Impostazioni**: un elenco come quello dell'iPhone (icona colorata, titolo, freccia) con le
+  pagine *Dispositivi collegati*, *Orario di lavoro* (ore dovute, anche per giorno della settimana, e
+  inizio conteggio), *Pause* (pranzo e sigaretta), *Sede di lavoro*, *Avvisi*, *Tag NFC* (app Android),
+  *Aspetto*, *Dati e backup* (export, import, ripristino dei valori predefiniti), *Aiuto* e *Novità*.
+  La ricerca in cima trova sia le impostazioni sia le domande dell'Aiuto.
+- **Aiuto** (in *Impostazioni → Aiuto*): risposte ai dubbi più comuni (per esempio la differenza tra *Esco in permesso*
   e *Uscita anticipata*), con ricerca. I link **?** nelle schermate aprono direttamente
-  la risposta che riguarda quel punto. Gli esempi usano le tue impostazioni correnti.
+  la risposta che riguarda quel punto, e "‹ indietro" riporta alla schermata di partenza. Gli esempi usano le tue impostazioni correnti.
   In fondo, *Invia un suggerimento* e *Segnala un problema* aprono l'app di posta con un
   messaggio già pronto per supporto@sbeggio.app (la segnalazione include versione, dispositivo e
   impostazioni, mai le timbrature).
@@ -189,7 +192,7 @@ e calcola i totali ignorando gli eventi incoerenti.
 ## Scaricare le timbrature dal computer
 
 1. Sul computer apri **https://web.sbeggio.app**: compare un codice QR (vale 5 minuti, poi se ne genera uno nuovo).
-2. Sul telefono: *Impostazioni → Collega al computer…*, inquadra il codice e conferma con **Invia**.
+2. Sul telefono: *Impostazioni → Dispositivi collegati → + Collega un dispositivo*, inquadra il codice e conferma con **Invia**.
 3. Sul computer scegli il mese e scarica **Excel**, **CSV** (lo stesso dell'app) o **JSON**, oppure scarica tutto.
 
 Le timbrature viaggiano cifrate (AES-GCM) con una chiave che sta solo nel QR: il relay su Cloudflare che le
@@ -356,7 +359,7 @@ Ogni PR approvata su `main` è un rilascio:
    la versione non è più alta dell'ultimo tag.
 2. Nello stesso commit aggiungi in cima a `src/core/novita.ts` le novità della versione: versione, data e
    2–3 frasi brevi per chi usa l'app. Un test fallisce se la versione di `package.json` non ha la sua voce.
-   Da lì nascono il foglio "Novità" che l'app mostra una volta dopo l'aggiornamento, *Aiuto → Novità*, la
+   Da lì nascono il foglio "Novità" che l'app mostra una volta dopo l'aggiornamento, *Impostazioni → Novità*, la
    pagina [web.sbeggio.app/novita](https://web.sbeggio.app/novita) (anche da sbeggio.app/novita) e le note
    della release su GitHub.
 3. Approvando la PR, `deploy.yml` pubblica la PWA e `rilascio.yml` crea il tag `v<versione>` con la
@@ -419,3 +422,7 @@ aggiunte le stesse due righe.
 
 Il nome **Sbeggio** e il logo non sono coperti dalla licenza: una versione modificata va pubblicata con un
 altro nome e un altro logo.
+
+Le icone vengono da [Feather](https://feathericons.com/) (licenza MIT) e l'app include alcune librerie di
+terze parti con licenze MIT e Apache 2.0: le note di copyright e i testi delle licenze sono in
+[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).

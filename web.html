@@ -14,9 +14,29 @@
     </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
-  <body>
+  <body class="pagina-sito">
+    <header class="sito-testata">
+      <a class="sito-marchio" href="/" aria-label="Sbeggio, pagina principale">
+        <img src="/favicon.svg" alt="" width="36" height="36" />
+        <span>Sbeggio</span>
+      </a>
+      <nav class="sito-menu" aria-label="Sito">
+        <a href="/novita">Novità</a>
+        <a class="sito-menu-app" href="https://sbeggio.app">Apri l'app</a>
+      </nav>
+    </header>
     <main id="sito" class="sito"></main>
     <noscript>Per usare Sbeggio sul computer attiva JavaScript.</noscript>
+    <footer class="sito-piede">
+      <img src="/favicon.svg" alt="" width="24" height="24" />
+      <p>
+        Sbeggio è software libero, con licenza
+        <a href="https://github.com/ricky79/sbeggio/blob/main/LICENSE">GPL 3.0</a>.
+        <a href="https://github.com/ricky79/sbeggio">Codice sorgente</a> ·
+        <a href="/novita">Novità</a> ·
+        <a href="mailto:supporto@sbeggio.app">supporto@sbeggio.app</a>
+      </p>
+    </footer>
     <script type="module" src="/src/sito/main.ts"></script>
   </body>
 </html>

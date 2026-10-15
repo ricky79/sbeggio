@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { corrisponde } from '../src/core/testi';
-import { cercaImpostazioni, VOCI_IMPOSTAZIONI } from '../src/ui/ricercaImpostazioni';
+import { cercaImpostazioni, PAGINE_IMPOSTAZIONI, VOCI_IMPOSTAZIONI } from '../src/ui/ricercaImpostazioni';
 
 const ids = (query: string, app = false) => cercaImpostazioni(query, { app }).map((v) => v.id);
 
@@ -36,7 +36,7 @@ describe('cercaImpostazioni', () => {
     expect(ids('dark')).toEqual(['tema']);
     expect(ids('gps')).toEqual(['posizione-ufficio']);
     expect(ids('sabato')).toEqual(['ore-per-giorno']);
-    expect(ids('qr')).toContain('collega-computer');
+    expect(ids('qr')).toContain('collega-dispositivo');
     expect(ids('excel')).toContain('esporta-excel');
     expect(ids('Avvisi').length).toBeGreaterThan(3);
   });
@@ -51,11 +51,13 @@ describe('cercaImpostazioni', () => {
     expect(ids('nfc', true)).toEqual(['tag-nfc']);
   });
 
-  it('ogni voce ha la sua riga nella pagina e la sua sezione esiste', () => {
+  it('ogni voce ha la sua riga nella pagina e la sua pagina esiste', () => {
     const pagina = readFileSync(new URL('../src/ui/impostazioni.ts', import.meta.url), 'utf8');
     for (const v of VOCI_IMPOSTAZIONI) {
       expect(pagina.includes(`'imp-${v.id}'`) || pagina.includes(`'${v.id}'),`) || pagina.includes(`'${v.id}',\n`) || pagina.includes(`'${v.id}',\r\n`), v.id).toBe(true);
-      expect(pagina.includes(`'${v.sezione}'`), v.sezione).toBe(true);
+      const p = PAGINE_IMPOSTAZIONI.find((x) => x.id === v.pagina);
+      expect(p, v.pagina).toBeDefined();
+      expect(v.sezione).toBe(p!.titolo);
     }
   });
 
@@ -67,5 +69,27 @@ describe('cercaImpostazioni', () => {
       expect(v.nome.length).toBeGreaterThan(0);
       expect(v.sezione.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('pagine delle impostazioni', () => {
+  it('id unici; Tag NFC solo nell\'app; Aiuto e Novità in fondo', () => {
+    const ids = PAGINE_IMPOSTAZIONI.map((p) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(PAGINE_IMPOSTAZIONI.find((p) => p.id === 'nfc')?.soloApp).toBe(true);
+    expect(ids.slice(-2)).toEqual(['aiuto', 'novita']);
+    expect(ids[0]).toBe('dispositivi');
+  });
+
+  it('gruppi in ordine crescente, per i blocchi dell\'elenco', () => {
+    const gruppi = PAGINE_IMPOSTAZIONI.map((p) => p.gruppo);
+    expect([...gruppi].sort((a, b) => a - b)).toEqual(gruppi);
+  });
+
+  it('Orario di lavoro contiene ore dovute e inizio conteggio; Pause il pranzo e la sigaretta', () => {
+    const pagina = (id: string) => VOCI_IMPOSTAZIONI.find((v) => v.id === id)!.pagina;
+    expect([pagina('ore-predefinite'), pagina('inizio-conteggio')]).toEqual(['orario', 'orario']);
+    expect([pagina('pausa-minima'), pagina('tolleranza-sigaretta')]).toEqual(['pause', 'pause']);
+    expect(pagina('ripristina')).toBe('dati');
   });
 });

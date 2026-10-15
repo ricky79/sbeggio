@@ -25,7 +25,29 @@ const radice = document.getElementById('sito')!;
 let orologio: ReturnType<typeof setInterval> | undefined;
 let sessione: { nuovo(): void } | undefined;
 
-const titolo = () => el('h1', {}, 'Sbeggio sul computer');
+/** Apertura della pagina: titolo grande e una riga di spiegazione. */
+const eroe = (titolo: string, sottotitolo: string | Node) =>
+  el(
+    'div',
+    { class: 'sito-eroe' },
+    el('img', { class: 'sito-eroe-logo', src: '/favicon.svg', alt: '', width: '76', height: '76' }),
+    el('h1', {}, titolo), el('p', { class: 'sito-sottotitolo' }, sottotitolo));
+const titolo = () => eroe('Sbeggio sul computer', 'Le tue timbrature in Excel, CSV o JSON, senza cavi.');
+
+/** Lucchetto dalle icone Feather (licenza MIT, vedi THIRD_PARTY_LICENSES.md). */
+const LUCCHETTO =
+  '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+
+function riservatezza(): HTMLElement {
+  const icona = el('span', { class: 'sito-riservatezza-icona' });
+  icona.innerHTML = LUCCHETTO;
+  return el(
+    'p',
+    { class: 'sito-riservatezza' },
+    icona,
+    el('span', {}, 'Le timbrature arrivano cifrate e restano solo in questa scheda: chiudendola spariscono.'),
+  );
+}
 
 function qr(testo: string): HTMLElement {
   const codice = qrcode(0, 'M');
@@ -46,22 +68,25 @@ function vistaAttesa(c: Collegamento, scadenza: number): Node[] {
   aggiorna();
   orologio = setInterval(aggiorna, 1000);
   return [
-    titolo(),
-    el('p', { class: 'nota' }, 'Scarica le timbrature in Excel, CSV o JSON, del mese o tutte.'),
+    eroe('Le tue timbrature, sul computer', 'Inquadra il codice con Sbeggio e scarica le timbrature in Excel, CSV o JSON, del mese o tutte.'),
     el(
       'div',
-      { class: 'scheda sito-attesa' },
-      qr(urlQr(c)),
+      { class: 'sito-griglia' },
+      el('div', { class: 'scheda sito-attesa' }, qr(urlQr(c)), conto),
       el(
-        'ol',
-        { class: 'sito-passi' },
-        el('li', {}, 'Apri Sbeggio sul telefono'),
-        el('li', {}, 'Vai in Impostazioni → Collega al computer'),
-        el('li', {}, 'Inquadra questo codice'),
+        'div',
+        { class: 'scheda' },
+        el('h2', { class: 'titolo-sezione' }, 'Come si fa'),
+        el(
+          'ol',
+          { class: 'sito-passi' },
+          el('li', {}, el('strong', {}, 'Apri Sbeggio'), ' sul telefono'),
+          el('li', {}, 'Vai in ', el('strong', {}, 'Impostazioni → Dispositivi collegati'), ' e tocca ', el('strong', {}, '+ Collega un dispositivo')),
+          el('li', {}, el('strong', {}, 'Inquadra il codice'), ': i download compaiono qui'),
+        ),
+        riservatezza(),
       ),
-      conto,
     ),
-    el('p', { class: 'nota' }, 'Le timbrature arrivano cifrate e restano solo in questa scheda: chiudendola spariscono.'),
   ];
 }
 
@@ -92,10 +117,7 @@ function vistaCollegato(dati: DatiSalvati, ricevuti: number): Node[] {
   const n = Object.values(dati.giornate).filter(haContenuto).length;
   const quando = formattaOra(adessoRoma(new Date(ricevuti)).minuti);
   const scollega = el('button', { type: 'button', class: 'btn btn-neutro', onclick: () => sessione?.nuovo() }, 'Scollega');
-  const intestazione = [
-    titolo(),
-    el('p', { class: 'nota' }, `Ricevute ${n} ${n === 1 ? 'giornata' : 'giornate'} alle ${quando}`),
-  ];
+  const intestazione = [eroe('Timbrature ricevute', `${n} ${n === 1 ? 'giornata ricevuta' : 'giornate ricevute'} alle ${quando}.`)];
   const mesi = mesiPresenti(dati.giornate);
   const iniziale = meseIniziale(mesi, adessoRoma().data);
   if (iniziale === null) {
@@ -109,9 +131,20 @@ function vistaCollegato(dati: DatiSalvati, ricevuti: number): Node[] {
   selettore.value = iniziale;
   return [
     ...intestazione,
-    el('div', { class: 'scheda' }, el('h2', { class: 'titolo-sezione' }, 'Mese'), selettore, pulsanti((f) => scarica(dati, selettore.value, f))),
-    el('div', { class: 'scheda' }, el('h2', { class: 'titolo-sezione' }, 'Tutto'), pulsanti((f) => scarica(dati, TUTTO, f))),
-    el('div', { class: 'pila-pulsanti' }, scollega),
+    el(
+      'div',
+      { class: 'sito-griglia' },
+      el('div', { class: 'scheda' }, el('h2', { class: 'titolo-sezione' }, 'Un mese'), selettore, pulsanti((f) => scarica(dati, selettore.value, f))),
+      el(
+        'div',
+        { class: 'scheda' },
+        el('h2', { class: 'titolo-sezione' }, 'Tutto'),
+        el('p', { class: 'nota sito-tutto' }, 'Tutte le giornate in un unico file.'),
+        pulsanti((f) => scarica(dati, TUTTO, f)),
+      ),
+    ),
+    riservatezza(),
+    el('div', { class: 'pila-pulsanti sito-scollega' }, scollega),
   ];
 }
 
@@ -142,16 +175,16 @@ function mostra(s: StatoSito): void {
 if (/^\/novita\/?$/.test(location.pathname)) {
   // web.sbeggio.app/novita: le novità di ogni versione, da condividere (stesso elenco dell'app).
   document.title = 'Novità di Sbeggio';
+  document.querySelector('.sito-menu a[href="/novita"]')?.setAttribute('aria-current', 'page');
   // Così i lettori di feed e i browser trovano il feed partendo dall'indirizzo della pagina.
   document.head.append(el('link', { rel: 'alternate', type: 'application/atom+xml', title: 'Rilasci di Sbeggio', href: FEED_RILASCI }));
   monta(
     radice,
-    el('h1', {}, 'Novità di Sbeggio'),
-    el('p', { class: 'nota' }, 'Cosa è cambiato in ogni versione. ', el('a', { href: 'https://sbeggio.app' }, 'Apri Sbeggio')),
-    el('div', { class: 'scheda' }, elencoNovita(NOVITA)),
+    eroe('Novità di Sbeggio', 'Cosa è cambiato in ogni versione.'),
+    el('div', { class: 'scheda sito-novita' }, elencoNovita(NOVITA)),
     el(
       'p',
-      { class: 'nota' },
+      { class: 'nota sito-feed' },
       'Vuoi saperlo appena esce una versione? Segui il ',
       el('a', { href: FEED_RILASCI, type: 'application/atom+xml' }, 'feed RSS dei rilasci'),
       ' con il tuo lettore di feed.',
@@ -162,7 +195,7 @@ if (/^\/novita\/?$/.test(location.pathname)) {
   monta(
     radice,
     titolo(),
-    el('div', { class: 'scheda' }, el('p', {}, 'Questo codice va inquadrato dall\'app Sbeggio: Impostazioni → Collega al computer.')),
+    el('div', { class: 'scheda' }, el('p', {}, 'Questo codice va inquadrato dall\'app Sbeggio: Impostazioni → Dispositivi collegati → + Collega un dispositivo.')),
   );
 } else {
   sessione = avviaSessione(location.origin, (url) => new WebSocket(url), mostra);
