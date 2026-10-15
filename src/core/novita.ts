@@ -26,7 +26,7 @@ export const NOVITA: readonly Novita[] = [
       'L\'Aiuto e le Novità ora sono in Impostazioni: la barra in basso ha tre schede.',
       'I fogli che si aprono dal basso si chiudono con la ✕ in alto a destra o trascinandoli verso il basso.',
       'Nuova sezione "Dispositivi collegati": "+ Collega un dispositivo" per aprire Sbeggio sul computer.',
-      'Timbra al volo: tieni premuta l\'icona di Sbeggio e scegli Timbra (Android), oppure crea un comando rapido su iPhone con l\'indirizzo sbeggio.app/?timbra. Trovi come in Aiuto.',
+      'Android: tieni premuta l\'icona di Sbeggio e scegli Timbra per timbrare al volo, come con il tag NFC.',
     ],
   },
   {

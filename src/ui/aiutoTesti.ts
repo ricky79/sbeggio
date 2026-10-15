@@ -253,12 +253,11 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
     {
       id: 'timbra-rapido',
       sezione: 'I bottoni',
-      domanda: 'Timbrare con un comando rapido o tenendo premuta l\'icona',
+      domanda: 'Timbrare tenendo premuta l\'icona (Android)',
       testo: [
-        'L\'indirizzo https://sbeggio.app/?timbra apre Sbeggio e timbra subito, come il tag NFC: Entrata, pausa pranzo, Uscita a seconda del momento, con il tasto Annulla. Un secondo comando entro un minuto viene ignorato.',
-        '• Android (Sbeggio installato da Chrome): tieni premuta l\'icona e scegli Timbra.',
-        '• iPhone: nell\'app Comandi crea un comando con l\'azione "Apri URL" e l\'indirizzo qui sopra; puoi lanciarlo da Siri, da un widget o da un\'automazione.',
-        'Attenzione su iPhone: se il comando apre Safari invece di Sbeggio sulla schermata Home, la timbratura finisce in Safari, che ha dati separati, e in Sbeggio non la vedi. Prova una volta e controlla in Oggi.',
+        'Con Sbeggio installato da Chrome su Android, tieni premuta l\'icona e scegli Timbra: Sbeggio si apre e timbra subito, come il tag NFC (Entrata, pausa pranzo, Uscita a seconda del momento), con il tasto Annulla. Un secondo Timbra entro un minuto viene ignorato.',
+        'Lo stesso fa l\'indirizzo https://sbeggio.app/?timbra, per esempio da un segnalibro.',
+        'Su iPhone non si può: le web app aggiunte alla schermata Home non compaiono in Comandi, e i link si aprono sempre in Safari, che ha dati separati da Sbeggio.',
       ],
     },
 
