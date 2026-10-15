@@ -43,3 +43,15 @@ export function esitoLettura(p: {
   if (p.azione === null) return 'chiusa';
   return 'timbra';
 }
+
+/**
+ * Indirizzo che timbra all'apertura, come il tag: https://sbeggio.app/?timbra (Comandi Rapidi di iPhone,
+ * scorciatoia "Timbra" sull'icona della PWA). Restituisce l'indirizzo senza il parametro, da mettere al
+ * posto di quello aperto perché ricaricare la pagina non timbri di nuovo; null se non c'è ?timbra.
+ */
+export function indirizzoTimbra(href: string): string | null {
+  const url = new URL(href);
+  if (!url.searchParams.has('timbra')) return null;
+  url.searchParams.delete('timbra');
+  return url.href;
+}

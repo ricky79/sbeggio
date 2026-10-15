@@ -250,6 +250,17 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
         'Lo stesso tag va bene per tutti i colleghi che hanno l\'app Sbeggio per Android; sugli altri telefoni non succede nulla.',
       ],
     },
+    {
+      id: 'timbra-rapido',
+      sezione: 'I bottoni',
+      domanda: 'Timbrare con un comando rapido o tenendo premuta l\'icona',
+      testo: [
+        'L\'indirizzo https://sbeggio.app/?timbra apre Sbeggio e timbra subito, come il tag NFC: Entrata, pausa pranzo, Uscita a seconda del momento, con il tasto Annulla. Un secondo comando entro un minuto viene ignorato.',
+        '• Android (Sbeggio installato da Chrome): tieni premuta l\'icona e scegli Timbra.',
+        '• iPhone: nell\'app Comandi crea un comando con l\'azione "Apri URL" e l\'indirizzo qui sopra; puoi lanciarlo da Siri, da un widget o da un\'automazione.',
+        'Attenzione su iPhone: se il comando apre Safari invece di Sbeggio sulla schermata Home, la timbratura finisce in Safari, che ha dati separati, e in Sbeggio non la vedi. Prova una volta e controlla in Oggi.',
+      ],
+    },
 
     // --- Come si calcola
     {

@@ -4,7 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { calcolaGiornata } from '../src/core/calcolo';
 import { sigarettaInCorso } from '../src/core/sigaretta';
-import { azioneTag, esitoLettura, PAUSA_LETTURE_MS } from '../src/core/tagNfc';
+import { azioneTag, esitoLettura, indirizzoTimbra, PAUSA_LETTURE_MS } from '../src/core/tagNfc';
 import { giornata, h, impostazioni } from './helpers';
 
 const imp = impostazioni(); // fascia pranzo 12:00–14:30
@@ -64,5 +64,19 @@ describe('esito della lettura', () => {
     const recente = base.ora - 1000;
     expect(esitoLettura({ ...base, ultimaTimbratura: recente, finestraAperta: true })).toBe('gia-letto');
     expect(esitoLettura({ ...base, ultimaTimbratura: recente, azione: null })).toBe('gia-letto');
+  });
+});
+
+describe('indirizzo ?timbra', () => {
+  it('riconosce ?timbra e restituisce l\'indirizzo senza', () => {
+    expect(indirizzoTimbra('https://sbeggio.app/?timbra')).toBe('https://sbeggio.app/');
+    expect(indirizzoTimbra('https://sbeggio.app/?timbra=1')).toBe('https://sbeggio.app/');
+    expect(indirizzoTimbra('https://sbeggio.app/?a=b&timbra#x')).toBe('https://sbeggio.app/?a=b#x');
+  });
+
+  it('senza ?timbra non fa nulla', () => {
+    expect(indirizzoTimbra('https://sbeggio.app/')).toBeNull();
+    expect(indirizzoTimbra('https://sbeggio.app/?timbrare')).toBeNull();
+    expect(indirizzoTimbra('https://sbeggio.app/#timbra')).toBeNull();
   });
 });

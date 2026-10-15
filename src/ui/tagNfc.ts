@@ -13,15 +13,48 @@ import { eseguiAzione } from './giorno';
 import { inizioSigarettaSalvato, salvaInizioSigaretta } from './inizioSigaretta';
 import { rientroSigarettaDaTag } from './sigaretta';
 
-/** Istante dell'ultima lettura che ha cambiato la giornata (per ignorare il tag tenuto appoggiato). */
+/**
+ * Istante dell'ultima lettura che ha cambiato la giornata (per ignorare il tag tenuto appoggiato). Sta
+ * anche in localStorage: ogni ?timbra apre la pagina da capo e un doppio tocco sul comando timbrerebbe due volte.
+ */
+const CHIAVE_ULTIMA = 'timbrature-ultima-timbratura-rapida';
 let ultimaTimbratura: number | null = null;
+
+function leggiUltima(): number | null {
+  if (ultimaTimbratura !== null) return ultimaTimbratura;
+  try {
+    const v = Number(localStorage.getItem(CHIAVE_ULTIMA));
+    return v > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function salvaUltima(v: number | null): void {
+  ultimaTimbratura = v;
+  try {
+    if (v === null) localStorage.removeItem(CHIAVE_ULTIMA);
+    else localStorage.setItem(CHIAVE_ULTIMA, String(v));
+  } catch {
+    /* resta in memoria */
+  }
+}
+
+/** Da dove arriva la timbratura rapida: cambiano solo i messaggi. */
+export type Origine = 'tag' | 'indirizzo';
+
+const MESSAGGI = {
+  tag: { giaLetto: 'Tag già letto: riavvicinalo tra un minuto', finestra: 'Chiudi la finestra aperta e riavvicina il tag' },
+  indirizzo: { giaLetto: 'Hai appena timbrato: riprova tra un minuto', finestra: 'Chiudi la finestra aperta e timbra di nuovo' },
+};
 
 /** App Android: a ogni lettura di un tag di Sbeggio timbra come il pulsante principale di Oggi. */
 export function avviaTagNfc(mostraOggi: () => void): void {
   ascoltaTag(() => void gestisciTag(mostraOggi));
 }
 
-export async function gestisciTag(mostraOggi: () => void): Promise<void> {
+/** Timbra come il pulsante principale di Oggi: tag NFC dell'app Android o indirizzo ?timbra. */
+export async function gestisciTag(mostraOggi: () => void, origine: Origine = 'tag'): Promise<void> {
   const { data, minuti } = adessoRoma();
   const giornata = store.giornata(data);
   const r = calcolaGiornata(giornata, store.impostazioni, minuti);
@@ -31,11 +64,11 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
     // La schermata della sigaretta non conta: il tag serve proprio a chiuderla.
     finestraAperta: document.querySelector('dialog[open]:not(.sigaretta)') !== null,
     ora: Date.now(),
-    ultimaTimbratura,
+    ultimaTimbratura: leggiUltima(),
   });
-  if (esito === 'gia-letto') return toast('Tag già letto: riavvicinalo tra un minuto');
+  if (esito === 'gia-letto') return toast(MESSAGGI[origine].giaLetto);
   // Non si chiude nulla al posto dell'utente: potrebbe perdere una modifica.
-  if (esito === 'finestra-aperta') return toast('Chiudi la finestra aperta e riavvicina il tag');
+  if (esito === 'finestra-aperta') return toast(MESSAGGI[origine].finestra);
   mostraOggi();
   if (esito === 'chiusa' || azione === null) return toast('Giornata già chiusa');
 
@@ -51,7 +84,7 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
       if (prima.sigaretteNonConteggiate) g.sigaretteNonConteggiate = structuredClone(prima.sigaretteNonConteggiate);
       else delete g.sigaretteNonConteggiate;
     });
-    ultimaTimbratura = null;
+    salvaUltima(null);
     toast('Timbratura annullata');
   };
 
@@ -64,7 +97,7 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
   // La vibrazione conferma la timbratura: solo se la giornata è cambiata davvero (non dopo un foglio
   // lasciato a metà, che altrimenti farebbe credere di aver timbrato).
   if (JSON.stringify(store.giornata(data).eventi) !== JSON.stringify(prima.eventi)) {
-    ultimaTimbratura = Date.now();
+    salvaUltima(Date.now());
     void vibra();
   }
 }

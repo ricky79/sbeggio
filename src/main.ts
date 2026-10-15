@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import './style.css';
+import { indirizzoTimbra } from './core/tagNfc';
 import { adessoRoma } from './core/tempo';
 import { richiediPersistenza, seguiAltreSchede, store } from './storage/store';
 import { avviso } from './ui/dialoghi';
@@ -18,7 +19,7 @@ import { avviaTema } from './ui/tema';
 import { avviaNovita } from './ui/novita';
 import { avviaBannerInstallazione } from './ui/installa';
 import { avviaControlloAggiornamenti } from './ui/aggiornamento';
-import { avviaTagNfc } from './ui/tagNfc';
+import { avviaTagNfc, gestisciTag } from './ui/tagNfc';
 import { avviaProposteLuogo, rilevaLuogo } from './ui/posizione';
 import { inApp } from './native/app';
 import { avviaAvvisi as avviaAvvisiApp } from './native/avvisi';
@@ -210,5 +211,12 @@ if (inApp()) {
   avviaBannerInstallazione(() => apriAiuto('installazione'));
 }
 if (store.erroreCaricamento) void avviso('Attenzione', store.erroreCaricamento);
+// Indirizzo ?timbra (Comandi Rapidi di iPhone, scorciatoia "Timbra" sull'icona): timbra come il tag NFC.
+// Prima delle novità, che aprirebbero un foglio e fermerebbero la timbratura.
+const senzaTimbra = indirizzoTimbra(location.href);
+if (senzaTimbra !== null) {
+  history.replaceState(history.state, '', senzaTimbra);
+  void gestisciTag(() => vai('oggi'), 'indirizzo');
+}
 // Dopo un aggiornamento: una volta sola, cosa è cambiato.
 avviaNovita(__VERSIONE_APP__);

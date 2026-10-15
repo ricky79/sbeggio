@@ -70,6 +70,16 @@ export default defineConfig(({ mode }) => {
             { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
             { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
+          // Tenendo premuta l'icona (Android, Windows): "Timbra" apre ?timbra, come il tag NFC.
+          shortcuts: [
+            {
+              name: 'Timbra',
+              short_name: 'Timbra',
+              description: 'Registra la prossima timbratura',
+              url: `${BASE}?timbra`,
+              icons: [{ src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' }],
+            },
+          ],
         },
         injectManifest: {
           globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
