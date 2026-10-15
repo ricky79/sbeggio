@@ -26,6 +26,7 @@ export const NOVITA: readonly Novita[] = [
       'L\'Aiuto e le Novità ora sono in Impostazioni: la barra in basso ha tre schede.',
       'I fogli che si aprono dal basso si chiudono con la ✕ in alto a destra o trascinandoli verso il basso.',
       'Nuova sezione "Dispositivi collegati": "+ Collega un dispositivo" per aprire Sbeggio sul computer.',
+      'Nuova veste per web.sbeggio.app: il logo di Sbeggio, i passi per collegarsi spiegati meglio e, sul computer, il codice e le istruzioni affiancati.',
     ],
   },
   {
