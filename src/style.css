@@ -326,6 +326,20 @@ button {
   font-size: 17px;
   opacity: 0.85;
 }
+/* Prima della fascia pranzo: sigaretta e permesso, due pulsanti grandi affiancati e uguali. */
+.azioni-principali {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.azioni-principali .btn-principale {
+  padding: 12px 8px;
+}
+.azioni-principali .btn-principale-testo {
+  font-size: 22px;
+  line-height: 1.15;
+  text-align: center;
+}
 .azione-inizio_pausa,
 .azione-fine_pausa {
   background: var(--pausa);

@@ -170,33 +170,32 @@ function boxProblemi(problemi: string[]): HTMLElement {
 }
 
 function pulsantiAzione(data: string, r: RisultatoGiornata, adesso: number): HTMLElement {
-  const { primaria, secondarie } = azioniDisponibili(r.stato, r.pausaFatta);
+  const primaDelPranzo = adesso < store.impostazioni.pranzo.inizio;
+  const { principali, secondarie } = azioniDisponibili(r.stato, r.pausaFatta, primaDelPranzo);
+  const tutte = [...principali, ...secondarie];
+  const etichetta = (a: Azione) => (a === 'PAUSA_SIGARETTA' ? `🚬 ${ETICHETTE_AZIONE[a]}` : ETICHETTE_AZIONE[a]);
+  const grandi = principali.map((a) =>
+    el(
+      'button',
+      { type: 'button', class: `btn-principale azione-${a.toLowerCase()}`, onclick: () => void eseguiAzione(a, data) },
+      el('span', { class: 'btn-principale-testo' }, etichetta(a)),
+      el('span', { class: 'btn-principale-ora' }, formattaOra(adesso)),
+    ),
+  );
   return el(
     'div',
     { class: 'azioni' },
-    primaria
-      ? el(
-          'button',
-          { type: 'button', class: `btn-principale azione-${primaria.toLowerCase()}`, onclick: () => void eseguiAzione(primaria, data) },
-          el('span', { class: 'btn-principale-testo' }, ETICHETTE_AZIONE[primaria]),
-          el('span', { class: 'btn-principale-ora' }, formattaOra(adesso)),
-        )
-      : null,
+    // Prima della fascia pranzo i pulsanti grandi sono due, affiancati e uguali.
+    grandi.length > 1 ? el('div', { class: 'azioni-principali' }, grandi) : grandi,
     secondarie.length > 0
       ? el(
           'div',
           { class: 'azioni-secondarie' },
-          secondarie.map((a) =>
-            el(
-              'button',
-              { type: 'button', class: 'btn btn-secondario', onclick: () => void eseguiAzione(a, data) },
-              a === 'PAUSA_SIGARETTA' ? `🚬 ${ETICHETTE_AZIONE[a]}` : ETICHETTE_AZIONE[a],
-            ),
-          ),
+          secondarie.map((a) => el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void eseguiAzione(a, data) }, etichetta(a))),
         )
       : null,
-    primaria || secondarie.length > 0
-      ? secondarie.includes('USCITA_PERMESSO') && secondarie.includes('USCITA_ANTICIPATA')
+    tutte.length > 0
+      ? tutte.includes('USCITA_PERMESSO') && tutte.includes('USCITA_ANTICIPATA')
         ? linkAiuto('Esco in permesso o uscita anticipata?', 'permesso-vs-anticipata')
         : linkAiuto('Quale bottone uso?', 'i-bottoni')
       : null,

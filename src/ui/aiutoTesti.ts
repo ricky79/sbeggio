@@ -44,6 +44,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
   const pranzoAvviso = formattaDurata(imp.avvisi.pranzoMinuti);
   const inizioProposta = imp.pranzo.inizio + OFFSET_PAUSA_PROPOSTA;
   const pausaProposta = `${formattaOra(inizioProposta)}–${formattaOra(inizioProposta + DURATA_PAUSA_PROPOSTA)}`;
+  const inizioFascia = formattaOra(imp.pranzo.inizio);
   const fineFascia = formattaOra(imp.pranzo.fine);
   const fineSigaretta =
     imp.tipoSigaretta === 'elettronica' ? 'il serbatoio si svuota, il LED lampeggia' : 'la sigaretta finisce nel posacenere';
@@ -58,6 +59,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
         'Ogni volta che timbri al lavoro, tocca il bottone grande nella schermata Oggi: l\'app registra l\'orario attuale e ti propone già l\'azione successiva (Entrata → Inizio pausa pranzo → Fine pausa pranzo → Uscita).',
         'In alto vedi l\'ora di uscita prevista, le ore coperte rispetto a quelle dovute e il saldo della giornata.',
         'Sotto il bottone grande compaiono le azioni meno frequenti (permessi, uscita anticipata…), solo quando hanno senso in quel momento.',
+        `Prima della fascia pranzo (${inizioFascia}) la pausa pranzo non si può segnare: al suo posto ci sono due bottoni grandi, 🚬 Pausa sigaretta ed Esco in permesso.`,
       ],
     },
     {
@@ -89,6 +91,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       domanda: 'Inizio pausa pranzo / Fine pausa pranzo',
       testo: [
         'Servono per la pausa pranzo, che non conta come ore coperte.',
+        `Inizio pausa pranzo compare dall'inizio della fascia pranzo (${inizioFascia}): prima, se esci, è un permesso (Esco in permesso).`,
         `Con Inizio pausa pranzo si apre una schermata con il cronometro della pausa e un piatto a sorpresa (ramen, pizza, panino o mela) che si svuota man mano fino a ${pausaMin}, la pausa minima. Fine pausa pranzo mostra in grande quanto è durata la pausa; "Annulla, sono ancora in pausa" riporta al cronometro. Se hai toccato Inizio per sbaglio, usa "Annulla pausa".`,
         `Se la pausa dura meno di ${pausaMin}, viene comunque conteggiata come ${pausaMin}.`,
         'Con almeno 6 ore dovute nella giornata (quelle in Impostazioni, anche se prendi un permesso) la pausa pranzo è obbligatoria per legge e non si può saltare.',
@@ -233,12 +236,13 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       testo: [
         'Nell\'app per Android puoi timbrare avvicinando il telefono a un tag NFC di Sbeggio, per esempio quello vicino ai tornelli, anche ad app chiusa: Sbeggio si apre e registra l\'azione del bottone principale.',
         '• Giornata non iniziata: Entrata.',
+        `• Al lavoro prima della fascia pranzo (${inizioFascia}): ti chiede se è Pausa sigaretta o Esco in permesso.`,
         `• Al lavoro senza pausa: Inizio pausa pranzo. Dopo le ${fineFascia}, finita la fascia pranzo, ti chiede se è Inizio pausa pranzo o Uscita.`,
         '• In pausa: Fine pausa pranzo.',
         '• Al lavoro dopo la pausa: Uscita.',
         `• Pausa sigaretta in corso: Rientro, come con il tasto (entro ${tolleranza} la pausa non conta).`,
         '• In permesso: Rientro da permesso.',
-        'Il telefono vibra e compare il solito messaggio, con il tasto Annulla per 5 secondi se il tag ha registrato la cosa sbagliata. Una seconda lettura entro un minuto viene ignorata. L\'inizio della pausa sigaretta e l\'uscita in permesso si fanno con i bottoni.',
+        'Il telefono vibra e compare il solito messaggio, con il tasto Annulla per 5 secondi se il tag ha registrato la cosa sbagliata. Una seconda lettura entro un minuto viene ignorata. Dalla fascia pranzo in poi l\'inizio della pausa sigaretta e l\'uscita in permesso si fanno con i bottoni.',
         'Il telefono deve essere sbloccato e con l\'NFC attivo: lo vedi in Impostazioni → Tag NFC.',
       ],
     },
