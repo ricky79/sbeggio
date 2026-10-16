@@ -3,7 +3,8 @@
 
 // Genera le icone PNG della PWA e dell'app Android dal logo vettoriale in scripts/logo/:
 // sfondo.svg (verde a tutta superficie), personaggio.svg (il tesserino, su fondo trasparente)
-// e badge.svg (sagoma per le notifiche). La favicon è public/favicon.svg, usata così com'è.
+// e badge.svg (sagoma per le notifiche). Scrive anche public/logo.svg, l'icona in vettoriale per il sito
+// web.sbeggio.app. La favicon è public/favicon.svg, usata così com'è.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { Resvg } from '@resvg/resvg-js';
 
@@ -17,9 +18,11 @@ function annida(svg, x, y, lato, extra = '') {
   return svg.replace(/^<svg\b[^>]*>/, `<svg x="${x}" y="${y}" width="${lato}" height="${lato}" viewBox="0 0 100 100" ${extra}>`);
 }
 
+const svg = (w, h, contenuto) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${contenuto}</svg>`;
+
 function png(w, h, contenuto) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${contenuto}</svg>`;
-  return new Resvg(svg, { fitTo: { mode: 'original' } }).render().asPng();
+  return new Resvg(svg(w, h, contenuto), { fitTo: { mode: 'original' } }).render().asPng();
 }
 
 /** Personaggio di lato `scala`·size centrato in un quadrato di lato size. */
@@ -29,12 +32,12 @@ const personaggio = (size, scala) => annida(PERSONAGGIO, (size * (1 - scala)) / 
  * Icona quadrata: sfondo e personaggio. `forma` ritaglia il quadrato: 'piena' (gli angoli li arrotonda
  * il sistema), 'arrotondata' (angoli trasparenti, come la favicon) o 'tonda'.
  */
-function icona(size, scala, forma) {
+function contenutoIcona(size, scala, forma) {
   const r = { piena: 0, arrotondata: size * 0.22, tonda: size / 2 }[forma];
-  return png(size, size,
-    `<clipPath id="forma"><rect width="${size}" height="${size}" rx="${r}"/></clipPath>` +
-    `<g clip-path="url(#forma)">${annida(SFONDO, 0, 0, size)}${personaggio(size, scala)}</g>`);
+  return `<clipPath id="forma"><rect width="${size}" height="${size}" rx="${r}"/></clipPath>` +
+    `<g clip-path="url(#forma)">${annida(SFONDO, 0, 0, size)}${personaggio(size, scala)}</g>`;
 }
+const icona = (size, scala, forma) => png(size, size, contenutoIcona(size, scala, forma));
 
 mkdirSync('public/icons', { recursive: true });
 writeFileSync('public/icons/icon-192.png', icona(192, 1, 'arrotondata'));
@@ -46,6 +49,9 @@ writeFileSync('public/icons/icon-maskable-512.png', icona(512, 0.8, 'piena'));
 // Badge delle notifiche (Android): conta solo la forma, Chrome usa il canale alfa. 96×96 come consiglia Chrome.
 writeFileSync('public/icons/badge-96.png', png(96, 96, annida(BADGE, 0, 0, 96)));
 console.log('Icone generate in public/icons/');
+// Logo del sito web.sbeggio.app: la stessa icona della PWA, in vettoriale.
+writeFileSync('public/logo.svg', svg(100, 100, contenutoIcona(100, 1, 'arrotondata')) + '\n');
+console.log('Logo del sito generato in public/logo.svg');
 
 // App Android: stesse icone della PWA in tutte le densità.
 const RES = 'android/app/src/main/res';

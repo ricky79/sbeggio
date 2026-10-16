@@ -19,6 +19,13 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.12.1',
+    data: '2026-10-16',
+    voci: [
+      'Su web.sbeggio.app ora c\'è lo stesso logo dell\'app.',
+    ],
+  },
+  {
     versione: '2.12.0',
     data: '2026-10-15',
     voci: [
