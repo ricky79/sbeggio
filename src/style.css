@@ -1199,6 +1199,139 @@ input:disabled {
   }
 }
 
+/* Pausa pranzo: schermata a tutto schermo come la sigaretta, sempre scura ma calda. */
+.pranzo {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: calc(var(--sicuro-alto) + 24px) calc(var(--sicuro-dx) + 16px) calc(var(--sicuro-basso) + 24px)
+    calc(var(--sicuro-sx) + 16px);
+  border: 0;
+  background: radial-gradient(circle at 50% 40%, #3a2a1a, #120c07 72%);
+  color: #f5f5f4;
+  text-align: center;
+}
+.pranzo[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.pranzo::backdrop {
+  background: #120c07;
+}
+.pranzo h2 {
+  margin: 0;
+  font-size: 24px;
+}
+.pranzo-sottotitolo {
+  margin: 4px 0 0;
+  color: #c4b5a5;
+}
+.pranzo-scena {
+  width: 100%;
+  max-width: 420px;
+}
+.pranzo-disegno {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.pranzo-timer {
+  margin: 0;
+  font-size: 64px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+/* Riepilogo a fine pausa: la durata in grande, in verde. */
+.pranzo.riepilogo .pranzo-timer {
+  color: #86efac;
+}
+.pranzo-nota {
+  margin: 0;
+  min-height: 1.4em;
+  color: #e7e0d8;
+}
+.pranzo-uscita {
+  margin: -8px 0 0;
+  min-height: 1.4em;
+  color: #c4b5a5;
+  font-size: 15px;
+}
+.pranzo.finito:not(.riepilogo) .pranzo-nota {
+  color: #86efac;
+  font-weight: 600;
+}
+.pranzo-azioni {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+  margin-top: 8px;
+}
+.pranzo-azioni .btn-primario {
+  min-height: 56px;
+  font-size: 18px;
+}
+.pranzo-link {
+  padding: 8px;
+  border: 0;
+  background: none;
+  color: #c4b5a5;
+  font-size: 15px;
+  text-decoration: underline;
+}
+/* Caffè e resti del piatto arrivano alla pausa minima; il cibo sparisce. */
+.caffe,
+.cibo-resti {
+  opacity: 0;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.caffe {
+  transform: translateY(16px);
+}
+.pranzo.finito .caffe,
+.pranzo.finito .cibo-resti {
+  opacity: 1;
+  transform: none;
+}
+.pranzo.finito .cibo-porzione,
+.pranzo.finito .forchetta,
+.pranzo.finito .mela-buccia {
+  display: none;
+}
+/* La forchetta arrotola gli spaghetti; il caffè fuma (senza animazione il fumo resta invisibile). */
+.forchetta {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: forchetta 2.4s ease-in-out infinite;
+}
+.caffe-fumo path {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: fumo 3.6s ease-out infinite;
+}
+.caffe-fumo path:nth-child(2) {
+  animation-delay: 1.2s;
+}
+.caffe-fumo path:nth-child(3) {
+  animation-delay: 2.4s;
+}
+@keyframes forchetta {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+
 /* Pausa sigaretta: schermata a tutto schermo, sempre scura */
 .sigaretta {
   inset: 0;

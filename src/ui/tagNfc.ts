@@ -28,8 +28,8 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
   const azione = azioneTag(r, sigarettaInCorso(giornata) !== null, minuti, store.impostazioni.pranzo.fine);
   const esito = esitoLettura({
     azione,
-    // La schermata della sigaretta non conta: il tag serve proprio a chiuderla.
-    finestraAperta: document.querySelector('dialog[open]:not(.sigaretta)') !== null,
+    // Le schermate della sigaretta e della pausa pranzo non contano: il tag serve proprio a chiuderle.
+    finestraAperta: document.querySelector('dialog[open]:not(.sigaretta):not(.pranzo:not(.riepilogo))') !== null,
     ora: Date.now(),
     ultimaTimbratura,
   });

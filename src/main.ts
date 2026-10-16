@@ -9,6 +9,7 @@ import { el, monta } from './ui/dom';
 import { conTransizione, creaTabbar, SCHEDE, type Scheda } from './ui/tabbar';
 import { impostaOrologio, vistaGiorno, type Adesso } from './ui/giorno';
 import { riprendiPausaSigaretta } from './ui/sigaretta';
+import { riprendiPausaPranzo } from './ui/pranzo';
 import { vistaImpostazioni, type NavImpostazioni } from './ui/impostazioni';
 import { titoloPagina, type IdPagina } from './ui/ricercaImpostazioni';
 import { vistaStorico } from './ui/storico';
@@ -94,8 +95,9 @@ function render(forza = true): void {
   stato.voce = null;
   monta(contenuto, vista);
   window.scrollTo(0, scroll);
-  // Pausa sigaretta in corso (app riaperta o tornata in primo piano): ripresenta la schermata.
+  // Pausa sigaretta o pranzo in corso (app riaperta o tornata in primo piano): ripresenta la schermata.
   riprendiPausaSigaretta(adesso.data);
+  riprendiPausaPranzo(adesso.data);
 
   tabbar.aggiorna(stato.scheda);
 }
