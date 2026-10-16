@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { avanzamentoPranzo, CIBI, ciboDellaPausa, pranzoDaRiprendere, pranzoInCorso, testoCronometro } from '../src/core/pranzo';
-import { bordiMela, bordoPanino, scalaSpaghetti, spicchiRimasti } from '../src/ui/pranzoDisegni';
+import { bordiMela, bordoPanino, ingredientiRamen, livelloRamen, spicchiRimasti } from '../src/ui/pranzoDisegni';
 import { giornata } from './helpers';
 
 const MIN = 60_000;
@@ -82,12 +82,18 @@ describe('disegni', () => {
     expect(spicchiRimasti(2)).toBe(0);
   });
 
-  it('panino, mela e spaghetti vanno dall\'intero alla fine', () => {
+  it('panino e mela vanno dall\'intero alla fine', () => {
     expect(bordoPanino(0)).toBe(204);
     expect(bordoPanino(1)).toBe(44);
     expect(bordiMela(0)).toEqual({ sinistro: 72, destro: 164 });
     expect(bordiMela(1)).toEqual({ sinistro: 110, destro: 126 });
-    expect(scalaSpaghetti(0)).toBe(1);
-    expect(scalaSpaghetti(1)).toBeCloseTo(0.15);
+  });
+
+  it('ramen: il brodo cala e gli ingredienti spariscono uno alla volta', () => {
+    expect(livelloRamen(0)).toEqual({ abbassamento: 0, scala: 1 });
+    expect(livelloRamen(1)).toEqual({ abbassamento: 14, scala: 0.6 });
+    expect(ingredientiRamen(0)).toEqual(['alga', 'uovo', 'naruto', 'carne']);
+    expect(ingredientiRamen(0.5)).toEqual(['naruto', 'carne']);
+    expect(ingredientiRamen(1)).toEqual([]);
   });
 });

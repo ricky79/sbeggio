@@ -23,35 +23,65 @@ const PIATTO = `
 const svg = (contenuto: string) =>
   `<svg class="pranzo-disegno" viewBox="0 0 300 180" aria-hidden="true"><g transform="translate(32 0)">${contenuto}</g></svg>`;
 
-/* Spaghetti al pomodoro: la porzione rimpicciolisce sotto la forchetta, alla fine resta la macchia di sugo. */
-const SPAGHETTI = svg(`
-  ${PIATTO}
-  <g class="cibo-resti">
-    <ellipse cx="${CX}" cy="124" rx="30" ry="8" fill="#b91c1c" opacity="0.35"/>
-    <path d="M100 126 q8 -5 16 0 q8 5 14 -1" fill="none" stroke="#e8b24f" stroke-width="2.5" stroke-linecap="round"/>
+/*
+ * Ramen nella ciotola: il brodo cala (e si restringe, la ciotola si stringe verso il fondo), gli
+ * ingredienti spariscono uno alla volta; alla fine resta un fondo di brodo con il cipollotto.
+ */
+const RAMEN = svg(`
+  <defs>
+    <clipPath id="ramen-bocca"><ellipse cx="${CX}" cy="80" rx="74" ry="22"/></clipPath>
+  </defs>
+  <g class="ramen-vapore" fill="none" stroke="#e7e5e4" stroke-width="3" stroke-linecap="round">
+    <path d="M100 50 c-6 -6 6 -11 0 -17 c-5 -5 5 -9 0 -14"/>
+    <path d="M120 46 c6 -7 -6 -12 0 -18 c5 -5 -4 -9 0 -13"/>
+    <path d="M140 50 c-5 -6 7 -11 1 -17 c-5 -6 6 -9 0 -15"/>
   </g>
-  <g class="cibo-porzione">
-    <ellipse cx="${CX}" cy="114" rx="56" ry="18" fill="#e8b24f"/>
-    <g fill="none" stroke="#f6d488" stroke-width="3" stroke-linecap="round">
-      <path d="M68 114 q12 -10 24 0 t24 0 t24 0 t24 2"/>
-      <path d="M74 120 q10 -8 22 -1 t22 0 t22 -1 t20 1"/>
-      <path d="M80 106 q12 -9 22 0 t22 -1 t22 1 t14 2"/>
-      <path d="M90 99 q10 -7 20 0 t20 0 t20 1"/>
+  <ellipse cx="${CX}" cy="156" rx="56" ry="7" fill="#000" opacity="0.3"/>
+  <rect x="94" y="140" width="48" height="13" rx="4" fill="#7f1d1d"/>
+  <path d="M40 80 Q42 144 ${CX} 150 Q194 144 196 80 Z" fill="#b91c1c"/>
+  <path d="M46 104 Q${CX} 124 190 104" fill="none" stroke="#fde68a" stroke-width="3"/>
+  <path d="M52 118 Q${CX} 136 184 118" fill="none" stroke="#fde68a" stroke-width="1.5" opacity="0.7"/>
+  <ellipse cx="${CX}" cy="80" rx="78" ry="25" fill="#7f1d1d"/>
+  <ellipse cx="${CX}" cy="80" rx="74" ry="22" fill="#f5ede4"/>
+  <g clip-path="url(#ramen-bocca)">
+    <g class="cibo-resti">
+      <ellipse cx="${CX}" cy="96" rx="34" ry="7" fill="#e9a23b" opacity="0.8"/>
+      <g fill="#4ade80"><circle cx="106" cy="96" r="2"/><circle cx="124" cy="95" r="1.8"/><circle cx="116" cy="99" r="1.6"/></g>
     </g>
-    <path d="M118 84 c13 0 22 6 21 13 c-1 8 -11 11 -21 11 c-11 0 -21 -3 -21 -11 c0 -8 9 -13 21 -13 z" fill="#c81e1e"/>
-    <ellipse cx="111" cy="92" rx="7" ry="3" fill="#ef4444" opacity="0.7"/>
-    <ellipse cx="128" cy="88" rx="7" ry="3.5" fill="#15803d" transform="rotate(-25 128 88)"/>
   </g>
-  <g class="forchetta" fill="#d6d3d1">
-    <rect x="148" y="14" width="5" height="62" rx="2.5"/>
-    <rect x="142" y="74" width="17" height="9" rx="3"/>
-    <rect x="142" y="80" width="3" height="18" rx="1.5"/>
-    <rect x="147" y="80" width="3" height="18" rx="1.5"/>
-    <rect x="151" y="80" width="3" height="18" rx="1.5"/>
-    <rect x="156" y="80" width="3" height="18" rx="1.5"/>
+  <rect class="ramen-alga" x="56" y="40" width="22" height="44" rx="2" fill="#1f3d2b" transform="rotate(-10 66 84)"/>
+  <g clip-path="url(#ramen-bocca)">
+    <g class="cibo-porzione ramen-brodo">
+      <ellipse cx="${CX}" cy="82" rx="74" ry="22" fill="#e9a23b"/>
+      <g fill="none" stroke="#fbe3a1" stroke-width="3" stroke-linecap="round">
+        <path d="M58 82 q10 -7 20 0 t20 0 t20 0 t20 0 t20 0 t20 0"/>
+        <path d="M66 92 q10 -7 20 0 t20 0 t20 0 t20 0 t20 0"/>
+        <path d="M70 72 q9 -6 18 0 t18 0 t18 0 t18 0 t18 0"/>
+        <path d="M84 100 q9 -6 18 0 t18 0 t18 0"/>
+      </g>
+      <g class="ramen-carne">
+        <ellipse cx="128" cy="94" rx="18" ry="9" fill="#b9775c"/>
+        <ellipse cx="128" cy="93" rx="12" ry="5.5" fill="#e8b4a0"/>
+      </g>
+      <g class="ramen-naruto">
+        <ellipse cx="154" cy="76" rx="13" ry="8" fill="#fafaf9" stroke="#f9a8d4" stroke-width="1.5"/>
+        <path d="M154 76 m-1 0 a2 1.4 0 1 1 3 0.6 a4 2.8 0 1 1 -7 -1 a6.5 4.2 0 1 1 10.5 1.4" fill="none" stroke="#ec4899" stroke-width="1.5"/>
+      </g>
+      <g class="ramen-uovo">
+        <ellipse cx="94" cy="84" rx="16" ry="10" fill="#fafaf9"/>
+        <ellipse cx="94" cy="84" rx="9" ry="6" fill="#f59e0b"/>
+      </g>
+      <g class="ramen-cipollotto" fill="#4ade80">
+        <circle cx="112" cy="74" r="2.2"/><circle cx="118" cy="80" r="2"/><circle cx="142" cy="92" r="2.2"/>
+        <circle cx="108" cy="96" r="1.8"/><circle cx="148" cy="86" r="1.8"/><circle cx="80" cy="74" r="1.8"/>
+      </g>
+    </g>
+  </g>
+  <g class="bacchette" stroke="#a16207" stroke-width="4" stroke-linecap="round">
+    <path d="M178 6 L132 76"/><path d="M188 10 L138 80"/>
   </g>`);
 
-/* Pizza margherita sul tagliere: gli spicchi (creati da creaDisegnoPranzo) spariscono uno alla volta. */
+/* Pizza margherita sul tagliere: gli spicchi (creati da creaDisegnoPranzo) spariscono uno alla volta, in senso orario. */
 const PIZZA = svg(`
   <circle cx="${CX}" cy="92" r="76" fill="#b7793d" stroke="#8a5a2b" stroke-width="4"/>
   <g fill="none" stroke="#a96d33" stroke-width="2" stroke-linecap="round" opacity="0.7">
@@ -123,7 +153,7 @@ const MELA = svg(`
   <path d="M118 62 Q118 50 123 42" fill="none" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
   <ellipse cx="133" cy="48" rx="10" ry="5" fill="#16a34a" transform="rotate(-25 133 48)"/>`);
 
-const SVG: Record<Cibo, string> = { spaghetti: SPAGHETTI, pizza: PIZZA, panino: PANINO, mela: MELA };
+const SVG: Record<Cibo, string> = { ramen: RAMEN, pizza: PIZZA, panino: PANINO, mela: MELA };
 
 export interface DisegnoPranzo {
   elemento: Element;
@@ -176,9 +206,18 @@ export function bordiMela(mangiato: number): { sinistro: number; destro: number 
   return { sinistro: 72 + 38 * m, destro: 164 - 38 * m };
 }
 
-/** Scala della porzione di spaghetti: dalla porzione intera a una forchettata. */
-export function scalaSpaghetti(mangiato: number): number {
-  return 1 - 0.85 * tra0e1(mangiato);
+/** Brodo del ramen: quanto scende (unità SVG) e quanto si restringe la superficie. */
+export function livelloRamen(mangiato: number): { abbassamento: number; scala: number } {
+  const m = tra0e1(mangiato);
+  return { abbassamento: 14 * m, scala: 1 - 0.4 * m };
+}
+
+/** Ingredienti del ramen e quanto si è mangiato quando spariscono, uno alla volta. */
+export const INGREDIENTI_RAMEN = { alga: 0.2, uovo: 0.4, naruto: 0.6, carne: 0.8 } as const;
+
+/** Gli ingredienti ancora nella ciotola. */
+export function ingredientiRamen(mangiato: number): (keyof typeof INGREDIENTI_RAMEN)[] {
+  return (Object.keys(INGREDIENTI_RAMEN) as (keyof typeof INGREDIENTI_RAMEN)[]).filter((k) => mangiato < INGREDIENTI_RAMEN[k]);
 }
 
 /** Crea il disegno del cibo `cibo`. */
@@ -194,7 +233,8 @@ export function creaDisegnoPranzo(cibo: Cibo): DisegnoPranzo {
       elemento,
       aggiorna: (m) => {
         const n = spicchiRimasti(m);
-        spicchi.forEach((s, i) => s.setAttribute('visibility', i < n ? 'visible' : 'hidden'));
+        // Gli spicchi sono numerati in senso orario da ore 12: si mangiano i primi, così il vuoto gira in senso orario.
+        spicchi.forEach((s, i) => s.setAttribute('visibility', i >= SPICCHI - n ? 'visible' : 'hidden'));
       },
     };
   }
@@ -229,12 +269,17 @@ export function creaDisegnoPranzo(cibo: Cibo): DisegnoPranzo {
       },
     };
   }
-  const porzione = elemento.querySelector('.cibo-porzione')!;
+  const brodo = elemento.querySelector('.ramen-brodo')!;
+  const ingredienti = (Object.keys(INGREDIENTI_RAMEN) as (keyof typeof INGREDIENTI_RAMEN)[]).map(
+    (k) => [k, elemento.querySelector(`.ramen-${k}`)!] as const,
+  );
   return {
     elemento,
     aggiorna: (m) => {
-      const s = scalaSpaghetti(m);
-      porzione.setAttribute('transform', `translate(${CX} 114) scale(${s}) translate(${-CX} -114)`);
+      const l = livelloRamen(m);
+      brodo.setAttribute('transform', `translate(${CX} ${82 + l.abbassamento}) scale(${l.scala}) translate(${-CX} -82)`);
+      const restano = ingredientiRamen(m);
+      for (const [k, nodo] of ingredienti) nodo.setAttribute('visibility', restano.includes(k) ? 'visible' : 'hidden');
     },
   };
 }
