@@ -12,7 +12,8 @@ import { conferma, toast } from './dialoghi';
 import { el } from './dom';
 import { linkAiuto } from './aiuto';
 import { controlloLuogo } from './luogo';
-import { ICONA_FERIE, impostaFerie, schedaFerie } from './ferie';
+import { impostaFerie, schedaFerie } from './ferie';
+import { ICONA_FERIE } from './simboli';
 import { haTimbrature } from '../core/giornata';
 import {
   confermaRipartizione,

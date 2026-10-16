@@ -379,6 +379,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
         'Sul computer apri web.sbeggio.app: compare un codice QR.',
         'Sul telefono vai in Impostazioni → Dispositivi collegati → "+ Collega un dispositivo", inquadra il codice e conferma con Invia.',
         'Dal computer scarichi il file Excel, il CSV o il JSON di un mese a scelta o di tutte le timbrature.',
+        'Sotto i download c\'è lo storico, come nell\'app: riepilogo e giorni del mese corrente o di quello precedente.',
         '• Le timbrature viaggiano cifrate: il server che le passa al computer non può leggerle e non le conserva.',
         '• Il codice vale 5 minuti e una sola volta; chiudendo la pagina i dati spariscono dal computer.',
         '• Servono la connessione a internet e il permesso di usare la fotocamera.',
