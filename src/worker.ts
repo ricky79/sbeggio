@@ -56,9 +56,9 @@ async function collega(richiesta: Request, env: Env, url: URL): Promise<Response
   return new Response(risposta.body, { status: risposta.status, headers: intestazioni });
 }
 
-/** I chunk in /assets/ e l'icona restano quelli richiesti; ogni altro percorso è la pagina del sito. */
+/** I chunk in /assets/, la favicon e il logo restano quelli richiesti; ogni altro percorso è la pagina del sito. */
 function richiestaSito(richiesta: Request, url: URL): Request {
-  if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.svg') return richiesta;
+  if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.svg' || url.pathname === '/logo.svg') return richiesta;
   // Workers Assets (html_handling predefinito) serve web.html all'indirizzo /web.
   return new Request(new URL('/web', url), richiesta);
 }
