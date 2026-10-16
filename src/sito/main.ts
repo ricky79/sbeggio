@@ -30,7 +30,7 @@ const eroe = (titolo: string, sottotitolo: string | Node) =>
   el(
     'div',
     { class: 'sito-eroe' },
-    el('img', { class: 'sito-eroe-logo', src: '/favicon.svg', alt: '', width: '76', height: '76' }),
+    el('img', { class: 'sito-eroe-logo', src: '/logo.svg', alt: '', width: '76', height: '76' }),
     el('h1', {}, titolo), el('p', { class: 'sito-sottotitolo' }, sottotitolo));
 const titolo = () => eroe('Sbeggio sul computer', 'Le tue timbrature in Excel, CSV o JSON, senza cavi.');
 

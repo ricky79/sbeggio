@@ -53,7 +53,7 @@ describe('worker di web.sbeggio.app', () => {
     expect(fetch.mock.calls[0]![0].url).toBe('https://web.sbeggio.app/web');
   });
 
-  it.each(['/assets/web-abc.js', '/favicon.svg'])('%s resta quello richiesto', async (percorso) => {
+  it.each(['/assets/web-abc.js', '/favicon.svg', '/logo.svg'])('%s resta quello richiesto', async (percorso) => {
     const { env, fetch } = envFinto();
     const richiesta = new Request(`https://web.sbeggio.app${percorso}`);
     await worker.fetch(richiesta, env);
