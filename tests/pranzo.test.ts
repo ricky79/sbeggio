@@ -22,14 +22,14 @@ describe('cibo a sorpresa', () => {
 });
 
 describe('avanzamento verso la pausa minima', () => {
-  it('il cibo si consuma fino alla pausa minima, poi arriva il caffè', () => {
+  it('il cibo si consuma fino alla pausa minima', () => {
     expect(avanzamentoPranzo(0, 30)).toEqual({ mangiato: 0, minimaFatta: false });
     expect(avanzamentoPranzo(15 * MIN, 30)).toEqual({ mangiato: 0.5, minimaFatta: false });
     expect(avanzamentoPranzo(30 * MIN, 30)).toEqual({ mangiato: 1, minimaFatta: true });
     expect(avanzamentoPranzo(75 * MIN, 30)).toEqual({ mangiato: 1, minimaFatta: true });
   });
 
-  it('senza pausa minima il caffè c\'è da subito; orologio indietro = inizio', () => {
+  it('senza pausa minima il piatto è già finito; orologio indietro = inizio', () => {
     expect(avanzamentoPranzo(0, 0)).toEqual({ mangiato: 1, minimaFatta: true });
     expect(avanzamentoPranzo(-5000, 30)).toEqual({ mangiato: 0, minimaFatta: false });
   });

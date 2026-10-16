@@ -15,7 +15,7 @@ import { creaDisegnoPranzo } from './pranzoDisegni';
 
 /**
  * Pausa pranzo a tutto schermo, come la sigaretta: cronometro in avanti, un cibo a sorpresa che si
- * consuma fino alla pausa minima (poi arriva il caffè), Fine pausa pranzo con la durata ben in vista.
+ * consuma fino alla pausa minima, Fine pausa pranzo con la durata ben in vista.
  */
 
 function leggiInizio(data: string, inizio: Evento): number {

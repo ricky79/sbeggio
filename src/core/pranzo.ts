@@ -6,7 +6,7 @@ import type { Evento, Giornata } from './tipi';
 
 /**
  * Schermata della pausa pranzo: un cronometro che conta in avanti e un cibo che si consuma fino alla
- * pausa minima, quando arriva il caffè.
+ * pausa minima.
  */
 
 /** I cibi della schermata: uno a sorpresa per ogni pausa. */
@@ -25,7 +25,7 @@ export function ciboDellaPausa(inizio: number): Cibo {
 export interface Avanzamento {
   /** Quanto cibo è mangiato, da 0 a 1 (1 alla pausa minima). */
   mangiato: number;
-  /** True dalla pausa minima in poi: arriva il caffè. */
+  /** True dalla pausa minima in poi: il piatto è finito. */
   minimaFatta: boolean;
 }
 

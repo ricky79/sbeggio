@@ -4,9 +4,9 @@
 import type { Cibo } from '../core/pranzo';
 
 /*
- * Disegni della schermata della pausa pranzo (viewBox 300 × 180): a sinistra il cibo, che si consuma con
- * `mangiato` da 0 a 1, a destra la tazzina di caffè. Caffè e resti del piatto sono nascosti dal CSS finché
- * la pausa minima non è fatta (classe .finito sulla schermata), le animazioni sono in src/style.css.
+ * Disegni della schermata della pausa pranzo (viewBox 300 × 180): il cibo al centro, che si consuma con
+ * `mangiato` da 0 a 1. I resti del piatto sono nascosti dal CSS finché la pausa minima non è fatta (classe
+ * .finito sulla schermata), le animazioni sono in src/style.css.
  */
 
 const tra0e1 = (n: number) => Math.min(1, Math.max(0, n));
@@ -19,24 +19,9 @@ const PIATTO = `
   <ellipse cx="${CX}" cy="126" rx="92" ry="34" fill="#fafaf9"/>
   <ellipse cx="${CX}" cy="126" rx="64" ry="22" fill="#efedea"/>`;
 
-const CAFFE = `
-  <g class="caffe">
-    <g class="caffe-fumo" fill="none" stroke="#e7e5e4" stroke-width="3" stroke-linecap="round">
-      <path d="M246 100 c-6 -6 6 -11 0 -17 c-5 -5 5 -9 0 -14"/>
-      <path d="M256 100 c6 -7 -6 -12 0 -18 c5 -5 -4 -9 0 -13"/>
-      <path d="M251 102 c-5 -6 7 -11 1 -17 c-5 -6 6 -9 0 -15"/>
-    </g>
-    <ellipse cx="252" cy="152" rx="36" ry="9" fill="#d6d3d1"/>
-    <ellipse cx="252" cy="149" rx="36" ry="9" fill="#fafaf9"/>
-    <path d="M276 118 q15 1 12 14 q-3 7 -14 5" fill="none" stroke="#fafaf9" stroke-width="5"/>
-    <path d="M226 112 L230 140 Q252 152 274 140 L278 112 Z" fill="#fafaf9"/>
-    <ellipse cx="252" cy="112" rx="26" ry="6" fill="#e7e5e4"/>
-    <ellipse cx="252" cy="113" rx="22" ry="4.5" fill="#5b3418"/>
-    <ellipse cx="249" cy="112.5" rx="11" ry="2" fill="#a0662f"/>
-  </g>`;
-
+/** Il cibo è disegnato attorno a x = 118: lo spostamento lo porta al centro del disegno (150). */
 const svg = (contenuto: string) =>
-  `<svg class="pranzo-disegno" viewBox="0 0 300 180" aria-hidden="true">${contenuto}${CAFFE}</svg>`;
+  `<svg class="pranzo-disegno" viewBox="0 0 300 180" aria-hidden="true"><g transform="translate(32 0)">${contenuto}</g></svg>`;
 
 /* Spaghetti al pomodoro: la porzione rimpicciolisce sotto la forchetta, alla fine resta la macchia di sugo. */
 const SPAGHETTI = svg(`
@@ -196,7 +181,7 @@ export function scalaSpaghetti(mangiato: number): number {
   return 1 - 0.85 * tra0e1(mangiato);
 }
 
-/** Crea il disegno del cibo `cibo` con il caffè. */
+/** Crea il disegno del cibo `cibo`. */
 export function creaDisegnoPranzo(cibo: Cibo): DisegnoPranzo {
   const contenitore = document.createElement('div');
   contenitore.innerHTML = SVG[cibo]; // markup statico, nessun dato dell'utente
