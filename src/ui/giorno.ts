@@ -22,6 +22,7 @@ import {
   editorSigarettaNonConteggiata,
 } from './editor';
 import { riquadroPausaSaltata } from './pausaSaltata';
+import { avviaPausaPranzo, finePausaPranzo } from './pranzo';
 import { avviaPausaSigaretta } from './sigaretta';
 
 export interface Adesso {
@@ -221,6 +222,12 @@ export async function eseguiAzione(azione: Azione, data: string, annulla?: () =>
   switch (azione) {
     case 'PAUSA_SIGARETTA':
       avviaPausaSigaretta(data, minuti);
+      return;
+    case 'INIZIO_PAUSA':
+      avviaPausaPranzo(data, minuti);
+      return;
+    case 'FINE_PAUSA':
+      finePausaPranzo(data, minuti, annulla);
       return;
     case 'PERMESSO_INIZIO_GIORNATA':
       await editorPermessoInizio(data, store.giornata(data).eventi.length === 0 ? minuti : null);
