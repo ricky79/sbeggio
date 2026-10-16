@@ -7,8 +7,7 @@ import type { RisultatoGiornata } from '../core/tipi';
 import { store } from '../storage/store';
 import { apriFoglio, toast } from './dialoghi';
 import { el } from './dom';
-
-export const ICONA_FERIE = '🏖️';
+import { ICONA_FERIE } from './simboli';
 
 /** Segna o toglie le ferie in un giorno. */
 export function impostaFerie(data: string, ferie: boolean): void {

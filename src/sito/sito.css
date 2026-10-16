@@ -219,6 +219,55 @@
   display: flex;
   align-items: center;
 }
+/* Storico: titolo e scelta del mese sulla stessa riga, poi le schede dell'app. */
+.sito-storico {
+  margin-top: 32px;
+}
+.sito-storico-testata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sito-storico-testata h2 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+/* Controllo segmentato, come casa/ufficio nell'app. */
+.sito-segmenti {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--superficie-2);
+}
+.sito-segmento {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--testo-2);
+  font-size: 15px;
+  font-weight: 500;
+}
+.sito-segmento[aria-pressed='true'] {
+  background: var(--superficie);
+  color: var(--accento);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+:root[data-tema='scuro'] .sito-segmento[aria-pressed='true'] {
+  background: #48484a;
+}
+.sito-storico-mese {
+  margin: 20px 0 12px;
+  font-size: 18px;
+}
+.sito-storico-mese::first-letter {
+  text-transform: uppercase;
+}
 .sito-scollega {
   max-width: 320px;
   margin: 16px auto 0;

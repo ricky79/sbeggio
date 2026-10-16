@@ -14,6 +14,7 @@ import type { DatiSalvati } from '../storage/migrazioni';
 import { el, monta } from '../ui/dom';
 import { scaricaFile } from '../ui/scarica';
 import { avviaSessione, type StatoSito } from './sessione';
+import { storicoSito } from './storico';
 import { NOVITA } from '../core/novita';
 import { elencoNovita } from '../ui/novita';
 
@@ -68,7 +69,7 @@ function vistaAttesa(c: Collegamento, scadenza: number): Node[] {
   aggiorna();
   orologio = setInterval(aggiorna, 1000);
   return [
-    eroe('Le tue timbrature, sul computer', 'Inquadra il codice con Sbeggio e scarica le timbrature in Excel, CSV o JSON, del mese o tutte.'),
+    eroe('Le tue timbrature, sul computer', 'Inquadra il codice con Sbeggio: guardi lo storico e scarichi le timbrature in Excel, CSV o JSON, del mese o tutte.'),
     el(
       'div',
       { class: 'sito-griglia' },
@@ -82,7 +83,7 @@ function vistaAttesa(c: Collegamento, scadenza: number): Node[] {
           { class: 'sito-passi' },
           el('li', {}, el('strong', {}, 'Apri Sbeggio'), ' sul telefono'),
           el('li', {}, 'Vai in ', el('strong', {}, 'Impostazioni → Dispositivi collegati'), ' e tocca ', el('strong', {}, '+ Collega un dispositivo')),
-          el('li', {}, el('strong', {}, 'Inquadra il codice'), ': i download compaiono qui'),
+          el('li', {}, el('strong', {}, 'Inquadra il codice'), ': qui compaiono i download e lo storico'),
         ),
         riservatezza(),
       ),
@@ -143,6 +144,7 @@ function vistaCollegato(dati: DatiSalvati, ricevuti: number): Node[] {
         pulsanti((f) => scarica(dati, TUTTO, f)),
       ),
     ),
+    storicoSito(dati),
     riservatezza(),
     el('div', { class: 'pila-pulsanti sito-scollega' }, scollega),
   ];
