@@ -33,12 +33,12 @@ describe('macchina a stati', () => {
 
 describe('azioni disponibili', () => {
   it('bottone principale secondo lo stato', () => {
-    expect(azioniDisponibili('NON_INIZIATA', false)).toEqual({ primaria: 'ENTRATA', secondarie: ['PERMESSO_INIZIO_GIORNATA'] });
-    expect(azioniDisponibili('AL_LAVORO', false).primaria).toBe('INIZIO_PAUSA');
-    expect(azioniDisponibili('IN_PAUSA', false).primaria).toBe('FINE_PAUSA');
-    expect(azioniDisponibili('AL_LAVORO', true).primaria).toBe('USCITA');
-    expect(azioniDisponibili('IN_PERMESSO', false).primaria).toBe('RIENTRO_PERMESSO');
-    expect(azioniDisponibili('CHIUSA', true).primaria).toBeNull();
+    expect(azioniDisponibili('NON_INIZIATA', false)).toEqual({ principali: ['ENTRATA'], secondarie: ['PERMESSO_INIZIO_GIORNATA'] });
+    expect(azioniDisponibili('AL_LAVORO', false).principali).toEqual(['INIZIO_PAUSA']);
+    expect(azioniDisponibili('IN_PAUSA', false).principali).toEqual(['FINE_PAUSA']);
+    expect(azioniDisponibili('AL_LAVORO', true).principali).toEqual(['USCITA']);
+    expect(azioniDisponibili('IN_PERMESSO', false).principali).toEqual(['RIENTRO_PERMESSO']);
+    expect(azioniDisponibili('CHIUSA', true).principali).toEqual([]);
   });
 
   it('azioni secondarie sensate', () => {
@@ -46,5 +46,20 @@ describe('azioni disponibili', () => {
     expect(azioniDisponibili('AL_LAVORO', false).secondarie).toEqual(['PAUSA_SIGARETTA', 'USCITA_PERMESSO', 'USCITA_ANTICIPATA', 'USCITA']);
     expect(azioniDisponibili('IN_PAUSA', false).secondarie).toEqual([]);
     expect(azioniDisponibili('IN_PERMESSO', false).secondarie).toContain('NON_RIENTRO');
+  });
+
+  it('prima della fascia pranzo niente pausa pranzo: sigaretta e permesso affiancati', () => {
+    expect(azioniDisponibili('AL_LAVORO', false, true)).toEqual({
+      principali: ['PAUSA_SIGARETTA', 'USCITA_PERMESSO'],
+      secondarie: ['USCITA_ANTICIPATA', 'USCITA'],
+    });
+  });
+
+  it('prima della fascia pranzo gli altri stati non cambiano', () => {
+    expect(azioniDisponibili('NON_INIZIATA', false, true)).toEqual(azioniDisponibili('NON_INIZIATA', false));
+    expect(azioniDisponibili('IN_PERMESSO', false, true)).toEqual(azioniDisponibili('IN_PERMESSO', false));
+    expect(azioniDisponibili('IN_PAUSA', false, true)).toEqual(azioniDisponibili('IN_PAUSA', false));
+    // Pausa già coperta (es. da un permesso): resta Uscita, non c'è pranzo da nascondere.
+    expect(azioniDisponibili('AL_LAVORO', true, true)).toEqual(azioniDisponibili('AL_LAVORO', true));
   });
 });
