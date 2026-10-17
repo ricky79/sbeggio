@@ -326,6 +326,20 @@ button {
   font-size: 17px;
   opacity: 0.85;
 }
+/* Prima della fascia pranzo: sigaretta e permesso, due pulsanti grandi affiancati e uguali. */
+.azioni-principali {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.azioni-principali .btn-principale {
+  padding: 12px 8px;
+}
+.azioni-principali .btn-principale-testo {
+  font-size: 22px;
+  line-height: 1.15;
+  text-align: center;
+}
 .azione-inizio_pausa,
 .azione-fine_pausa {
   background: var(--pausa);
@@ -1196,6 +1210,135 @@ input:disabled {
   *::after {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* Pausa pranzo: schermata a tutto schermo come la sigaretta, sempre scura ma calda. */
+.pranzo {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: calc(var(--sicuro-alto) + 24px) calc(var(--sicuro-dx) + 16px) calc(var(--sicuro-basso) + 24px)
+    calc(var(--sicuro-sx) + 16px);
+  border: 0;
+  background: radial-gradient(circle at 50% 40%, #3a2a1a, #120c07 72%);
+  color: #f5f5f4;
+  text-align: center;
+}
+.pranzo[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.pranzo::backdrop {
+  background: #120c07;
+}
+.pranzo h2 {
+  margin: 0;
+  font-size: 24px;
+}
+.pranzo-sottotitolo {
+  margin: 4px 0 0;
+  color: #c4b5a5;
+}
+.pranzo-scena {
+  width: 100%;
+  max-width: 420px;
+}
+.pranzo-disegno {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.pranzo-timer {
+  margin: 0;
+  font-size: 64px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+/* Riepilogo a fine pausa: la durata in grande, in verde. */
+.pranzo.riepilogo .pranzo-timer {
+  color: #86efac;
+}
+.pranzo-nota {
+  margin: 0;
+  min-height: 1.4em;
+  color: #e7e0d8;
+}
+.pranzo-uscita {
+  margin: -8px 0 0;
+  min-height: 1.4em;
+  color: #c4b5a5;
+  font-size: 15px;
+}
+.pranzo.finito:not(.riepilogo) .pranzo-nota {
+  color: #86efac;
+  font-weight: 600;
+}
+.pranzo-azioni {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+  margin-top: 8px;
+}
+.pranzo-azioni .btn-primario {
+  min-height: 56px;
+  font-size: 18px;
+}
+.pranzo-link {
+  padding: 8px;
+  border: 0;
+  background: none;
+  color: #c4b5a5;
+  font-size: 15px;
+  text-decoration: underline;
+}
+/* Alla pausa minima il cibo sparisce e restano i resti nel piatto. */
+.cibo-resti {
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+.pranzo.finito .cibo-resti {
+  opacity: 1;
+}
+.pranzo.finito .cibo-porzione,
+.pranzo.finito .bacchette,
+.pranzo.finito .ramen-vapore,
+.pranzo.finito .ramen-alga,
+.pranzo.finito .mela-buccia {
+  display: none;
+}
+/* Le bacchette pescano i noodles, il ramen fuma (senza animazione il vapore resta invisibile). */
+.bacchette {
+  transform-box: fill-box;
+  transform-origin: 100% 0;
+  animation: bacchette 2.4s ease-in-out infinite;
+}
+.ramen-vapore path {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: fumo 3.6s ease-out infinite;
+}
+.ramen-vapore path:nth-child(2) {
+  animation-delay: 1.2s;
+}
+.ramen-vapore path:nth-child(3) {
+  animation-delay: 2.4s;
+}
+@keyframes bacchette {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-7deg);
   }
 }
 

@@ -89,6 +89,7 @@ describe('lettura del tag', () => {
   });
 
   it('una seconda lettura entro un minuto è ignorata', async () => {
+    vi.setSystemTime(new Date('2026-10-01T10:30:00Z')); // 12:30 a Roma: dopo l'entrata il tag timbra la pausa
     const { gestisciTag } = await carica();
     await gestisciTag(vi.fn());
     vi.advanceTimersByTime(59_000);
@@ -167,6 +168,23 @@ describe('lettura del tag', () => {
     await gestisciTag(vi.fn());
     expect(dialoghi.apriFoglio).toHaveBeenCalledWith('Cosa timbri?', expect.anything(), expect.any(Array));
     expect(azioni.eseguiAzione).toHaveBeenCalledWith('USCITA', OGGI, expect.any(Function));
+  });
+
+  it('prima della fascia pranzo chiede: Esco in permesso timbra l\'uscita in permesso', async () => {
+    finto.giornate[OGGI] = giornata([['ENTRATA', '08:30']], { data: OGGI }); // sono le 10:00
+    finto.sceltaFoglio = 'Esco in permesso';
+    const { gestisciTag } = await carica();
+    await gestisciTag(vi.fn());
+    expect(dialoghi.apriFoglio).toHaveBeenCalledWith('Cosa timbri?', expect.anything(), expect.any(Array));
+    expect(azioni.eseguiAzione).toHaveBeenCalledWith('USCITA_PERMESSO', OGGI, expect.any(Function));
+  });
+
+  it('prima della fascia pranzo chiede: Pausa sigaretta la fa partire', async () => {
+    finto.giornate[OGGI] = giornata([['ENTRATA', '08:30']], { data: OGGI });
+    finto.sceltaFoglio = '🚬 Pausa sigaretta';
+    const { gestisciTag } = await carica();
+    await gestisciTag(vi.fn());
+    expect(azioni.eseguiAzione).toHaveBeenCalledWith('PAUSA_SIGARETTA', OGGI, expect.any(Function));
   });
 
   it('se la scelta viene annullata non timbra e non fa partire l\'attesa', async () => {

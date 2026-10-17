@@ -19,6 +19,16 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.13.0',
+    data: '2026-10-17',
+    voci: [
+      'Pausa pranzo a tutto schermo: un cronometro conta quanto stai in pausa e un piatto a sorpresa (ramen, pizza, panino o mela) si svuota fino alla pausa minima. Mostra anche a che ora esci se rientri adesso.',
+      'A fine pausa pranzo la durata compare in grande, con Annulla se sei ancora in pausa.',
+      'Prima della fascia pranzo i pulsanti grandi sono Pausa sigaretta ed Esco in permesso, uno accanto all\'altro. Il tag NFC ti chiede quale dei due.',
+      'Su web.sbeggio.app, sotto i download, lo storico del mese corrente o di quello precedente.',
+    ],
+  },
+  {
     versione: '2.12.1',
     data: '2026-10-16',
     voci: [

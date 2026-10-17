@@ -25,11 +25,11 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
   const { data, minuti } = adessoRoma();
   const giornata = store.giornata(data);
   const r = calcolaGiornata(giornata, store.impostazioni, minuti);
-  const azione = azioneTag(r, sigarettaInCorso(giornata) !== null, minuti, store.impostazioni.pranzo.fine);
+  const azione = azioneTag(r, sigarettaInCorso(giornata) !== null, minuti, store.impostazioni.pranzo);
   const esito = esitoLettura({
     azione,
-    // La schermata della sigaretta non conta: il tag serve proprio a chiuderla.
-    finestraAperta: document.querySelector('dialog[open]:not(.sigaretta)') !== null,
+    // Le schermate della sigaretta e della pausa pranzo non contano: il tag serve proprio a chiuderle.
+    finestraAperta: document.querySelector('dialog[open]:not(.sigaretta):not(.pranzo:not(.riepilogo))') !== null,
     ora: Date.now(),
     ultimaTimbratura,
   });
@@ -56,8 +56,8 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
   };
 
   if (azione === 'RIENTRO_SIGARETTA') rientroSigarettaDaTag(data, annulla);
-  else if (azione === 'PAUSA_O_USCITA') {
-    const scelta = await sceltaPausaOUscita();
+  else if (azione === 'SIGARETTA_O_PERMESSO' || azione === 'PAUSA_O_USCITA') {
+    const scelta = await (azione === 'SIGARETTA_O_PERMESSO' ? sceltaSigarettaOPermesso() : sceltaPausaOUscita());
     if (scelta) await eseguiAzione(scelta, data, annulla);
   } else await eseguiAzione(azione, data, annulla);
 
@@ -67,6 +67,17 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
     ultimaTimbratura = Date.now();
     void vibra();
   }
+}
+
+/** Prima della fascia pranzo si esce solo in sigaretta o in permesso: il tag chiede quale. */
+async function sceltaSigarettaOPermesso(): Promise<'PAUSA_SIGARETTA' | 'USCITA_PERMESSO' | null> {
+  let scelta: 'PAUSA_SIGARETTA' | 'USCITA_PERMESSO' | null = null;
+  await apriFoglio('Cosa timbri?', el('p', { class: 'testo-foglio' }, 'La fascia pranzo non è ancora iniziata.'), [
+    { etichetta: '🚬 Pausa sigaretta', stile: 'primario', azione: () => void (scelta = 'PAUSA_SIGARETTA') },
+    { etichetta: 'Esco in permesso', stile: 'primario', azione: () => void (scelta = 'USCITA_PERMESSO') },
+    { etichetta: 'Annulla' },
+  ]);
+  return scelta;
 }
 
 /** Fascia pranzo finita senza pausa: il tag non indovina, chiede. */

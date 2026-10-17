@@ -8,23 +8,28 @@ import { azioneTag, esitoLettura, PAUSA_LETTURE_MS } from '../src/core/tagNfc';
 import { giornata, h, impostazioni } from './helpers';
 
 const imp = impostazioni(); // fascia pranzo 12:00–14:30
-const fine = imp.pranzo.fine;
 
 /** Azione del tag per gli eventi dati, letta all'ora indicata. */
 function azione(eventi: Parameters<typeof giornata>[0], ora: string, sigaretta = false) {
   const g = giornata(eventi);
   if (sigaretta) for (const e of g.eventi) if (e.tipo === 'USCITA_PERMESSO') e.sigaretta = true;
   const r = calcolaGiornata(g, imp, h(ora));
-  return azioneTag(r, sigarettaInCorso(g) !== null, h(ora), fine);
+  return azioneTag(r, sigarettaInCorso(g) !== null, h(ora), imp.pranzo);
 }
 
 describe('azione del tag', () => {
   it('segue il pulsante principale', () => {
     expect(azione([], '08:00')).toBe('ENTRATA');
-    expect(azione([['ENTRATA', '08:30']], '10:00')).toBe('INIZIO_PAUSA');
+    expect(azione([['ENTRATA', '08:30']], '12:00')).toBe('INIZIO_PAUSA');
     expect(azione([['ENTRATA', '08:30'], ['INIZIO_PAUSA', '12:30']], '13:00')).toBe('FINE_PAUSA');
     expect(azione([['ENTRATA', '08:30'], ['INIZIO_PAUSA', '12:30'], ['FINE_PAUSA', '13:00']], '15:00')).toBe('USCITA');
     expect(azione([['ENTRATA', '08:30'], ['USCITA_PERMESSO', '10:00']], '10:30')).toBe('RIENTRO_PERMESSO');
+  });
+
+  it('prima della fascia pranzo chiede se è pausa sigaretta o permesso', () => {
+    expect(azione([['ENTRATA', '08:30']], '10:00')).toBe('SIGARETTA_O_PERMESSO');
+    expect(azione([['ENTRATA', '08:30']], '11:59')).toBe('SIGARETTA_O_PERMESSO');
+    expect(azione([['ENTRATA', '08:30']], '12:00')).toBe('INIZIO_PAUSA');
   });
 
   it('a fascia pranzo finita senza pausa chiede se è pausa o uscita', () => {

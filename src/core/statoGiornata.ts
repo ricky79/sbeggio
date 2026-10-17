@@ -122,27 +122,30 @@ export const ETICHETTE_AZIONE: Record<Azione, string> = {
 };
 
 export interface AzioniDisponibili {
-  primaria: Azione | null;
+  /** Pulsanti grandi: di solito uno, due affiancati prima della fascia pranzo, nessuno a giornata chiusa. */
+  principali: Azione[];
   secondarie: Azione[];
 }
 
 /**
- * Azione principale e secondarie in base allo stato.
+ * Azioni principali e secondarie in base allo stato.
  * `pausaFatta` include la pausa scalata da un permesso a ridosso del pranzo.
+ * `primaDelPranzo`: la fascia pranzo non è ancora iniziata, quindi si esce solo in permesso (o in sigaretta).
  */
-export function azioniDisponibili(stato: StatoGiornata, pausaFatta: boolean): AzioniDisponibili {
+export function azioniDisponibili(stato: StatoGiornata, pausaFatta: boolean, primaDelPranzo = false): AzioniDisponibili {
   switch (stato) {
     case 'NON_INIZIATA':
-      return { primaria: 'ENTRATA', secondarie: ['PERMESSO_INIZIO_GIORNATA'] };
+      return { principali: ['ENTRATA'], secondarie: ['PERMESSO_INIZIO_GIORNATA'] };
     case 'AL_LAVORO':
-      return pausaFatta
-        ? { primaria: 'USCITA', secondarie: ['PAUSA_SIGARETTA', 'USCITA_PERMESSO', 'USCITA_ANTICIPATA'] }
-        : { primaria: 'INIZIO_PAUSA', secondarie: ['PAUSA_SIGARETTA', 'USCITA_PERMESSO', 'USCITA_ANTICIPATA', 'USCITA'] };
+      if (pausaFatta) return { principali: ['USCITA'], secondarie: ['PAUSA_SIGARETTA', 'USCITA_PERMESSO', 'USCITA_ANTICIPATA'] };
+      return primaDelPranzo
+        ? { principali: ['PAUSA_SIGARETTA', 'USCITA_PERMESSO'], secondarie: ['USCITA_ANTICIPATA', 'USCITA'] }
+        : { principali: ['INIZIO_PAUSA'], secondarie: ['PAUSA_SIGARETTA', 'USCITA_PERMESSO', 'USCITA_ANTICIPATA', 'USCITA'] };
     case 'IN_PAUSA':
-      return { primaria: 'FINE_PAUSA', secondarie: [] };
+      return { principali: ['FINE_PAUSA'], secondarie: [] };
     case 'IN_PERMESSO':
-      return { primaria: 'RIENTRO_PERMESSO', secondarie: ['NON_RIENTRO'] };
+      return { principali: ['RIENTRO_PERMESSO'], secondarie: ['NON_RIENTRO'] };
     case 'CHIUSA':
-      return { primaria: null, secondarie: ['RIAPRI'] };
+      return { principali: [], secondarie: ['RIAPRI'] };
   }
 }
