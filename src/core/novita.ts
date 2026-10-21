@@ -19,6 +19,11 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.13.1',
+    data: '2026-10-21',
+    voci: ['Aggiornamento di sicurezza degli strumenti con cui è costruita l\'app. Per te non cambia nulla.'],
+  },
+  {
     versione: '2.13.0',
     data: '2026-10-17',
     voci: [
