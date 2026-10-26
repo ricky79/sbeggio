@@ -19,6 +19,14 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.14.0',
+    data: '2026-10-26',
+    voci: [
+      'Arriva Halloween 🎃: fino a Ognissanti Sbeggio si veste di arancione e viola, con zucche, pipistrelli, una strega in volo e qualche ragnatela. Dal 2 novembre torna il tema di sempre.',
+      'Non ti piace? Lo spegni da Impostazioni → Aspetto → Tema di Halloween.',
+    ],
+  },
+  {
     versione: '2.13.1',
     data: '2026-10-21',
     voci: ['Aggiornamento di sicurezza degli strumenti con cui è costruita l\'app. Per te non cambia nulla.'],
