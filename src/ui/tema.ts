@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
+import { chiaveFesta, festaDelGiorno, type Festa } from '../core/festa';
+import { adessoRoma } from '../core/tempo';
+
 /** Scelta dell'utente: 'auto' segue il tema del telefono. */
 export type PreferenzaTema = 'auto' | 'chiaro' | 'scuro';
 export type Tema = 'chiaro' | 'scuro';
@@ -12,8 +15,12 @@ export type Tema = 'chiaro' | 'scuro';
  */
 const CHIAVE = 'timbrature-tema';
 
-/** Colore della barra di stato, uguale a --sfondo in style.css. */
+/** Festa spenta dall'utente, come `halloween-2026` (vedi chiaveFesta). Anche questa è del dispositivo. */
+const CHIAVE_FESTA = 'timbrature-festa-spenta';
+
+/** Colore della barra di stato, uguale a --sfondo in style.css (anche con il tema della festa). */
 const COLORE_BARRA: Record<Tema, string> = { chiaro: '#f2f2f7', scuro: '#000000' };
+const COLORE_BARRA_FESTA: Record<Festa, Record<Tema, string>> = { halloween: { chiaro: '#f6f0fb', scuro: '#0d0814' } };
 
 export function normalizzaPreferenza(v: unknown): PreferenzaTema {
   return v === 'chiaro' || v === 'scuro' ? v : 'auto';
@@ -30,10 +37,44 @@ export const preferenzaTema = (): PreferenzaTema => preferenza;
 
 const mediaScuro = () => window.matchMedia('(prefers-color-scheme: dark)');
 
+/** La festa di oggi, accesa o spenta che sia (null fuori dai suoi giorni). */
+export const festaDiOggi = (): Festa | null => festaDelGiorno(adessoRoma().data);
+
+function leggiFestaSpenta(): string | null {
+  try {
+    return localStorage.getItem(CHIAVE_FESTA);
+  } catch {
+    return null;
+  }
+}
+
+/** La festa da mostrare adesso: quella di oggi, se l'utente non l'ha spenta quest'anno. */
+export function festaAccesa(): Festa | null {
+  const festa = festaDiOggi();
+  return festa && leggiFestaSpenta() !== chiaveFesta(festa, adessoRoma().data) ? festa : null;
+}
+
+export function impostaFesta(accesa: boolean): void {
+  const festa = festaDiOggi();
+  if (!festa) return;
+  try {
+    if (accesa) localStorage.removeItem(CHIAVE_FESTA);
+    else localStorage.setItem(CHIAVE_FESTA, chiaveFesta(festa, adessoRoma().data));
+  } catch {
+    /* resta com'è */
+  }
+  applica();
+}
+
 function applica(): void {
   const tema = temaEffettivo(preferenza, mediaScuro().matches);
-  document.documentElement.dataset.tema = tema;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', COLORE_BARRA[tema]);
+  const festa = festaAccesa();
+  const radice = document.documentElement;
+  radice.dataset.tema = tema;
+  if (festa) radice.dataset.festa = festa;
+  else delete radice.dataset.festa;
+  const barra = festa ? COLORE_BARRA_FESTA[festa][tema] : COLORE_BARRA[tema];
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', barra);
 }
 
 export function impostaPreferenza(p: PreferenzaTema): void {
@@ -55,4 +96,8 @@ export function avviaTema(): void {
   }
   applica();
   mediaScuro().addEventListener('change', applica);
+  // La festa dipende dal giorno: si ricontrolla quando l'app torna in primo piano.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') applica();
+  });
 }

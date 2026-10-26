@@ -63,6 +63,78 @@
   box-sizing: border-box;
 }
 
+/* Tema di Halloween (src/core/festa.ts): data-festa lo mette src/ui/tema.ts solo in quei giorni.
+   Arancione zucca e viola notte, una zucca accanto ai titoli e due pipistrelli che passano in alto. */
+:root[data-festa='halloween'] {
+  --sfondo: #f6f0fb;
+  --superficie-2: #ece4f3;
+  --testo-2: #6b6276;
+  /* #c2410c su bianco: contrasto ≈ 5,2:1. */
+  --accento: #c2410c;
+  --accento-testo: #ffffff;
+  --accento-tenue: rgba(234, 88, 12, 0.13);
+  --tab-vetro: rgba(255, 250, 245, 0.74);
+}
+:root[data-festa='halloween'][data-tema='scuro'] {
+  --sfondo: #0d0814;
+  --superficie: #1b1424;
+  --superficie-2: #2a2035;
+  --testo-2: #b3a8c0;
+  --bordo: rgba(235, 220, 255, 0.16);
+  --accento: #fb923c;
+  --accento-testo: #2a1200;
+  --accento-tenue: rgba(251, 146, 60, 0.17);
+  --tab-vetro: rgba(27, 20, 36, 0.74);
+}
+:root[data-festa='halloween'] .intestazione h1::after {
+  content: ' 🎃';
+}
+:root[data-festa='halloween'] body::before,
+:root[data-festa='halloween'] body::after {
+  content: '';
+  position: fixed;
+  top: calc(var(--sicuro-alto) + 2px);
+  left: 0;
+  z-index: 5;
+  width: 44px;
+  height: 13px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='6 4 88 26'%3E%3Cpath fill='%233b0764' d='M50 12 Q48 8 46 7 L46.5 12 Q38 6 24 6 Q30 10 30 16 Q20 12 8 14 Q17 18 18 26 Q24 21 32 24 Q36 19 42 22 Q45 27 50 28 Q55 27 58 22 Q64 19 68 24 Q76 21 82 26 Q83 18 92 14 Q80 12 70 16 Q70 10 76 6 Q62 6 53.5 12 L54 7 Q52 8 50 12 Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+  transform: translateX(-60px);
+  animation: pipistrello 22s linear infinite;
+}
+:root[data-festa='halloween'] body::after {
+  top: calc(var(--sicuro-alto) + 10px);
+  width: 30px;
+  height: 9px;
+  animation-delay: 9s;
+  animation-duration: 26s;
+}
+:root[data-festa='halloween'][data-tema='scuro'] body::before,
+:root[data-festa='halloween'][data-tema='scuro'] body::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='6 4 88 26'%3E%3Cpath fill='%23c4b5fd' d='M50 12 Q48 8 46 7 L46.5 12 Q38 6 24 6 Q30 10 30 16 Q20 12 8 14 Q17 18 18 26 Q24 21 32 24 Q36 19 42 22 Q45 27 50 28 Q55 27 58 22 Q64 19 68 24 Q76 21 82 26 Q83 18 92 14 Q80 12 70 16 Q70 10 76 6 Q62 6 53.5 12 L54 7 Q52 8 50 12 Z'/%3E%3C/svg%3E");
+}
+/* Volano solo per un tratto del giro, poi restano fuori schermo. Con riduci movimento non si vedono. */
+@keyframes pipistrello {
+  0% {
+    transform: translate(-60px, 0);
+  }
+  10% {
+    transform: translate(25vw, -14px);
+  }
+  20% {
+    transform: translate(50vw, 6px);
+  }
+  30% {
+    transform: translate(75vw, -10px);
+  }
+  40%,
+  100% {
+    transform: translate(calc(100vw + 60px), 0);
+  }
+}
+
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
