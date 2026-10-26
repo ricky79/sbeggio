@@ -12,7 +12,7 @@ import { linkAiuto } from './aiuto';
 import { collegaComputer } from './collega';
 import { esportaBackupJson, esportaCsvCondividi, esportaExcelCondividi, importaFile } from './dati';
 import type { Adesso } from './giorno';
-import { impostaPreferenza, preferenzaTema, type PreferenzaTema } from './tema';
+import { festaAccesa, festaDiOggi, impostaFesta, impostaPreferenza, preferenzaTema, type PreferenzaTema } from './tema';
 import { inApp } from '../native/app';
 import * as avvisiApp from '../native/avvisi';
 import * as avvisiPwa from '../web/avvisi';
@@ -390,7 +390,21 @@ export function vistaImpostazioni(adesso: Adesso, nav: NavImpostazioni): HTMLEle
     sede: () => [sezioneSede()],
     avvisi: () => [sezioneAvvisi()],
     nfc: () => [sezioneTagNfc()],
-    aspetto: () => [scheda(null, selettoreTema(), el('p', { class: 'nota' }, 'Automatico segue il tema chiaro o scuro del telefono.'))],
+    aspetto: () => [
+      scheda(null, selettoreTema(), el('p', { class: 'nota' }, 'Automatico segue il tema chiaro o scuro del telefono.')),
+      // Solo nei giorni della festa: fuori stagione non c'è niente da accendere.
+      festaDiOggi() === 'halloween'
+        ? scheda(
+            null,
+            riga(
+              'Tema di Halloween 🎃',
+              interruttore(festaAccesa() !== null, (v) => impostaFesta(v), 'Tema di Halloween'),
+              'Fino a Ognissanti, poi torna da solo il tema normale.',
+              'halloween',
+            ),
+          )
+        : null,
+    ],
     dati: () => [
       scheda(
         null,
@@ -496,7 +510,7 @@ function elencoImpostazioni(nav: NavImpostazioni): HTMLElement {
     const attiva = ricerca.trim() !== '';
     menu.hidden = attiva;
     if (!attiva) return void risultati.replaceChildren();
-    const impostazioni = cercaImpostazioni(ricerca, { app: inApp() }).map((v) => ({
+    const impostazioni = cercaImpostazioni(ricerca, { app: inApp(), festa: festaDiOggi() }).map((v) => ({
       nome: v.nome,
       sezione: v.sezione,
       scegli: () => {

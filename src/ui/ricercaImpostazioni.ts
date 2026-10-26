@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
+import type { Festa } from '../core/festa';
 import { corrisponde } from '../core/testi';
 
 /** Pagine delle Impostazioni, nell'ordine dell'elenco; `gruppo` separa i blocchi come sull'iPhone. */
@@ -49,6 +50,8 @@ export interface VoceImpostazione {
   sinonimi?: string;
   /** Solo nell'app Android. */
   soloApp?: boolean;
+  /** Solo nei giorni di quella festa (l'impostazione esiste solo allora). */
+  soloFesta?: Festa;
 }
 
 type Voce = Omit<VoceImpostazione, 'sezione'>;
@@ -73,6 +76,7 @@ const VOCI: readonly Voce[] = [
   { id: 'anticipo-sigaretta', nome: 'Anticipo sigaretta', pagina: 'avvisi', sinonimi: 'notifiche pausa fumo minuti' },
   { id: 'tag-nfc', nome: 'Tag NFC', pagina: 'nfc', sinonimi: 'tornelli timbrare', soloApp: true },
   { id: 'tema', nome: 'Tema', pagina: 'aspetto', sinonimi: 'chiaro scuro automatico dark colori notte' },
+  { id: 'halloween', nome: 'Tema di Halloween', pagina: 'aspetto', sinonimi: 'zucca festa pipistrelli arancione', soloFesta: 'halloween' },
   { id: 'esporta-excel', nome: 'Esporta Excel', pagina: 'dati', sinonimi: 'xlsx foglio di calcolo scarica' },
   { id: 'esporta-csv', nome: 'Esporta CSV', pagina: 'dati', sinonimi: 'scarica' },
   { id: 'backup-json', nome: 'Esporta backup completo', pagina: 'dati', sinonimi: 'json salva copia' },
@@ -83,9 +87,12 @@ const VOCI: readonly Voce[] = [
 export const VOCI_IMPOSTAZIONI: readonly VoceImpostazione[] = VOCI.map((v) => ({ ...v, sezione: titoloPagina(v.pagina) }));
 
 /** Voci che corrispondono alla ricerca, nell'ordine della pagina. Ricerca vuota: nessuna. */
-export function cercaImpostazioni(query: string, opzioni: { app: boolean }): VoceImpostazione[] {
+export function cercaImpostazioni(query: string, opzioni: { app: boolean; festa?: Festa | null }): VoceImpostazione[] {
   if (!query.trim()) return [];
   return VOCI_IMPOSTAZIONI.filter(
-    (v) => (opzioni.app || !v.soloApp) && corrisponde(`${v.nome} ${v.sezione} ${v.sinonimi ?? ''}`, query),
+    (v) =>
+      (opzioni.app || !v.soloApp) &&
+      (!v.soloFesta || v.soloFesta === opzioni.festa) &&
+      corrisponde(`${v.nome} ${v.sezione} ${v.sinonimi ?? ''}`, query),
   );
 }
