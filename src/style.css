@@ -63,6 +63,163 @@
   box-sizing: border-box;
 }
 
+/* Tema di Halloween (src/core/festa.ts): data-festa lo mette src/ui/tema.ts solo in quei giorni.
+   Arancione zucca e viola notte, una zucca accanto ai titoli, due pipistrelli e una strega che passano,
+   ragnatela e ragno sulla scheda principale. */
+:root[data-festa='halloween'] {
+  --sfondo: #f6f0fb;
+  --superficie-2: #ece4f3;
+  --testo-2: #6b6276;
+  /* #c2410c su bianco: contrasto ≈ 5,2:1. */
+  --accento: #c2410c;
+  --accento-testo: #ffffff;
+  --accento-tenue: rgba(234, 88, 12, 0.13);
+  --tab-vetro: rgba(255, 250, 245, 0.74);
+}
+:root[data-festa='halloween'][data-tema='scuro'] {
+  --sfondo: #0d0814;
+  --superficie: #1b1424;
+  --superficie-2: #2a2035;
+  --testo-2: #b3a8c0;
+  --bordo: rgba(235, 220, 255, 0.16);
+  --accento: #fb923c;
+  --accento-testo: #2a1200;
+  --accento-tenue: rgba(251, 146, 60, 0.17);
+  --tab-vetro: rgba(27, 20, 36, 0.74);
+}
+:root[data-festa='halloween'] .intestazione h1::after {
+  content: ' 🎃';
+}
+:root[data-festa='halloween'] body::before,
+:root[data-festa='halloween'] body::after {
+  content: '';
+  position: fixed;
+  top: calc(var(--sicuro-alto) + 2px);
+  left: 0;
+  z-index: 5;
+  width: 44px;
+  height: 13px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='6 4 88 26'%3E%3Cpath fill='%233b0764' d='M50 12 Q48 8 46 7 L46.5 12 Q38 6 24 6 Q30 10 30 16 Q20 12 8 14 Q17 18 18 26 Q24 21 32 24 Q36 19 42 22 Q45 27 50 28 Q55 27 58 22 Q64 19 68 24 Q76 21 82 26 Q83 18 92 14 Q80 12 70 16 Q70 10 76 6 Q62 6 53.5 12 L54 7 Q52 8 50 12 Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+  transform: translateX(-60px);
+  animation: pipistrello 22s linear infinite;
+}
+:root[data-festa='halloween'] body::after {
+  top: calc(var(--sicuro-alto) + 10px);
+  width: 30px;
+  height: 9px;
+  animation-delay: 9s;
+  animation-duration: 26s;
+}
+:root[data-festa='halloween'][data-tema='scuro'] body::before,
+:root[data-festa='halloween'][data-tema='scuro'] body::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='6 4 88 26'%3E%3Cpath fill='%23c4b5fd' d='M50 12 Q48 8 46 7 L46.5 12 Q38 6 24 6 Q30 10 30 16 Q20 12 8 14 Q17 18 18 26 Q24 21 32 24 Q36 19 42 22 Q45 27 50 28 Q55 27 58 22 Q64 19 68 24 Q76 21 82 26 Q83 18 92 14 Q80 12 70 16 Q70 10 76 6 Q62 6 53.5 12 L54 7 Q52 8 50 12 Z'/%3E%3C/svg%3E");
+}
+/* Ragnatela nell'angolo della scheda principale e un ragno appeso al filo, che dondola. */
+:root[data-festa='halloween'] .scheda-principale {
+  position: relative;
+}
+:root[data-festa='halloween'] .scheda-principale::before,
+:root[data-festa='halloween'] .scheda-principale::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  background: center / contain no-repeat;
+}
+:root[data-festa='halloween'] .scheda-principale::before {
+  left: 0;
+  width: 64px;
+  height: 64px;
+  border-top-left-radius: var(--raggio);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M0 0L64.0 0.0 M0 0L60.9 19.8 M0 0L51.8 37.6 M0 0L37.6 51.8 M0 0L19.8 60.9 M0 0L0.0 64.0 M14.0 0.0Q11.2 1.8 13.3 4.3Q10.1 5.1 11.3 8.2Q8.0 8.0 8.2 11.3Q5.1 10.1 4.3 13.3Q1.8 11.2 0.0 14.0 M26.0 0.0Q20.8 3.3 24.7 8.0Q18.8 9.6 21.0 15.3Q14.9 14.9 15.3 21.0Q9.6 18.8 8.0 24.7Q3.3 20.8 0.0 26.0 M39.0 0.0Q31.2 4.9 37.1 12.1Q28.1 14.3 31.6 22.9Q22.3 22.3 22.9 31.6Q14.3 28.1 12.1 37.1Q4.9 31.2 0.0 39.0 M52.0 0.0Q41.6 6.6 49.5 16.1Q37.5 19.1 42.1 30.6Q29.8 29.8 30.6 42.1Q19.1 37.5 16.1 49.5Q6.6 41.6 0.0 52.0' fill='none' stroke='%238b7a9c' stroke-width='0.9' stroke-linecap='round'/%3E%3C/svg%3E");
+  opacity: 0.7;
+}
+:root[data-festa='halloween'] .scheda-principale::after {
+  right: 22px;
+  width: 22px;
+  height: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 48'%3E%3Cline x1='12' y1='0' x2='12' y2='30' stroke='%238b7a9c' stroke-width='0.8'/%3E%3Cg stroke='%238b7a9c' stroke-width='1.3' fill='none' stroke-linecap='round'%3E%3Cpath d='M9 33 Q4 29 2 31 M9 35 Q3 34 1 37 M9 37 Q4 39 3 43 M10 38 Q7 42 7 46 M15 33 Q20 29 22 31 M15 35 Q21 34 23 37 M15 37 Q20 39 21 43 M14 38 Q17 42 17 46'/%3E%3C/g%3E%3Cellipse cx='12' cy='36' rx='3.6' ry='4.6' fill='%232e1065'/%3E%3Ccircle cx='12' cy='31' r='2.6' fill='%232e1065'/%3E%3C/svg%3E");
+  transform-origin: 50% 0;
+  animation: ragno 3.2s ease-in-out infinite;
+}
+:root[data-festa='halloween'][data-tema='scuro'] .scheda-principale::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M0 0L64.0 0.0 M0 0L60.9 19.8 M0 0L51.8 37.6 M0 0L37.6 51.8 M0 0L19.8 60.9 M0 0L0.0 64.0 M14.0 0.0Q11.2 1.8 13.3 4.3Q10.1 5.1 11.3 8.2Q8.0 8.0 8.2 11.3Q5.1 10.1 4.3 13.3Q1.8 11.2 0.0 14.0 M26.0 0.0Q20.8 3.3 24.7 8.0Q18.8 9.6 21.0 15.3Q14.9 14.9 15.3 21.0Q9.6 18.8 8.0 24.7Q3.3 20.8 0.0 26.0 M39.0 0.0Q31.2 4.9 37.1 12.1Q28.1 14.3 31.6 22.9Q22.3 22.3 22.9 31.6Q14.3 28.1 12.1 37.1Q4.9 31.2 0.0 39.0 M52.0 0.0Q41.6 6.6 49.5 16.1Q37.5 19.1 42.1 30.6Q29.8 29.8 30.6 42.1Q19.1 37.5 16.1 49.5Q6.6 41.6 0.0 52.0' fill='none' stroke='%23b3a8c0' stroke-width='0.9' stroke-linecap='round'/%3E%3C/svg%3E");
+  opacity: 0.45;
+}
+:root[data-festa='halloween'][data-tema='scuro'] .scheda-principale::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 48'%3E%3Cline x1='12' y1='0' x2='12' y2='30' stroke='%23b3a8c0' stroke-width='0.8'/%3E%3Cg stroke='%23b3a8c0' stroke-width='1.3' fill='none' stroke-linecap='round'%3E%3Cpath d='M9 33 Q4 29 2 31 M9 35 Q3 34 1 37 M9 37 Q4 39 3 43 M10 38 Q7 42 7 46 M15 33 Q20 29 22 31 M15 35 Q21 34 23 37 M15 37 Q20 39 21 43 M14 38 Q17 42 17 46'/%3E%3C/g%3E%3Cellipse cx='12' cy='36' rx='3.6' ry='4.6' fill='%23c4b5fd'/%3E%3Ccircle cx='12' cy='31' r='2.6' fill='%23c4b5fd'/%3E%3C/svg%3E");
+}
+@keyframes ragno {
+  0%,
+  100% {
+    transform: rotate(-6deg) translateY(0);
+  }
+  50% {
+    transform: rotate(6deg) translateY(4px);
+  }
+}
+/* La strega passa ogni 40 secondi, da destra a sinistra, in alto: sopra il titolo, non sui numeri. */
+.festa-decorazioni {
+  display: none;
+}
+:root[data-festa='halloween'] .festa-decorazioni {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+.festa-strega {
+  position: absolute;
+  top: calc(var(--sicuro-alto) + 6px);
+  left: 0;
+  width: 84px;
+  height: auto;
+  transform: translateX(-140px);
+  animation: strega 40s linear infinite;
+  animation-delay: 4s;
+}
+@keyframes strega {
+  0% {
+    transform: translate(calc(100vw + 20px), 0) rotate(-4deg);
+  }
+  6% {
+    transform: translate(70vw, -16px) rotate(2deg);
+  }
+  12% {
+    transform: translate(40vw, 4px) rotate(-3deg);
+  }
+  18% {
+    transform: translate(10vw, -12px) rotate(2deg);
+  }
+  24%,
+  100% {
+    transform: translate(-140px, -4px) rotate(0deg);
+  }
+}
+/* Volano solo per un tratto del giro, poi restano fuori schermo. Con riduci movimento non si vedono. */
+@keyframes pipistrello {
+  0% {
+    transform: translate(-60px, 0);
+  }
+  10% {
+    transform: translate(25vw, -14px);
+  }
+  20% {
+    transform: translate(50vw, 6px);
+  }
+  30% {
+    transform: translate(75vw, -10px);
+  }
+  40%,
+  100% {
+    transform: translate(calc(100vw + 60px), 0);
+  }
+}
+
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
