@@ -22,6 +22,7 @@ import { store } from '../storage/store';
 import { avviso, conferma, toast } from './dialoghi';
 import { el } from './dom';
 import { creaDisegno } from './sigarettaDisegni';
+import { sbloccaAudio, suona } from './suoni';
 import { cancellaInizioSigaretta, inizioSigarettaSalvato, salvaInizioSigaretta } from './inizioSigaretta';
 
 function leggiInizio(data: string, uscita: Evento): number {
@@ -108,7 +109,11 @@ function apriSchermata(data: string, uscita: Evento): void {
         {
           type: 'button',
           class: 'btn btn-primario',
-          onclick: () => rientro(),
+          onclick: () => {
+            sbloccaAudio();
+            rientro();
+            suona('timbra');
+          },
         },
         'Rientro',
       ),

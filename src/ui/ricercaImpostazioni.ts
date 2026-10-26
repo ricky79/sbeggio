@@ -76,6 +76,7 @@ const VOCI: readonly Voce[] = [
   { id: 'anticipo-sigaretta', nome: 'Anticipo sigaretta', pagina: 'avvisi', sinonimi: 'notifiche pausa fumo minuti' },
   { id: 'tag-nfc', nome: 'Tag NFC', pagina: 'nfc', sinonimi: 'tornelli timbrare', soloApp: true },
   { id: 'tema', nome: 'Tema', pagina: 'aspetto', sinonimi: 'chiaro scuro automatico dark colori notte' },
+  { id: 'suoni', nome: 'Suoni', pagina: 'aspetto', sinonimi: 'audio volume rumore muto silenzioso beep' },
   { id: 'halloween', nome: 'Tema di Halloween', pagina: 'aspetto', sinonimi: 'zucca festa pipistrelli arancione', soloFesta: 'halloween' },
   { id: 'esporta-excel', nome: 'Esporta Excel', pagina: 'dati', sinonimi: 'xlsx foglio di calcolo scarica' },
   { id: 'esporta-csv', nome: 'Esporta CSV', pagina: 'dati', sinonimi: 'scarica' },

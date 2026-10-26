@@ -25,6 +25,7 @@ import {
 import { riquadroPausaSaltata } from './pausaSaltata';
 import { avviaPausaPranzo, finePausaPranzo } from './pranzo';
 import { avviaPausaSigaretta } from './sigaretta';
+import { sbloccaAudio, suona, suonoPerAzione } from './suoni';
 
 export interface Adesso {
   data: string;
@@ -170,6 +171,15 @@ function boxProblemi(problemi: string[]): HTMLElement {
   );
 }
 
+/** Tocco su un'azione di Oggi: sblocca l'audio subito (serve il tocco), poi suona se la giornata è cambiata. */
+async function azioneDaTocco(azione: Azione, data: string): Promise<void> {
+  sbloccaAudio();
+  const prima = JSON.stringify(store.giornata(data).eventi);
+  await eseguiAzione(azione, data);
+  const suono = suonoPerAzione(azione);
+  if (suono && JSON.stringify(store.giornata(data).eventi) !== prima) suona(suono);
+}
+
 function pulsantiAzione(data: string, r: RisultatoGiornata, adesso: number): HTMLElement {
   const primaDelPranzo = adesso < store.impostazioni.pranzo.inizio;
   const { principali, secondarie } = azioniDisponibili(r.stato, r.pausaFatta, primaDelPranzo);
@@ -178,7 +188,7 @@ function pulsantiAzione(data: string, r: RisultatoGiornata, adesso: number): HTM
   const grandi = principali.map((a) =>
     el(
       'button',
-      { type: 'button', class: `btn-principale azione-${a.toLowerCase()}`, onclick: () => void eseguiAzione(a, data) },
+      { type: 'button', class: `btn-principale azione-${a.toLowerCase()}`, onclick: () => void azioneDaTocco(a, data) },
       el('span', { class: 'btn-principale-testo' }, etichetta(a)),
       el('span', { class: 'btn-principale-ora' }, formattaOra(adesso)),
     ),
@@ -192,7 +202,7 @@ function pulsantiAzione(data: string, r: RisultatoGiornata, adesso: number): HTM
       ? el(
           'div',
           { class: 'azioni-secondarie' },
-          secondarie.map((a) => el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void eseguiAzione(a, data) }, etichetta(a))),
+          secondarie.map((a) => el('button', { type: 'button', class: 'btn btn-secondario', onclick: () => void azioneDaTocco(a, data) }, etichetta(a))),
         )
       : null,
     tutte.length > 0

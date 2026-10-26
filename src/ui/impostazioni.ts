@@ -12,6 +12,7 @@ import { linkAiuto } from './aiuto';
 import { collegaComputer } from './collega';
 import { esportaBackupJson, esportaCsvCondividi, esportaExcelCondividi, importaFile } from './dati';
 import type { Adesso } from './giorno';
+import { impostaSuoni, sbloccaAudio, suona, suoniAttivi, type Suono } from './suoni';
 import { festaAccesa, festaDiOggi, impostaFesta, impostaPreferenza, preferenzaTema, type PreferenzaTema } from './tema';
 import { inApp } from '../native/app';
 import * as avvisiApp from '../native/avvisi';
@@ -243,6 +244,52 @@ function selettoreTema(): HTMLElement {
   return el('div', { class: 'preset', role: 'group', 'aria-label': 'Tema', id: 'imp-tema' }, pulsanti);
 }
 
+const PROVE_SUONI: [Suono, string][] = [
+  ['timbra', 'Timbra'],
+  ['uscita', 'Uscita'],
+  ['minima', 'Pausa'],
+];
+
+/** Suoni accesi o spenti, con i pulsanti per sentirli (nella versione di Halloween, se il tema è acceso). */
+function schedaSuoni(): HTMLElement {
+  const prove = el(
+    'div',
+    { class: 'preset', role: 'group', 'aria-label': 'Prova i suoni', hidden: !suoniAttivi() },
+    PROVE_SUONI.map(([suono, testo]) =>
+      el(
+        'button',
+        {
+          type: 'button',
+          class: 'chip',
+          onclick: () => {
+            sbloccaAudio();
+            // Al primo tocco l'audio si sta ancora avviando: si aspetta un attimo.
+            setTimeout(() => suona(suono), 60);
+          },
+        },
+        `▶︎ ${testo}`,
+      ),
+    ),
+  );
+  return scheda(
+    null,
+    riga(
+      'Suoni',
+      interruttore(
+        suoniAttivi(),
+        (v) => {
+          impostaSuoni(v);
+          prove.hidden = !v;
+        },
+        'Suoni',
+      ),
+      'Un suono breve quando timbri, quando esci e quando la pausa pranzo arriva alla minima.',
+      'suoni',
+    ),
+    prove,
+  );
+}
+
 const OPZIONI_SIGARETTA: [TipoSigaretta, string][] = [
   ['normale', 'Normale'],
   ['elettronica', 'Elettronica'],
@@ -404,6 +451,7 @@ export function vistaImpostazioni(adesso: Adesso, nav: NavImpostazioni): HTMLEle
             ),
           )
         : null,
+      schedaSuoni(),
     ],
     dati: () => [
       scheda(

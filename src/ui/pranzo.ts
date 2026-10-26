@@ -12,6 +12,7 @@ import { avviso, conferma, toast } from './dialoghi';
 import { el } from './dom';
 import { cancellaInizioPranzo, inizioPranzoSalvato, salvaInizioPranzo } from './inizioPranzo';
 import { creaDisegnoPranzo } from './pranzoDisegni';
+import { sbloccaAudio, suona } from './suoni';
 
 /**
  * Pausa pranzo a tutto schermo, come la sigaretta: cronometro in avanti, un cibo a sorpresa che si
@@ -92,7 +93,19 @@ function apriSchermata(data: string, evento: Evento): void {
     return true;
   };
 
-  const btnFine = el('button', { type: 'button', class: 'btn btn-primario', onclick: () => chiudiPausa() }, 'Fine pausa pranzo');
+  const btnFine = el(
+    'button',
+    {
+      type: 'button',
+      class: 'btn btn-primario',
+      onclick: () => {
+        sbloccaAudio();
+        chiudiPausa();
+        suona('timbra');
+      },
+    },
+    'Fine pausa pranzo',
+  );
   const btnAnnullaPausa = el(
     'button',
     {
@@ -182,6 +195,7 @@ function apriSchermata(data: string, evento: Evento): void {
     azioni,
   );
 
+  let minimaPrima: boolean | null = null;
   function aggiorna(): void {
     if (fine || giornoCambiato()) return;
     // Pausa tolta altrove (Annulla del tag, un'altra scheda): la schermata non ha più senso.
@@ -193,6 +207,9 @@ function apriSchermata(data: string, evento: Evento): void {
     const a = avanzamentoPranzo(trascorsi, pausaMinima);
     disegno.aggiorna(a.mangiato);
     dlg.classList.toggle('finito', a.minimaFatta);
+    // Il jingle solo se la pausa minima arriva a schermata aperta, non riaprendo l'app dopo.
+    if (minimaPrima === false && a.minimaFatta) suona('minima');
+    minimaPrima = a.minimaFatta;
     timer.textContent = testoCronometro(trascorsi);
     nota.textContent = a.minimaFatta ? '✓ Pausa minima fatta' : `Pausa minima di ${formattaDurata(pausaMinima)}: alle ${minimaAlle}`;
     const prevista = calcolaGiornata(store.giornata(data), store.impostazioni, adessoRoma().minuti).uscitaPrevista;

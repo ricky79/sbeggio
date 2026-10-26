@@ -3,6 +3,7 @@
 
 import { calcolaGiornata } from '../core/calcolo';
 import { sigarettaInCorso } from '../core/sigaretta';
+import { ordinaEventi } from '../core/statoGiornata';
 import { azioneTag, esitoLettura } from '../core/tagNfc';
 import { adessoRoma } from '../core/tempo';
 import { ascoltaTag, vibra } from '../native/nfc';
@@ -12,6 +13,7 @@ import { el } from './dom';
 import { eseguiAzione } from './giorno';
 import { inizioSigarettaSalvato, salvaInizioSigaretta } from './inizioSigaretta';
 import { rientroSigarettaDaTag } from './sigaretta';
+import { suona } from './suoni';
 
 /** Istante dell'ultima lettura che ha cambiato la giornata (per ignorare il tag tenuto appoggiato). */
 let ultimaTimbratura: number | null = null;
@@ -66,6 +68,9 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
   if (JSON.stringify(store.giornata(data).eventi) !== JSON.stringify(prima.eventi)) {
     ultimaTimbratura = Date.now();
     void vibra();
+    // Suona solo se l'audio è già stato sbloccato da un tocco (app aperta): ad app chiusa tace.
+    const ultimo = ordinaEventi(store.giornata(data).eventi).at(-1);
+    suona(ultimo?.tipo === 'USCITA' || ultimo?.tipo === 'USCITA_ANTICIPATA' ? 'uscita' : 'timbra');
   }
 }
 
