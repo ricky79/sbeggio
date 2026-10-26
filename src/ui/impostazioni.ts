@@ -250,7 +250,7 @@ const PROVE_SUONI: [Suono, string][] = [
   ['minima', 'Pausa'],
 ];
 
-/** Suoni accesi o spenti, con i pulsanti per sentirli (nella versione di Halloween, se il tema è acceso). */
+/** Suoni accesi o spenti, con i pulsanti per sentirli. */
 function schedaSuoni(): HTMLElement {
   const prove = el(
     'div',
