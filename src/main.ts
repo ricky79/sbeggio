@@ -16,6 +16,7 @@ import { vistaStorico } from './ui/storico';
 import { apriAiuto, EVENTO_APRI_AIUTO, vistaAiuto } from './ui/aiuto';
 import { registraServiceWorker } from './pwa';
 import { avviaTema } from './ui/tema';
+import { avviaSuoni } from './ui/suoni';
 import { avviaNovita } from './ui/novita';
 import { avviaBannerInstallazione } from './ui/installa';
 import { avviaControlloAggiornamenti } from './ui/aggiornamento';
@@ -52,6 +53,11 @@ const stato: {
 };
 
 avviaTema();
+try {
+  avviaSuoni();
+} catch {
+  /* senza suoni l'app parte lo stesso */
+}
 impostaOrologio(() => adessoRoma());
 
 const app = document.getElementById('app')!;

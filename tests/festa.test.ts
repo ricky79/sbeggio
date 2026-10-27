@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { describe, expect, it } from 'vitest';
-import { chiaveFesta, festaDelGiorno } from '../src/core/festa';
+import { chiaveFesta, festaDelGiorno, type Festa } from '../src/core/festa';
 import { cercaImpostazioni } from '../src/ui/ricercaImpostazioni';
 
 describe('tema delle feste', () => {
@@ -21,9 +21,28 @@ describe('tema delle feste', () => {
     expect(chiaveFesta('halloween', '2027-10-26')).not.toBe(chiaveFesta('halloween', '2026-10-26'));
   });
 
+  it('Natale dall\'8 dicembre all\'Epifania compresi, a cavallo d\'anno', () => {
+    expect(festaDelGiorno('2026-12-07')).toBeNull();
+    expect(festaDelGiorno('2026-12-08')).toBe('natale');
+    expect(festaDelGiorno('2026-12-31')).toBe('natale');
+    expect(festaDelGiorno('2027-01-01')).toBe('natale');
+    expect(festaDelGiorno('2027-01-06')).toBe('natale');
+    expect(festaDelGiorno('2027-01-07')).toBeNull();
+  });
+
+  it('Natale spento resta spento fino all\'Epifania, l\'anno dopo torna', () => {
+    expect(chiaveFesta('natale', '2026-12-20')).toBe('natale-2026');
+    expect(chiaveFesta('natale', '2027-01-02')).toBe('natale-2026');
+    expect(chiaveFesta('natale', '2027-12-08')).toBe('natale-2027');
+    expect(chiaveFesta('halloween', '2026-10-26')).toBe('halloween-2026'); // invariata
+  });
+
   it('l\'interruttore si trova con la ricerca solo nei giorni della festa', () => {
-    const ids = (festa: 'halloween' | null) => cercaImpostazioni('zucca', { app: false, festa }).map((v) => v.id);
-    expect(ids('halloween')).toContain('halloween');
-    expect(ids(null)).not.toContain('halloween');
+    const ids = (q: string, festa: Festa | null) => cercaImpostazioni(q, { app: false, festa }).map((v) => v.id);
+    expect(ids('zucca', 'halloween')).toContain('halloween');
+    expect(ids('zucca', null)).not.toContain('halloween');
+    expect(ids('renne', 'natale')).toContain('natale');
+    expect(ids('renne', null)).not.toContain('natale');
+    expect(ids('natale', 'halloween')).not.toContain('natale');
   });
 });

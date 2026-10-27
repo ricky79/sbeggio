@@ -21,6 +21,7 @@ import { istanteDaMinuti } from '../core/sigaretta';
 import { adessoRoma } from '../core/tempo';
 import { store } from '../storage/store';
 import { inizioSigarettaSalvato } from '../ui/inizioSigaretta';
+import { schermateDaTacere } from '../ui/suoni';
 import { inModalitaApp, piattaforma } from '../ui/installa';
 
 /**
@@ -187,6 +188,7 @@ async function esegui(): Promise<void> {
   const piano: AvvisoPush[] = pianificaAvvisi(store.giornata(data), store.impostazioni, { data, minuti }, {
     ora: ora.getTime(),
     inizioSigaretta: (eventoId) => inizioSigarettaSalvato(data, eventoId),
+    schermateAperte: schermateDaTacere(),
   }).map((a) => ({ tipo: a.tipo, orario: a.istante ?? istanteDaMinuti(a.minuti, ora), titolo: a.titolo, testo: a.testo }));
 
   const stato = leggiStato();

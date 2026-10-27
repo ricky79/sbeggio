@@ -15,6 +15,12 @@ function conAvvisi(modifiche: Partial<typeof imp.avvisi>) {
   return impostazioni({ avvisi: { ...imp.avvisi, ...modifiche } });
 }
 
+const sigaretta = () => {
+  const g = giornata([['ENTRATA', '08:30'], ['USCITA_PERMESSO', '10:00']]);
+  g.eventi[1]!.sigaretta = true;
+  return g;
+};
+
 describe('avviso di uscita prevista', () => {
   it('al lavoro prima della pausa: include la pausa minima', () => {
     expect(piano(giornata([['ENTRATA', '08:30']]), '09:00')).toEqual(['uscita 17:00']);
@@ -71,12 +77,6 @@ describe('avviso di rientro dalla pausa pranzo', () => {
 });
 
 describe('avviso di rientro dalla pausa sigaretta', () => {
-  const sigaretta = () => {
-    const g = giornata([['ENTRATA', '08:30'], ['USCITA_PERMESSO', '10:00']]);
-    g.eventi[1]!.sigaretta = true;
-    return g;
-  };
-
   it('1 minuto prima della fine della tolleranza (11 minuti di default)', () => {
     expect(piano(sigaretta(), '10:00')).toEqual(['sigaretta 10:10']);
   });
@@ -171,5 +171,29 @@ describe('quando non programmare avvisi', () => {
 describe('impostazioni degli avvisi', () => {
   it('predefiniti: tutti attivi, pausa pranzo 30 minuti, sigaretta 2 minuti prima', () => {
     expect(IMPOSTAZIONI_PREDEFINITE.avvisi).toEqual({ uscita: true, sigaretta: true, sigarettaAnticipo: 2, pranzo: true, pranzoMinuti: 30 });
+  });
+});
+
+describe('notifica tolta quando coincide col suono dell\'app', () => {
+  const inPausa = giornata([['ENTRATA', '08:30'], ['INIZIO_PAUSA', '12:30']]);
+  const al = (g: ReturnType<typeof giornata>, i: typeof imp, ora: string, aperte?: { sigaretta?: boolean; pranzo?: boolean }) =>
+    pianificaAvvisi(g, i, { data: GIOVEDI, minuti: h(ora) }, aperte ? { schermateAperte: aperte } : {});
+  const pausa30 = (pranzoMinuti: number) => impostazioni({ pausaMinima: 30, avvisi: { ...imp.avvisi, pranzoMinuti } });
+
+  it('sigaretta con anticipo 0 e schermata aperta: niente avviso', () => {
+    expect(al(sigaretta(), conAvvisi({ sigarettaAnticipo: 0 }), '10:00', { sigaretta: true })).toEqual([]);
+  });
+  it('sigaretta con anticipo 2: l\'avviso resta anche a schermata aperta', () => {
+    expect(al(sigaretta(), conAvvisi({ sigarettaAnticipo: 2 }), '10:00', { sigaretta: true })).toHaveLength(1);
+  });
+  it('pranzo con avviso uguale alla pausa minima e schermata aperta: niente avviso', () => {
+    expect(al(inPausa, pausa30(30), '12:30', { pranzo: true })).toEqual([]);
+  });
+  it('pranzo con avviso dopo 45 minuti: resta', () => {
+    expect(al(inPausa, pausa30(45), '12:30', { pranzo: true })).toHaveLength(1);
+  });
+  it('senza schermateAperte tutto come prima', () => {
+    expect(al(inPausa, pausa30(30), '12:30')).toHaveLength(1);
+    expect(al(sigaretta(), conAvvisi({ sigarettaAnticipo: 0 }), '10:00')).toHaveLength(1);
   });
 });
