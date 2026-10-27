@@ -6,6 +6,7 @@ package app.sbeggio;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.Build;
@@ -80,5 +81,14 @@ public class NfcPlugin extends Plugin {
             }
         }
         call.resolve();
+    }
+
+    /** Silenzioso o vibrazione: l'app non deve suonare. Senza AudioManager si suona come sempre. */
+    @PluginMethod
+    public void suoneria(PluginCall call) {
+        AudioManager audio = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        JSObject risultato = new JSObject();
+        risultato.put("silenzioso", audio != null && audio.getRingerMode() != AudioManager.RINGER_MODE_NORMAL);
+        call.resolve(risultato);
     }
 }

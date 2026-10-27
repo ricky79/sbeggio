@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
-import { ID_AVVISO, pianificaAvvisi, type Avviso, type StatoPermessi } from '../core/avvisi';
+import { EVENTO_RICALCOLA_AVVISI, ID_AVVISO, pianificaAvvisi, type Avviso, type StatoPermessi } from '../core/avvisi';
 import { istanteDaMinuti } from '../core/sigaretta';
 import { adessoRoma } from '../core/tempo';
 import { store } from '../storage/store';
 import { inizioSigarettaSalvato } from '../ui/inizioSigaretta';
+import { schermateDaTacere } from '../ui/suoni';
 import { inApp } from './app';
 
 /** Notifiche locali dell'app Android: programmate sul telefono, suonano anche ad app chiusa. */
@@ -64,6 +65,7 @@ async function esegui(): Promise<void> {
   const piano: Avviso[] = pianificaAvvisi(store.giornata(data), store.impostazioni, { data, minuti }, {
     ora: ora.getTime(),
     inizioSigaretta: (eventoId) => inizioSigarettaSalvato(data, eventoId),
+    schermateAperte: schermateDaTacere(),
   });
   const firma = JSON.stringify(piano);
   if (firma === ultimaFirma) return;
@@ -117,7 +119,7 @@ export function avviaAvvisi(): void {
   if (!inApp()) return;
   void sincronizzaAvvisi();
   store.ascolta(() => void sincronizzaAvvisi());
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') void sincronizzaAvvisi();
-  });
+  document.addEventListener(EVENTO_RICALCOLA_AVVISI, () => void sincronizzaAvvisi());
+  // Anche andando in secondo piano: la notifica tolta per il suono dell'app va rimessa.
+  document.addEventListener('visibilitychange', () => void sincronizzaAvvisi());
 }

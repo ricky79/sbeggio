@@ -23,6 +23,8 @@ import { avviso, conferma, toast } from './dialoghi';
 import { el } from './dom';
 import { creaDisegno } from './sigarettaDisegni';
 import { cancellaInizioSigaretta, inizioSigarettaSalvato, salvaInizioSigaretta } from './inizioSigaretta';
+import { impostaSchermataSigaretta } from './schermatePausa';
+import { suona } from './suoni';
 
 function leggiInizio(data: string, uscita: Evento): number {
   return inizioSigarettaSalvato(data, uscita.id) ?? istanteDaMinuti(uscita.minuti, new Date());
@@ -46,6 +48,7 @@ export function avviaPausaSigaretta(data: string, minuti: number): void {
   const uscita: Evento = { id: nuovoId(), tipo: 'USCITA_PERMESSO', minuti, sigaretta: true };
   salvaInizioSigaretta({ data, eventoId: uscita.id, inizio: Date.now() });
   store.modificaGiornata(data, (g) => void g.eventi.push({ ...uscita }));
+  void suona('timbratura');
   if (!aperta) apriSchermata(data, uscita);
 }
 
@@ -58,6 +61,7 @@ export function riprendiPausaSigaretta(data: string): void {
 
 function apriSchermata(data: string, uscita: Evento): void {
   aperta = true;
+  impostaSchermataSigaretta(true);
   const inizio = leggiInizio(data, uscita);
   const tolleranza = store.impostazioni.tolleranzaSigaretta;
   const entro = formattaOra(adessoRoma(new Date(inizio + tolleranza * 60_000)).minuti);
@@ -145,8 +149,11 @@ function apriSchermata(data: string, uscita: Evento): void {
     dlg.classList.toggle('consumata', c.consumata >= 1);
     dlg.classList.toggle('ultimi', c.fase === 'ultimi');
     dlg.classList.toggle('scaduta', c.fase === 'scaduta');
-    // Sequenza del posacenere solo se la pausa scade mentre la schermata è aperta.
-    if (spegnimentoDaAnimare(fasePrecedente, c.fase)) dlg.classList.add('spegnimento');
+    // Sequenza del posacenere (e suono di fine pausa) solo se la pausa scade mentre la schermata è aperta.
+    if (spegnimentoDaAnimare(fasePrecedente, c.fase)) {
+      dlg.classList.add('spegnimento');
+      void suona('finePausa');
+    }
     fasePrecedente = c.fase;
     timer.textContent = testoTimer(c);
     if (c.fase === 'scaduta') {
@@ -164,6 +171,7 @@ function apriSchermata(data: string, uscita: Evento): void {
     clearInterval(intervallo);
     dlg.remove();
     aperta = false;
+    impostaSchermataSigaretta(false);
     rientroSchermata = null;
     // Chiusa dal sistema (Esc, tasto Indietro): la pausa è ancora in corso, si riapre.
     if (!chiusaDaNoi) riprendiPausaSigaretta(data);
@@ -179,10 +187,12 @@ function rientra(data: string, uscita: Evento, inizio: number, annulla?: () => v
   cancellaInizioSigaretta();
   if (esitoRientroSigaretta(trascorsi, store.impostazioni.tolleranzaSigaretta) === 'annulla') {
     store.modificaGiornata(data, (g) => annullaSigarettaNonConteggiata(g, uscita, trascorsi));
+    void suona('timbratura');
     toast(`Pausa sigaretta di ${formattaDurata(durataSigaretta(trascorsi))}: non conteggiata`, annulla);
     return;
   }
   const permesso = anteprimaSigaretta(store.giornata(data), store.impostazioni, minuti)?.permesso ?? BLOCCO_PERMESSO_SIGARETTA;
   store.modificaGiornata(data, (g) => void g.eventi.push({ id: nuovoId(), tipo: 'RIENTRO_PERMESSO', minuti }));
+  void suona('timbratura');
   toast(`Rientro alle ${formattaOra(minuti)} · ${formattaDurata(permesso)} di permesso`, annulla);
 }

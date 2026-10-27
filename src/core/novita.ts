@@ -19,6 +19,15 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.15.0',
+    data: '2026-10-27',
+    voci: [
+      'Arrivano i suoni 🔔: un ding quando timbri e quando finisce la pausa sigaretta o pranzo. Sono spenti: li accendi da Impostazioni → Aspetto → Suoni. Si sentono solo con l\'app aperta.',
+      'A Natale e Halloween i suoni sono a tema: campanelle e "oh oh oh!", oppure campane e ululati.',
+      'Dall\'8 dicembre all\'Epifania Sbeggio si veste per Natale ⛄: verde abete, neve sulla scheda, un abetino e Babbo Natale che passa con le renne. Lo spegni da Impostazioni → Aspetto → Tema di Natale.',
+    ],
+  },
+  {
     versione: '2.14.0',
     data: '2026-10-26',
     voci: [

@@ -25,6 +25,7 @@ import {
 import { riquadroPausaSaltata } from './pausaSaltata';
 import { avviaPausaPranzo, finePausaPranzo } from './pranzo';
 import { avviaPausaSigaretta } from './sigaretta';
+import { suona } from './suoni';
 
 export interface Adesso {
   data: string;
@@ -265,6 +266,7 @@ export async function eseguiAzione(azione: Azione, data: string, annulla?: () =>
       if (g.permessoUscitaMinuti > 0) {
         const r = calcolaGiornata(g, store.impostazioni, minuti);
         const permesso = r.permessoUscita > 0 ? `${formattaDurata(r.permessoUscita)} di permesso` : 'nessun permesso';
+        void suona('timbratura');
         toast(`Uscita alle ${formattaOra(minuti)} · ${permesso}`, annulla);
         return;
       }
@@ -300,6 +302,7 @@ export async function eseguiAzione(azione: Azione, data: string, annulla?: () =>
     default:
       aggiungi(azione);
   }
+  void suona('timbratura');
   toast(`${ETICHETTE_AZIONE[azione]} alle ${formattaOra(minuti)}`, annulla);
 }
 

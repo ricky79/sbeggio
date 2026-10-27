@@ -13,6 +13,7 @@ interface PluginNfc {
   stato(): Promise<{ disponibile: boolean; attivo: boolean }>;
   apriImpostazioniNfc(): Promise<void>;
   vibra(): Promise<void>;
+  suoneria(): Promise<{ silenzioso: boolean }>;
   addListener(evento: 'tag', gestore: () => void): Promise<PluginListenerHandle>;
 }
 
@@ -46,6 +47,18 @@ export async function vibra(): Promise<void> {
     await Nfc.vibra();
   } catch {
     /* nessuna vibrazione: resta il messaggio */
+  }
+}
+
+/** True se la suoneria del telefono è in silenzioso o vibrazione: allora l'app non deve fare suoni. */
+export async function telefonoSilenzioso(): Promise<boolean> {
+  if (!inApp()) return false;
+  try {
+    const { silenzioso } = await Nfc.suoneria();
+    return silenzioso;
+  } catch {
+    /* plugin assente (build vecchia): si suona come sempre */
+    return false;
   }
 }
 
