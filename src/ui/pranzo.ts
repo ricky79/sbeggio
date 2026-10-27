@@ -126,6 +126,8 @@ function apriSchermata(data: string, evento: Evento): void {
     sottotitolo.textContent = `iniziata alle ${formattaOra(evento.minuti)}`;
     azioni.replaceChildren(btnFine, btnAnnullaPausa);
     fineSchermata = chiudiPausa;
+    // Tornando al cronometro (Annulla dal riepilogo) la pausa minima già fatta non risuona.
+    minimaPrima = null;
     aggiorna();
   };
 

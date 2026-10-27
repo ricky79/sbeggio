@@ -2,7 +2,9 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { EVENTO_RICALCOLA_AVVISI } from '../core/avvisi';
+import type { Festa } from '../core/festa';
 import { creaPassaggio, fileSuono, type MomentoSuono } from '../core/suoni';
+import { inApp } from '../native/app';
 import { telefonoSilenzioso } from '../native/nfc';
 import { festaAccesa } from './tema';
 
@@ -28,31 +30,85 @@ export function impostaSuoni(accesi: boolean): void {
   } catch {
     /* resta com'è */
   }
+  if (accesi) precarica();
   document.dispatchEvent(new Event(EVENTO_RICALCOLA_AVVISI));
 }
 
+const MOMENTI: readonly MomentoSuono[] = ['timbratura', 'finePausa', 'passaggio'];
+const FESTE: readonly (Festa | null)[] = [null, 'halloween', 'natale'];
+/** Tutti i file in public/suoni/, senza doppioni. */
+const FILE = [...new Set(FESTE.flatMap((f) => MOMENTI.map((m) => fileSuono(m, f))))].filter((f): f is string => f !== null);
+
+const indirizzo = (file: string) => `${import.meta.env.BASE_URL}suoni/${file}`;
+
 /** Un lettore per file, riusato: ripartire da capo costa meno che ricaricarlo. */
 const lettori = new Map<string, HTMLAudioElement>();
+/** URL `blob:` dei file già scaricati; quelli in corso o pronti non si riscaricano. */
+const blob = new Map<string, string>();
+const inScarico = new Set<string>();
 
 /**
- * Suona il momento col set della festa accesa. `false` se non è partito (spenti, telefono in
- * silenzioso, niente file, audio bloccato dal browser): non lancia mai, e chi timbra non lo aspetta.
+ * Scarica i file in memoria e li dà ai lettori come blob. Safari chiede i file audio a pezzi
+ * (Range) e il service worker, che li serve dal precache, risponde col file intero: dal blob
+ * invece suona sempre. Se non riesce resta l'URL del file.
  */
-export async function suona(momento: MomentoSuono): Promise<boolean> {
+function precarica(): void {
+  for (const file of FILE) {
+    if (inScarico.has(file) || blob.has(file)) continue;
+    inScarico.add(file);
+    fetch(indirizzo(file))
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.blob();
+      })
+      .then((b) => {
+        const url = URL.createObjectURL(b);
+        blob.set(file, url);
+        const audio = lettori.get(file);
+        if (audio) audio.src = url;
+      })
+      .catch(() => {
+        /* si suonerà dall'URL del file */
+      })
+      .finally(() => inScarico.delete(file));
+  }
+}
+
+function riproduci(file: string): Promise<boolean> {
   try {
-    if (!suoniAccesi()) return false;
-    const file = fileSuono(momento, festaAccesa());
-    if (!file || (await telefonoSilenzioso())) return false;
     let audio = lettori.get(file);
     if (!audio) {
-      audio = new Audio(`${import.meta.env.BASE_URL}suoni/${file}`);
+      audio = new Audio(blob.get(file) ?? indirizzo(file));
       lettori.set(file, audio);
     }
     audio.currentTime = 0;
-    await audio.play();
-    return true;
+    return Promise.resolve(audio.play()).then(
+      () => true,
+      () => false,
+    );
   } catch {
-    return false;
+    return Promise.resolve(false);
+  }
+}
+
+/**
+ * Suona il momento col set della festa accesa. `false` se non è partito (spenti, telefono in
+ * silenzioso, niente file, audio bloccato dal browser): non rifiuta mai, e chi timbra non lo aspetta.
+ * Nel sito `play()` parte subito, dentro la chiamata: con un'attesa prima, Safari non lo
+ * collegherebbe più al tocco e lo bloccherebbe. La suoneria si legge solo nell'app, che non vuole tocchi.
+ */
+export function suona(momento: MomentoSuono): Promise<boolean> {
+  try {
+    if (!suoniAccesi()) return Promise.resolve(false);
+    const file = fileSuono(momento, festaAccesa());
+    if (!file) return Promise.resolve(false);
+    if (!inApp()) return riproduci(file);
+    return telefonoSilenzioso().then(
+      (silenzioso) => (silenzioso ? false : riproduci(file)),
+      () => false,
+    );
+  } catch {
+    return Promise.resolve(false);
   }
 }
 
@@ -62,6 +118,7 @@ export async function suona(momento: MomentoSuono): Promise<boolean> {
  * Con "riduci movimento" l'animazione non c'è, e quindi neanche il suono.
  */
 export function avviaSuoni(): void {
+  if (suoniAccesi()) precarica();
   const passaggio = creaPassaggio(() => suona('passaggio'));
   const alGiro = (ev: Event) => {
     if (ev.target instanceof Element && ev.target.classList.contains('festa-volo')) passaggio.alPassaggio();
