@@ -63,6 +63,8 @@ I disegni di riferimento sono nella bozza `.superpowers/brainstorm/*/content/nat
 - **Spegnimento per stagione, non per anno di calendario**: `chiaveFesta` per Natale usa l'anno in cui la
   stagione è iniziata (spento il 20/12/2026 → `natale-2026`, che vale ancora il 2/1/2027; l'8/12/2027 il
   tema torna). Halloween resta com'è (le chiavi già salvate restano valide).
+- Fino al 6 gennaio compreso l'utente lo spegne e lo riaccende quante volte vuole; dal 7 gennaio
+  spariscono tema e interruttore.
 - Interruttore "Tema di Natale ⛄" in Aspetto solo in quei giorni, nota "Fino all'Epifania, poi torna da
   solo il tema normale."; nella ricerca con sinonimi tipo "natale neve renne babbo slitta abete verde".
 - Test in `tests/festa.test.ts`: confini 7/12, 8/12, 31/12, 1/1, 6/1, 7/1; chiave della stagione a cavallo
