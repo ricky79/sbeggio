@@ -53,7 +53,11 @@ const stato: {
 };
 
 avviaTema();
-avviaSuoni();
+try {
+  avviaSuoni();
+} catch {
+  /* senza suoni l'app parte lo stesso */
+}
 impostaOrologio(() => adessoRoma());
 
 const app = document.getElementById('app')!;

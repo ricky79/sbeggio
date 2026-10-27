@@ -68,31 +68,75 @@ function precarica(): void {
   for (const file of FILE) {
     if (inScarico.has(file) || blob.has(file)) continue;
     inScarico.add(file);
-    fetch(indirizzo(file))
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.blob();
-      })
-      .then((b) => {
-        const url = URL.createObjectURL(b);
-        blob.set(file, url);
-        const audio = lettori.get(file);
-        if (audio) audio.src = url;
-      })
-      .catch(() => {
-        /* si suonerà dall'URL del file */
-      })
-      .finally(() => inScarico.delete(file));
+    try {
+      fetch(indirizzo(file))
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.blob();
+        })
+        .then((b) => {
+          const url = URL.createObjectURL(b);
+          blob.set(file, url);
+          const audio = lettori.get(file);
+          if (audio) audio.src = url;
+        })
+        .catch(() => {
+          /* si suonerà dall'URL del file */
+        })
+        .finally(() => inScarico.delete(file));
+    } catch {
+      inScarico.delete(file); // fetch che lancia subito: si suonerà dall'URL del file
+    }
+  }
+}
+
+function lettore(file: string): HTMLAudioElement {
+  let audio = lettori.get(file);
+  if (!audio) {
+    audio = new Audio(blob.get(file) ?? indirizzo(file));
+    lettori.set(file, audio);
+  }
+  return audio;
+}
+
+/** Lettori fatti partire muti dallo sblocco e non ancora fermati. */
+const inSblocco = new Set<HTMLAudioElement>();
+
+/**
+ * Sull'iPhone un lettore può suonare senza un tocco solo se ha già suonato dentro un tocco, e
+ * fine pausa e passaggio partono da timer e animazioni: al primo tocco si fanno partire muti tutti
+ * i lettori e si fermano subito. Uno che sta già suonando (o che il tocco fa suonare davvero nel
+ * frattempo, vedi `riproduci`) non si ferma.
+ */
+function sblocca(): void {
+  for (const file of FILE) {
+    try {
+      const audio = lettore(file);
+      if (!audio.paused) continue;
+      audio.muted = true;
+      inSblocco.add(audio);
+      Promise.resolve(audio.play()).then(
+        () => {
+          if (!inSblocco.delete(audio)) return;
+          audio.pause();
+          audio.currentTime = 0;
+          audio.muted = false;
+        },
+        () => {
+          if (inSblocco.delete(audio)) audio.muted = false;
+        },
+      );
+    } catch {
+      /* resta da sbloccare: suonerà se il browser lo permette */
+    }
   }
 }
 
 function riproduci(file: string): Promise<boolean> {
   try {
-    let audio = lettori.get(file);
-    if (!audio) {
-      audio = new Audio(blob.get(file) ?? indirizzo(file));
-      lettori.set(file, audio);
-    }
+    const audio = lettore(file);
+    // Un suono vero mentre lo sblocco è in corso: lo sblocco non deve fermarlo né lasciarlo muto.
+    if (inSblocco.delete(audio)) audio.muted = false;
     audio.currentTime = 0;
     return Promise.resolve(audio.play()).then(
       () => true,
@@ -108,10 +152,14 @@ function riproduci(file: string): Promise<boolean> {
  * silenzioso, niente file, audio bloccato dal browser): non rifiuta mai, e chi timbra non lo aspetta.
  * Nel sito `play()` parte subito, dentro la chiamata: con un'attesa prima, Safari non lo
  * collegherebbe più al tocco e lo bloccherebbe. La suoneria si legge solo nell'app, che non vuole tocchi.
+ * Fine pausa e passaggio suonano solo con l'app in primo piano: in secondo piano i timer dell'app
+ * Android continuano e la WebView suonerebbe sopra la notifica. La timbratura no: il tag NFC può
+ * arrivare prima che la WebView si dica visibile.
  */
 export function suona(momento: MomentoSuono): Promise<boolean> {
   try {
     if (!suoniAccesi()) return Promise.resolve(false);
+    if (momento !== 'timbratura' && document.visibilityState !== 'visible') return Promise.resolve(false);
     const file = fileSuono(momento, festaAccesa());
     if (!file) return Promise.resolve(false);
     if (!inApp()) return riproduci(file);
@@ -131,6 +179,14 @@ export function suona(momento: MomentoSuono): Promise<boolean> {
  */
 export function avviaSuoni(): void {
   if (suoniAccesi()) precarica();
+  // Lo sblocco dei lettori: al primo tocco con i suoni accesi (prima del click, che fa suonare la
+  // timbratura). A suoni spenti si aspetta il tocco dopo averli accesi.
+  const alTocco = () => {
+    if (!suoniAccesi()) return;
+    document.removeEventListener('pointerdown', alTocco, true);
+    sblocca();
+  };
+  document.addEventListener('pointerdown', alTocco, true);
   const passaggio = creaPassaggio(() => suona('passaggio'));
   const alGiro = (ev: Event) => {
     if (ev.target instanceof Element && ev.target.classList.contains('festa-volo')) passaggio.alPassaggio();
