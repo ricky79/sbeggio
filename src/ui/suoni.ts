@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
-import { EVENTO_RICALCOLA_AVVISI } from '../core/avvisi';
+import { EVENTO_RICALCOLA_AVVISI, type OpzioniAvvisi } from '../core/avvisi';
 import type { Festa } from '../core/festa';
 import { creaPassaggio, fileSuono, type MomentoSuono } from '../core/suoni';
 import { inApp } from '../native/app';
 import { telefonoSilenzioso } from '../native/nfc';
+import { schermataPranzoAperta, schermataSigarettaAperta } from './schermatePausa';
 import { festaAccesa } from './tema';
 
 /**
@@ -32,6 +33,15 @@ export function impostaSuoni(accesi: boolean): void {
   }
   if (accesi) precarica();
   document.dispatchEvent(new Event(EVENTO_RICALCOLA_AVVISI));
+}
+
+/**
+ * Le schermate di pausa a cui togliere la notifica perché l'app suona già nello stesso momento:
+ * nessuna se i suoni sono spenti.
+ */
+export function schermateDaTacere(): OpzioniAvvisi['schermateAperte'] {
+  if (!suoniAccesi()) return {};
+  return { sigaretta: schermataSigarettaAperta(), pranzo: schermataPranzoAperta() };
 }
 
 const MOMENTI: readonly MomentoSuono[] = ['timbratura', 'finePausa', 'passaggio'];

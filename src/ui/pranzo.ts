@@ -12,6 +12,7 @@ import { avviso, conferma, toast } from './dialoghi';
 import { el } from './dom';
 import { cancellaInizioPranzo, inizioPranzoSalvato, salvaInizioPranzo } from './inizioPranzo';
 import { creaDisegnoPranzo } from './pranzoDisegni';
+import { impostaSchermataPranzo } from './schermatePausa';
 import { suona } from './suoni';
 
 /**
@@ -126,6 +127,7 @@ function apriSchermata(data: string, evento: Evento): void {
     sottotitolo.textContent = `iniziata alle ${formattaOra(evento.minuti)}`;
     azioni.replaceChildren(btnFine, btnAnnullaPausa);
     fineSchermata = chiudiPausa;
+    impostaSchermataPranzo(true);
     // Tornando al cronometro (Annulla dal riepilogo) la pausa minima già fatta non risuona.
     minimaPrima = null;
     aggiorna();
@@ -140,6 +142,7 @@ function apriSchermata(data: string, evento: Evento): void {
     store.modificaGiornata(data, (g) => void g.eventi.push({ ...registrato }));
     void suona('timbratura');
     fineSchermata = null;
+    impostaSchermataPranzo(false); // col riepilogo il suono è già partito
 
     const durata = Math.max(0, minuti - evento.minuti);
     dlg.classList.add('riepilogo');
@@ -216,6 +219,7 @@ function apriSchermata(data: string, evento: Evento): void {
     clearInterval(intervallo);
     dlg.remove();
     aperta = false;
+    impostaSchermataPranzo(false);
     fineSchermata = null;
     // Chiusa dal sistema (Esc, tasto Indietro): la pausa è ancora in corso, si riapre.
     if (!chiusaDaNoi) {

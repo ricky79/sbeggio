@@ -40,6 +40,11 @@ export interface OpzioniAvvisi {
   ora?: number;
   /** Istante preciso di inizio della pausa sigaretta aperta dall'evento indicato, se salvato. */
   inizioSigaretta?: (eventoId: string) => number | null;
+  /**
+   * Schermate di pausa aperte mentre l'app suona: l'avviso che cadrebbe nello stesso momento del
+   * suono dell'app si toglie (il chiamante le indica solo a suoni accesi).
+   */
+  schermateAperte?: { sigaretta?: boolean; pranzo?: boolean };
 }
 
 /**
@@ -54,6 +59,9 @@ export interface OpzioniAvvisi {
  *   (0 = alla fine). Se l'anticipo non è minore della tolleranza non c'è nulla da avvisare.
  *   Con l'istante preciso di inizio (salvato dalla schermata della sigaretta) l'avviso è al
  *   secondo; senza, parte dal minuto della timbratura e arriva fino a 59 secondi prima.
+ *
+ * Con la schermata della pausa aperta (`opz.schermateAperte`) niente avviso che coincida col suono
+ * dell'app: pranzo con avviso uguale alla pausa minima, sigaretta senza anticipo.
  *
  * Niente avvisi per giornate di altri giorni, da correggere, chiuse o non iniziate, né per
  * orari già passati.
@@ -83,6 +91,7 @@ export function pianificaAvvisi(
       testo: `Le ore sono completate: uscita prevista alle ${formattaOra(r.uscitaPrevista)}.`,
     });
   } else if (r.stato === 'IN_PAUSA' && imp.avvisi.pranzo && ultimo?.tipo === 'INIZIO_PAUSA') {
+    if (opz.schermateAperte?.pranzo && imp.avvisi.pranzoMinuti === imp.pausaMinima) return avvisi;
     aggiungi({
       tipo: 'pausa',
       minuti: ultimo.minuti + imp.avvisi.pranzoMinuti,
@@ -92,6 +101,7 @@ export function pianificaAvvisi(
   } else if (r.stato === 'IN_PERMESSO' && imp.avvisi.sigaretta) {
     const uscita = sigarettaInCorso(giornata);
     const anticipo = imp.avvisi.sigarettaAnticipo;
+    if (opz.schermateAperte?.sigaretta && anticipo === 0) return avvisi;
     const dopo = imp.tolleranzaSigaretta - anticipo; // minuti dall'inizio della pausa
     if (uscita && dopo > 0) {
       const avviso: Avviso = {

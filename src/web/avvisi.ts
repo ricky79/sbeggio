@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
-import { pianificaAvvisi, type StatoPermessi } from '../core/avvisi';
+import { EVENTO_RICALCOLA_AVVISI, pianificaAvvisi, type StatoPermessi } from '../core/avvisi';
 import {
   CACHE_AVVISI,
   CHIAVE_VAPID,
@@ -21,6 +21,7 @@ import { istanteDaMinuti } from '../core/sigaretta';
 import { adessoRoma } from '../core/tempo';
 import { store } from '../storage/store';
 import { inizioSigarettaSalvato } from '../ui/inizioSigaretta';
+import { schermateDaTacere } from '../ui/suoni';
 import { inModalitaApp, piattaforma } from '../ui/installa';
 
 /**
@@ -187,6 +188,7 @@ async function esegui(): Promise<void> {
   const piano: AvvisoPush[] = pianificaAvvisi(store.giornata(data), store.impostazioni, { data, minuti }, {
     ora: ora.getTime(),
     inizioSigaretta: (eventoId) => inizioSigarettaSalvato(data, eventoId),
+    schermateAperte: schermateDaTacere(),
   }).map((a) => ({ tipo: a.tipo, orario: a.istante ?? istanteDaMinuti(a.minuti, ora), titolo: a.titolo, testo: a.testo }));
 
   const stato = leggiStato();
@@ -235,6 +237,7 @@ export function avviaAvvisi(): void {
   if (!supportato()) return;
   void sincronizzaAvvisi();
   store.ascolta(() => void sincronizzaAvvisi());
+  document.addEventListener(EVENTO_RICALCOLA_AVVISI, () => void sincronizzaAvvisi());
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') void sincronizzaAvvisi();
   });

@@ -23,6 +23,7 @@ import { avviso, conferma, toast } from './dialoghi';
 import { el } from './dom';
 import { creaDisegno } from './sigarettaDisegni';
 import { cancellaInizioSigaretta, inizioSigarettaSalvato, salvaInizioSigaretta } from './inizioSigaretta';
+import { impostaSchermataSigaretta } from './schermatePausa';
 import { suona } from './suoni';
 
 function leggiInizio(data: string, uscita: Evento): number {
@@ -60,6 +61,7 @@ export function riprendiPausaSigaretta(data: string): void {
 
 function apriSchermata(data: string, uscita: Evento): void {
   aperta = true;
+  impostaSchermataSigaretta(true);
   const inizio = leggiInizio(data, uscita);
   const tolleranza = store.impostazioni.tolleranzaSigaretta;
   const entro = formattaOra(adessoRoma(new Date(inizio + tolleranza * 60_000)).minuti);
@@ -169,6 +171,7 @@ function apriSchermata(data: string, uscita: Evento): void {
     clearInterval(intervallo);
     dlg.remove();
     aperta = false;
+    impostaSchermataSigaretta(false);
     rientroSchermata = null;
     // Chiusa dal sistema (Esc, tasto Indietro): la pausa è ancora in corso, si riapre.
     if (!chiusaDaNoi) riprendiPausaSigaretta(data);
