@@ -77,6 +77,7 @@ const VOCI: readonly Voce[] = [
   { id: 'tag-nfc', nome: 'Tag NFC', pagina: 'nfc', sinonimi: 'tornelli timbrare', soloApp: true },
   { id: 'tema', nome: 'Tema', pagina: 'aspetto', sinonimi: 'chiaro scuro automatico dark colori notte' },
   { id: 'halloween', nome: 'Tema di Halloween', pagina: 'aspetto', sinonimi: 'zucca festa pipistrelli arancione', soloFesta: 'halloween' },
+  { id: 'natale', nome: 'Tema di Natale', pagina: 'aspetto', sinonimi: 'neve renne babbo slitta abete verde festa', soloFesta: 'natale' },
   { id: 'esporta-excel', nome: 'Esporta Excel', pagina: 'dati', sinonimi: 'xlsx foglio di calcolo scarica' },
   { id: 'esporta-csv', nome: 'Esporta CSV', pagina: 'dati', sinonimi: 'scarica' },
   { id: 'backup-json', nome: 'Esporta backup completo', pagina: 'dati', sinonimi: 'json salva copia' },

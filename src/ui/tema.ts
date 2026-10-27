@@ -77,10 +77,10 @@ function applica(): void {
   radice.dataset.tema = tema;
   if (festa) radice.dataset.festa = festa;
   else delete radice.dataset.festa;
-  // La strega è un elemento vero (le ragnatele e i pipistrelli bastano col CSS).
-  const decorazioni = document.querySelector('.festa-decorazioni');
-  if (festa && !decorazioni) document.body.append(creaDecorazioni());
-  else if (!festa) decorazioni?.remove();
+  // La strega e la slitta sono elementi veri (ragnatele, pipistrelli, neve e abete bastano col CSS).
+  const decorazioni = document.querySelector<HTMLElement>('.festa-decorazioni');
+  if (decorazioni && decorazioni.dataset.festa !== festa) decorazioni.remove();
+  if (festa && decorazioni?.dataset.festa !== festa) document.body.append(creaDecorazioni(festa));
   const barra = festa ? COLORE_BARRA_FESTA[festa][tema] : COLORE_BARRA[tema];
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', barra);
 }

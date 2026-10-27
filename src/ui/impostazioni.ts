@@ -17,6 +17,7 @@ import { inApp } from '../native/app';
 import * as avvisiApp from '../native/avvisi';
 import * as avvisiPwa from '../web/avvisi';
 import type { StatoPermessi } from '../core/avvisi';
+import type { Festa } from '../core/festa';
 import { apriImpostazioniNfc, statoNfc, type StatoNfc } from '../native/nfc';
 import { PRECISIONE_MASSIMA, RAGGIO_UFFICIO } from '../core/posizione';
 import { leggiPosizione } from './posizione';
@@ -243,6 +244,30 @@ function selettoreTema(): HTMLElement {
   return el('div', { class: 'preset', role: 'group', 'aria-label': 'Tema', id: 'imp-tema' }, pulsanti);
 }
 
+/** Interruttore del tema della festa in Aspetto; `voce` è l'id della ricerca (ricercaImpostazioni.ts). */
+const INTERRUTTORE_FESTA: Record<Festa, { titolo: string; aria: string; nota: string; voce: string }> = {
+  halloween: {
+    titolo: 'Tema di Halloween 🎃',
+    aria: 'Tema di Halloween',
+    nota: 'Fino a Ognissanti, poi torna da solo il tema normale.',
+    voce: 'halloween',
+  },
+  natale: {
+    titolo: 'Tema di Natale ⛄',
+    aria: 'Tema di Natale',
+    nota: 'Fino all\'Epifania, poi torna da solo il tema normale.',
+    voce: 'natale',
+  },
+};
+
+/** Solo nei giorni della festa: fuori stagione non c'è niente da accendere. */
+function schedaFesta(): HTMLElement | null {
+  const festa = festaDiOggi();
+  if (!festa) return null;
+  const t = INTERRUTTORE_FESTA[festa];
+  return scheda(null, riga(t.titolo, interruttore(festaAccesa() !== null, (v) => impostaFesta(v), t.aria), t.nota, t.voce));
+}
+
 const OPZIONI_SIGARETTA: [TipoSigaretta, string][] = [
   ['normale', 'Normale'],
   ['elettronica', 'Elettronica'],
@@ -392,18 +417,7 @@ export function vistaImpostazioni(adesso: Adesso, nav: NavImpostazioni): HTMLEle
     nfc: () => [sezioneTagNfc()],
     aspetto: () => [
       scheda(null, selettoreTema(), el('p', { class: 'nota' }, 'Automatico segue il tema chiaro o scuro del telefono.')),
-      // Solo nei giorni della festa: fuori stagione non c'è niente da accendere.
-      festaDiOggi() === 'halloween'
-        ? scheda(
-            null,
-            riga(
-              'Tema di Halloween 🎃',
-              interruttore(festaAccesa() !== null, (v) => impostaFesta(v), 'Tema di Halloween'),
-              'Fino a Ognissanti, poi torna da solo il tema normale.',
-              'halloween',
-            ),
-          )
-        : null,
+      schedaFesta(),
     ],
     dati: () => [
       scheda(

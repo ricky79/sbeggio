@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { describe, expect, it } from 'vitest';
-import { chiaveFesta, festaDelGiorno } from '../src/core/festa';
+import { chiaveFesta, festaDelGiorno, type Festa } from '../src/core/festa';
 import { cercaImpostazioni } from '../src/ui/ricercaImpostazioni';
 
 describe('tema delle feste', () => {
@@ -38,8 +38,11 @@ describe('tema delle feste', () => {
   });
 
   it('l\'interruttore si trova con la ricerca solo nei giorni della festa', () => {
-    const ids = (festa: 'halloween' | null) => cercaImpostazioni('zucca', { app: false, festa }).map((v) => v.id);
-    expect(ids('halloween')).toContain('halloween');
-    expect(ids(null)).not.toContain('halloween');
+    const ids = (q: string, festa: Festa | null) => cercaImpostazioni(q, { app: false, festa }).map((v) => v.id);
+    expect(ids('zucca', 'halloween')).toContain('halloween');
+    expect(ids('zucca', null)).not.toContain('halloween');
+    expect(ids('renne', 'natale')).toContain('natale');
+    expect(ids('renne', null)).not.toContain('natale');
+    expect(ids('natale', 'halloween')).not.toContain('natale');
   });
 });
