@@ -21,7 +21,10 @@ const CHIAVE_FESTA = 'timbrature-festa-spenta';
 
 /** Colore della barra di stato, uguale a --sfondo in style.css (anche con il tema della festa). */
 const COLORE_BARRA: Record<Tema, string> = { chiaro: '#f2f2f7', scuro: '#000000' };
-const COLORE_BARRA_FESTA: Record<Festa, Record<Tema, string>> = { halloween: { chiaro: '#f6f0fb', scuro: '#0d0814' } };
+const COLORE_BARRA_FESTA: Record<Festa, Record<Tema, string>> = {
+  halloween: { chiaro: '#f6f0fb', scuro: '#0d0814' },
+  natale: { chiaro: '#f4f4f1', scuro: '#070c18' },
+};
 
 export function normalizzaPreferenza(v: unknown): PreferenzaTema {
   return v === 'chiaro' || v === 'scuro' ? v : 'auto';
