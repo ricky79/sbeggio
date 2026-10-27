@@ -120,7 +120,6 @@ export function avviaAvvisi(): void {
   void sincronizzaAvvisi();
   store.ascolta(() => void sincronizzaAvvisi());
   document.addEventListener(EVENTO_RICALCOLA_AVVISI, () => void sincronizzaAvvisi());
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') void sincronizzaAvvisi();
-  });
+  // Anche andando in secondo piano: la notifica tolta per il suono dell'app va rimessa.
+  document.addEventListener('visibilitychange', () => void sincronizzaAvvisi());
 }

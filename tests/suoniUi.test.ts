@@ -186,3 +186,35 @@ describe('precaricamento', () => {
     expect(finto.audio[0]!.src).toBe('/suoni/ding.mp3');
   });
 });
+
+describe('schermateDaTacere', () => {
+  const visibilita = (v: string) => vi.stubGlobal('document', { dispatchEvent: (e: Event) => finto.eventi.push(e.type), addEventListener: vi.fn(), visibilityState: v });
+
+  async function conSchermataAperta(suoni: boolean) {
+    visibilita('visible');
+    const suoniUi = await carica();
+    const pausa = await import('../src/ui/schermatePausa');
+    if (suoni) suoniUi.impostaSuoni(true);
+    pausa.impostaSchermataSigaretta(true);
+    return suoniUi;
+  }
+
+  it('suoni spenti: niente da tacere', async () => {
+    finto.app = true;
+    expect((await conSchermataAperta(false)).schermateDaTacere()).toEqual({});
+  });
+  it('suoni accesi ma fuori dall\'app: niente da tacere', async () => {
+    finto.app = false;
+    expect((await conSchermataAperta(true)).schermateDaTacere()).toEqual({});
+  });
+  it('nell\'app con l\'app in secondo piano: niente da tacere', async () => {
+    finto.app = true;
+    const { schermateDaTacere } = await conSchermataAperta(true);
+    visibilita('hidden');
+    expect(schermateDaTacere()).toEqual({});
+  });
+  it('nell\'app in primo piano con la schermata sigaretta aperta: si tace la sigaretta', async () => {
+    finto.app = true;
+    expect((await conSchermataAperta(true)).schermateDaTacere()).toEqual({ sigaretta: true, pranzo: false });
+  });
+});

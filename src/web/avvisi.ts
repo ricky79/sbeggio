@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
-import { EVENTO_RICALCOLA_AVVISI, pianificaAvvisi, type StatoPermessi } from '../core/avvisi';
+import { pianificaAvvisi, type StatoPermessi } from '../core/avvisi';
 import {
   CACHE_AVVISI,
   CHIAVE_VAPID,
@@ -237,7 +237,6 @@ export function avviaAvvisi(): void {
   if (!supportato()) return;
   void sincronizzaAvvisi();
   store.ascolta(() => void sincronizzaAvvisi());
-  document.addEventListener(EVENTO_RICALCOLA_AVVISI, () => void sincronizzaAvvisi());
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') void sincronizzaAvvisi();
   });

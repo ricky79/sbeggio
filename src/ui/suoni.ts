@@ -37,10 +37,12 @@ export function impostaSuoni(accesi: boolean): void {
 
 /**
  * Le schermate di pausa a cui togliere la notifica perché l'app suona già nello stesso momento:
- * nessuna se i suoni sono spenti.
+ * nessuna se i suoni sono spenti, fuori dall'app Android (nella PWA la notifica resta sempre: il
+ * push è già sul server e al passaggio in background non si può contare su un riallineamento) o
+ * con l'app in secondo piano, dove il suono non può partire e la notifica serve.
  */
 export function schermateDaTacere(): OpzioniAvvisi['schermateAperte'] {
-  if (!suoniAccesi()) return {};
+  if (!suoniAccesi() || !inApp() || document.visibilityState !== 'visible') return {};
   return { sigaretta: schermataSigarettaAperta(), pranzo: schermataPranzoAperta() };
 }
 

@@ -94,7 +94,7 @@ I disegni di riferimento sono nella bozza `.superpowers/brainstorm/*/content/nat
 - **Notifica e suono insieme** (deciso dall'utente sulla mia proposta): mentre la schermata della pausa
   sigaretta o della pausa pranzo è aperta, la notifica di fine di quella pausa non viene mostrata e si
   sente solo il suono dell'app; alla chiusura della schermata, se la pausa è ancora in corso, la notifica
-  si riprogramma come oggi. Decisione mia: vale **solo con i suoni accesi**; con i suoni spenti la
+  si riprogramma come oggi. Vale **solo nell'app Android e solo con l'app in primo piano**: andando in secondo piano la notifica viene ripristinata, e nella PWA la notifica resta sempre. Decisione mia: vale **solo con i suoni accesi**; con i suoni spenti la
   notifica resta com'è, così chi non vuole suoni non perde l'avviso. Decisione mia (dal piano): la
   notifica si toglie **solo quando cade nello stesso momento del suono**, cioè sigaretta con anticipo 0
   (avviso alla fine della tolleranza) e pranzo con "avvisa dopo" uguale alla pausa minima (il caso
