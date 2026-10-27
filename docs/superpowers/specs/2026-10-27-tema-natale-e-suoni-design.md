@@ -95,7 +95,11 @@ I disegni di riferimento sono nella bozza `.superpowers/brainstorm/*/content/nat
   sigaretta o della pausa pranzo è aperta, la notifica di fine di quella pausa non viene mostrata e si
   sente solo il suono dell'app; alla chiusura della schermata, se la pausa è ancora in corso, la notifica
   si riprogramma come oggi. Decisione mia: vale **solo con i suoni accesi**; con i suoni spenti la
-  notifica resta com'è, così chi non vuole suoni non perde l'avviso. Tocca la programmazione in
+  notifica resta com'è, così chi non vuole suoni non perde l'avviso. Decisione mia (dal piano): la
+  notifica si toglie **solo quando cade nello stesso momento del suono**, cioè sigaretta con anticipo 0
+  (avviso alla fine della tolleranza) e pranzo con "avvisa dopo" uguale alla pausa minima (il caso
+  predefinito, 30 e 30). Con un anticipo o un orario diverso la notifica arriva in un altro momento,
+  non si sovrappone e resta: toglierla farebbe perdere l'avviso. Tocca la programmazione in
   `src/native/avvisi.ts` (e l'equivalente della PWA, `src/web/avvisi.ts`).
 - "Apertura dell'app" per il primo passaggio: avvio dell'app o ritorno in primo piano dopo
   essere stata in background (decisione mia; se il builder trova più naturale solo l'avvio, va bene).
