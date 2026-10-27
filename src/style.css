@@ -226,10 +226,11 @@
   --sfondo: #f4f4f1;
   --superficie-2: #e9ebe6;
   --testo-2: #66686c;
-  /* #ffffff su #15803d: contrasto ≈ 5,0:1 (#15803d su bianco lo stesso). */
-  --accento: #15803d;
+  /* #ffffff su #146c36: contrasto ≈ 6,5:1; #146c36 su --accento-tenue (pulsanti secondari) ≈ 5,4:1 su
+     bianco e ≈ 5,0:1 su --sfondo. */
+  --accento: #146c36;
   --accento-testo: #ffffff;
-  --accento-tenue: rgba(21, 128, 61, 0.12);
+  --accento-tenue: rgba(20, 108, 54, 0.12);
 }
 :root[data-festa='natale'][data-tema='scuro'] {
   --sfondo: #070c18;
@@ -324,7 +325,6 @@
     opacity: 0;
   }
 }
-
 
 html {
   -webkit-text-size-adjust: 100%;
