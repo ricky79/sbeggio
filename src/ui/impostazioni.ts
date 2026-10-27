@@ -25,6 +25,7 @@ import { apriNovita } from './novita';
 import { cercaImpostazioni, PAGINE_IMPOSTAZIONI, titoloPagina, type IdPagina, type PaginaImpostazioni } from './ricercaImpostazioni';
 import { elencoRisultati, mostraVoce } from './sezioni';
 import { filtraAiuto, vociAiuto } from './aiutoTesti';
+import { impostaSuoni, suoniAccesi } from './suoni';
 
 /** Lunedì → domenica, come in un calendario italiano. */
 const ORDINE_GIORNI = [1, 2, 3, 4, 5, 6, 0];
@@ -417,6 +418,10 @@ export function vistaImpostazioni(adesso: Adesso, nav: NavImpostazioni): HTMLEle
     nfc: () => [sezioneTagNfc()],
     aspetto: () => [
       scheda(null, selettoreTema(), el('p', { class: 'nota' }, 'Automatico segue il tema chiaro o scuro del telefono.')),
+      scheda(
+        null,
+        riga('Suoni', interruttore(suoniAccesi(), impostaSuoni, 'Suoni'), 'Si sentono solo con l\'app aperta.', 'suoni'),
+      ),
       schedaFesta(),
     ],
     dati: () => [

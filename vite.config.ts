@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         injectManifest: {
-          globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+          globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,mp3}'],
           // Il sito web.sbeggio.app non serve alla PWA.
           globIgnores: ['web.html', 'assets/sito-*.js', 'assets/sito-*.css'],
         },

@@ -39,6 +39,8 @@ describe('cercaImpostazioni', () => {
     expect(ids('qr')).toContain('collega-dispositivo');
     expect(ids('excel')).toContain('esporta-excel');
     expect(ids('Avvisi').length).toBeGreaterThan(3);
+    expect(ids('suoni')).toEqual(['suoni']);
+    expect(ids('campanelle')).toContain('suoni');
   });
 
   it('ignora gli accenti', () => {

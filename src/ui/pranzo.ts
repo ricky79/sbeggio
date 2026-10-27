@@ -12,6 +12,7 @@ import { avviso, conferma, toast } from './dialoghi';
 import { el } from './dom';
 import { cancellaInizioPranzo, inizioPranzoSalvato, salvaInizioPranzo } from './inizioPranzo';
 import { creaDisegnoPranzo } from './pranzoDisegni';
+import { suona } from './suoni';
 
 /**
  * Pausa pranzo a tutto schermo, come la sigaretta: cronometro in avanti, un cibo a sorpresa che si
@@ -32,6 +33,7 @@ export function avviaPausaPranzo(data: string, minuti: number): void {
   const inizio: Evento = { id: nuovoId(), tipo: 'INIZIO_PAUSA', minuti };
   salvaInizioPranzo({ data, eventoId: inizio.id, inizio: Date.now() });
   store.modificaGiornata(data, (g) => void g.eventi.push({ ...inizio }));
+  void suona('timbratura');
   if (!aperta) apriSchermata(data, inizio);
 }
 
@@ -43,6 +45,7 @@ export function finePausaPranzo(data: string, minuti: number, annulla?: () => vo
   if (fineSchermata) return fineSchermata();
   const inizio = pranzoInCorso(store.giornata(data));
   store.modificaGiornata(data, (g) => void g.eventi.push({ id: nuovoId(), tipo: 'FINE_PAUSA', minuti }));
+  void suona('timbratura');
   cancellaInizioPranzo();
   const durata = inizio ? ` · pausa di ${formattaDurata(Math.max(0, minuti - inizio.minuti))}` : '';
   toast(`Fine pausa pranzo alle ${formattaOra(minuti)}${durata}`, annulla);
@@ -133,6 +136,7 @@ function apriSchermata(data: string, evento: Evento): void {
     const registrato: Evento = { id: nuovoId(), tipo: 'FINE_PAUSA', minuti };
     fine = registrato;
     store.modificaGiornata(data, (g) => void g.eventi.push({ ...registrato }));
+    void suona('timbratura');
     fineSchermata = null;
 
     const durata = Math.max(0, minuti - evento.minuti);
@@ -182,6 +186,8 @@ function apriSchermata(data: string, evento: Evento): void {
     azioni,
   );
 
+  /** minimaFatta al giro prima: null finché non si è letta, così aprendo a pausa già fatta non suona. */
+  let minimaPrima: boolean | null = null;
   function aggiorna(): void {
     if (fine || giornoCambiato()) return;
     // Pausa tolta altrove (Annulla del tag, un'altra scheda): la schermata non ha più senso.
@@ -193,6 +199,8 @@ function apriSchermata(data: string, evento: Evento): void {
     const a = avanzamentoPranzo(trascorsi, pausaMinima);
     disegno.aggiorna(a.mangiato);
     dlg.classList.toggle('finito', a.minimaFatta);
+    if (minimaPrima === false && a.minimaFatta) void suona('finePausa');
+    minimaPrima = a.minimaFatta;
     timer.textContent = testoCronometro(trascorsi);
     nota.textContent = a.minimaFatta ? '✓ Pausa minima fatta' : `Pausa minima di ${formattaDurata(pausaMinima)}: alle ${minimaAlle}`;
     const prevista = calcolaGiornata(store.giornata(data), store.impostazioni, adessoRoma().minuti).uscitaPrevista;
