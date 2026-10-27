@@ -8,6 +8,7 @@ const plugin = vi.hoisted(() => ({
   stato: vi.fn(),
   apriImpostazioniNfc: vi.fn(),
   vibra: vi.fn(),
+  suoneria: vi.fn(),
   addListener: vi.fn(),
 }));
 const ambiente = vi.hoisted(() => ({ app: true }));
@@ -78,5 +79,22 @@ describe('vibrazione e impostazioni', () => {
     await apriImpostazioniNfc();
     expect(plugin.vibra).not.toHaveBeenCalled();
     expect(plugin.apriImpostazioniNfc).not.toHaveBeenCalled();
+  });
+});
+
+describe('telefono silenzioso', () => {
+  it('silenzioso o vibrazione: true; normale: false', async () => {
+    const { telefonoSilenzioso } = await carica();
+    plugin.suoneria.mockResolvedValue({ silenzioso: true });
+    expect(await telefonoSilenzioso()).toBe(true);
+    plugin.suoneria.mockResolvedValue({ silenzioso: false });
+    expect(await telefonoSilenzioso()).toBe(false);
+  });
+  it('fuori dall\'app o plugin vecchio: false', async () => {
+    const { telefonoSilenzioso } = await carica();
+    plugin.suoneria.mockRejectedValue(new Error('not implemented'));
+    expect(await telefonoSilenzioso()).toBe(false);
+    ambiente.app = false;
+    expect(await telefonoSilenzioso()).toBe(false);
   });
 });
