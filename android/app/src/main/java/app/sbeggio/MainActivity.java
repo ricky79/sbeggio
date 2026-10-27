@@ -24,7 +24,10 @@ public class MainActivity extends BridgeActivity {
         }
         super.onCreate(savedInstanceState);
         // Il suono del primo passaggio (tag NFC) parte prima di qualsiasi tocco: senza questo la WebView
-        // lo bloccherebbe, perché di default l'audio richiede un gesto dell'utente.
-        getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false);
+        // lo bloccherebbe, perché di default l'audio richiede un gesto dell'utente. Senza WebView
+        // (BridgeActivity mostra la sua schermata di errore) non c'è niente da impostare.
+        if (getBridge() != null && getBridge().getWebView() != null) {
+            getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false);
+        }
     }
 }

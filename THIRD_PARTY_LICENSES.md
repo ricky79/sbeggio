@@ -283,7 +283,7 @@ Vale per jsQR e AndroidX.
 
 ## Suoni
 
-I suoni in `public/suoni/` sono registrazioni con licenza [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (pubblico dominio), tagliate, montate e con il volume uniformato per Sbeggio (`ding-doppio.mp3` è lo stesso ding ripetuto due volte; `natale-ohoh.mp3` non è un mix, è la sola voce). La licenza non chiede di citarle: le elenchiamo per sapere da dove arrivano.
+I suoni in `public/suoni/` sono registrazioni con licenza [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (pubblico dominio), tagliate, montate e con il volume uniformato per Sbeggio (`ding-doppio.mp3` è il suo originale, "SingleDing", ripetuto due volte; `natale-ohoh.mp3` non è un mix, è la sola voce). La licenza non chiede di citarle: le elenchiamo per sapere da dove arrivano.
 
 | File | Suono originale | Autore | Fonte | Licenza |
 |---|---|---|---|---|
