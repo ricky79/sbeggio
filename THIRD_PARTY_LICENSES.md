@@ -280,3 +280,18 @@ Vale per jsQR e AndroidX.
    See the License for the specific language governing permissions and
    limitations under the License.
 ```
+
+## Suoni
+
+I suoni in `public/suoni/` sono registrazioni con licenza [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (pubblico dominio), tagliate e normalizzate per Sbeggio. La licenza non chiede di citarle: le elenchiamo per sapere da dove arrivano.
+
+| File | Suono originale | Autore | Fonte |
+|---|---|---|---|
+| `ding.mp3` | Phone chime.wav | ChristopherJngs | https://freesound.org/people/ChristopherJngs/sounds/666296/ |
+| `ding-doppio.mp3` | SingleDing | NoisyRedFox | https://freesound.org/people/NoisyRedFox/sounds/759839/ |
+| `natale-campanelle.mp3` | Sleigh_Bells_fast.wav | jcdecha | https://freesound.org/people/jcdecha/sounds/235465/ |
+| `natale-campanellino.mp3` | bell8.wav | creeeeak | https://freesound.org/people/creeeeak/sounds/531031/ |
+| `natale-ohoh.mp3` | Santa Claus Merry Christmas Ho-Ho-Ho.mp3 | metaepitome | https://freesound.org/people/metaepitome/sounds/331333/ |
+| `halloween-risata.mp3` | witchy laugh 5.wav | ivanmilic | https://freesound.org/people/ivanmilic/sounds/557530/ |
+| `halloween-campana.mp3` | R04-59-Short Bell Tolls.wav | craigsmith | https://freesound.org/people/craigsmith/sounds/479985/ |
+| `halloween-ululato.mp3` | wolf 2.wav | genel | https://freesound.org/people/genel/sounds/399186/ |
