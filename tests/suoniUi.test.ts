@@ -190,7 +190,7 @@ describe('sblocco dei lettori al primo tocco', () => {
     finto.memoria.set('timbrature-suoni', '1');
     const { avviaSuoni } = await carica();
     avviaSuoni();
-    evento('pointerdown');
+    evento('click');
     expect(finto.audio).toHaveLength(8);
     for (const a of finto.audio) {
       expect(a.suonatoMuto).toBe(1);
@@ -202,17 +202,17 @@ describe('sblocco dei lettori al primo tocco', () => {
       expect(a.muted).toBe(false);
       expect(a.currentTime).toBe(0);
     }
-    evento('pointerdown'); // una volta basta
+    evento('click'); // una volta basta
     expect(finto.audio.every((a) => a.suonato === 1)).toBe(true);
   });
 
   it('a suoni spenti il tocco non sblocca nulla; dopo averli accesi lo fa il tocco seguente', async () => {
     const { avviaSuoni, impostaSuoni } = await carica();
     avviaSuoni();
-    evento('pointerdown');
+    evento('click');
     expect(finto.audio).toEqual([]);
     impostaSuoni(true);
-    evento('pointerdown');
+    evento('click');
     expect(finto.audio).toHaveLength(8);
   });
 
@@ -221,7 +221,7 @@ describe('sblocco dei lettori al primo tocco', () => {
     finto.play = () => Promise.reject(new Error('NotAllowedError'));
     const { avviaSuoni } = await carica();
     avviaSuoni();
-    evento('pointerdown');
+    evento('click');
     await promesse();
     expect(finto.audio).toHaveLength(8);
     expect(finto.audio.every((a) => !a.muted)).toBe(true);
@@ -231,7 +231,7 @@ describe('sblocco dei lettori al primo tocco', () => {
     finto.memoria.set('timbrature-suoni', '1');
     const { avviaSuoni, suona } = await carica();
     avviaSuoni();
-    evento('pointerdown');
+    evento('click');
     await promesse();
     await expect(suona('finePausa')).resolves.toBe(true);
     expect(finto.audio).toHaveLength(8);
@@ -241,14 +241,17 @@ describe('sblocco dei lettori al primo tocco', () => {
     expect(doppio.paused).toBe(false);
   });
 
-  it('il suono del tocco partito durante lo sblocco non viene fermato', async () => {
+  it('il suono dello stesso click, partito durante lo sblocco, si sente e non viene fermato', async () => {
     finto.memoria.set('timbrature-suoni', '1');
     const inAttesa: (() => void)[] = [];
     finto.play = () => new Promise<void>((r) => inAttesa.push(r));
     const { avviaSuoni, suona } = await carica();
     avviaSuoni();
-    evento('pointerdown'); // prima del click
-    const timbro = suona('timbratura'); // il click
+    evento('click'); // capture: prima del gestore del pulsante
+    const timbro = suona('timbratura'); // il gestore del pulsante, stesso click
+    const dingSubito = finto.audio.find((a) => a.src === '/suoni/ding.mp3')!;
+    expect(dingSubito.suonato).toBe(2); // sblocco + suono vero
+    expect(dingSubito.suonatoMuto).toBe(1); // il suono vero è partito a voce piena
     for (const r of inAttesa) r();
     await expect(timbro).resolves.toBe(true);
     await promesse();
@@ -264,7 +267,7 @@ describe('sblocco dei lettori al primo tocco', () => {
     const { avviaSuoni, suona } = await carica();
     avviaSuoni();
     await suona('timbratura');
-    evento('pointerdown');
+    evento('click');
     await promesse();
     const ding = finto.audio.find((a) => a.src === '/suoni/ding.mp3')!;
     expect(ding.suonato).toBe(1);
@@ -280,7 +283,7 @@ describe('precaricamento', () => {
     });
     const { avviaSuoni, impostaSuoni } = await carica();
     expect(() => avviaSuoni()).not.toThrow();
-    expect(finto.ascoltatori.get('pointerdown')?.size).toBe(1);
+    expect(finto.ascoltatori.get('click')?.size).toBe(1);
     expect(finto.ascoltatori.get('animationstart')?.size).toBe(1);
     expect(() => impostaSuoni(true)).not.toThrow();
     expect(finto.eventi).toEqual([EVENTO_RICALCOLA_AVVISI]);
@@ -293,7 +296,7 @@ describe('precaricamento', () => {
     finto.memoria.set('timbrature-suoni', '1');
     const { avviaSuoni } = await carica();
     avviaSuoni();
-    evento('pointerdown');
+    evento('click');
     const ohoh = finto.audio.find((a) => a.src === '/suoni/natale-ohoh.mp3')!;
     inAttesa.get('/suoni/natale-ohoh.mp3')!();
     await dopoIlPrecaricamento();

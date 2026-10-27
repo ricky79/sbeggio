@@ -135,8 +135,10 @@ function sblocca(): void {
 function riproduci(file: string): Promise<boolean> {
   try {
     const audio = lettore(file);
-    // Un suono vero mentre lo sblocco è in corso: lo sblocco non deve fermarlo né lasciarlo muto.
-    if (inSblocco.delete(audio)) audio.muted = false;
+    // Un suono vero mentre lo sblocco è in corso (anche nello stesso click): toglierlo da `inSblocco`
+    // annulla il fermo che lo sblocco farebbe alla fine, e il suono vero è sempre a voce piena.
+    inSblocco.delete(audio);
+    audio.muted = false;
     audio.currentTime = 0;
     return Promise.resolve(audio.play()).then(
       () => true,
@@ -179,14 +181,16 @@ export function suona(momento: MomentoSuono): Promise<boolean> {
  */
 export function avviaSuoni(): void {
   if (suoniAccesi()) precarica();
-  // Lo sblocco dei lettori: al primo tocco con i suoni accesi (prima del click, che fa suonare la
-  // timbratura). A suoni spenti si aspetta il tocco dopo averli accesi.
+  // Lo sblocco dei lettori: al primo click con i suoni accesi. Il click, non pointerdown, perché col
+  // dito solo pointerup/touchend/click valgono come gesto. In capture parte prima del gestore del
+  // pulsante, che può suonare la timbratura sullo stesso lettore: ci pensa `riproduci`.
+  // A suoni spenti si aspetta il click dopo averli accesi.
   const alTocco = () => {
     if (!suoniAccesi()) return;
-    document.removeEventListener('pointerdown', alTocco, true);
+    document.removeEventListener('click', alTocco, true);
     sblocca();
   };
-  document.addEventListener('pointerdown', alTocco, true);
+  document.addEventListener('click', alTocco, true);
   const passaggio = creaPassaggio(() => suona('passaggio'));
   const alGiro = (ev: Event) => {
     if (ev.target instanceof Element && ev.target.classList.contains('festa-volo')) passaggio.alPassaggio();
