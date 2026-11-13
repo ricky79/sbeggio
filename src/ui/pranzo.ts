@@ -26,6 +26,9 @@ function leggiInizio(data: string, inizio: Evento): number {
 
 let aperta = false;
 
+/** Per quanto resta visibile il riepilogo di fine pausa prima di chiudersi da solo. */
+const CHIUSURA_RIEPILOGO_MS = 3000;
+
 /** Il tasto Fine pausa pranzo della schermata aperta, per il tag NFC (null a schermata chiusa). */
 let fineSchermata: (() => void) | null = null;
 
@@ -78,6 +81,8 @@ function apriSchermata(data: string, evento: Evento): void {
   let chiusaDaNoi = false;
   /** Evento Fine pausa registrato dalla schermata: c'è mentre si mostra il riepilogo. */
   let fine: Evento | null = null;
+  /** Il riepilogo si chiude da solo dopo pochi secondi, anche senza toccare Chiudi. */
+  let chiusuraAutomatica: ReturnType<typeof setTimeout> | undefined;
 
   const termina = () => {
     chiusaDaNoi = true;
@@ -121,6 +126,7 @@ function apriSchermata(data: string, evento: Evento): void {
   );
 
   const mostraCronometro = () => {
+    clearTimeout(chiusuraAutomatica);
     fine = null;
     dlg.classList.remove('riepilogo');
     titolo.textContent = 'Pausa pranzo';
@@ -133,7 +139,16 @@ function apriSchermata(data: string, evento: Evento): void {
     aggiorna();
   };
 
-  /** Fine pausa: registra la timbratura e mostra la durata, con Annulla per tornare al cronometro. */
+  const chiudiRiepilogo = () => {
+    clearTimeout(chiusuraAutomatica);
+    termina();
+    cancellaInizioPranzo();
+  };
+
+  /**
+   * Fine pausa: registra la timbratura e mostra la durata per qualche secondo, poi la schermata si chiude da sola.
+   * Finché è aperta, Annulla torna al cronometro.
+   */
   const chiudiPausa = () => {
     if (fine || giornoCambiato()) return;
     const { minuti } = adessoRoma();
@@ -158,12 +173,9 @@ function apriSchermata(data: string, evento: Evento): void {
         {
           type: 'button',
           class: 'btn btn-primario',
-          onclick: () => {
-            termina();
-            cancellaInizioPranzo();
-          },
+          onclick: chiudiRiepilogo,
         },
-        'Fatto',
+        'Chiudi',
       ),
       el(
         'button',
@@ -178,6 +190,7 @@ function apriSchermata(data: string, evento: Evento): void {
         'Annulla, sono ancora in pausa',
       ),
     );
+    chiusuraAutomatica = setTimeout(chiudiRiepilogo, CHIUSURA_RIEPILOGO_MS);
   };
 
   const dlg = el(
@@ -213,10 +226,11 @@ function apriSchermata(data: string, evento: Evento): void {
   }
   const intervallo = setInterval(aggiorna, 1000);
 
-  // Si esce solo con Fine pausa pranzo, Annulla pausa o Fatto.
+  // Si esce solo con Fine pausa pranzo (il riepilogo poi si chiude da solo o con Chiudi) o Annulla pausa.
   dlg.addEventListener('cancel', (ev) => ev.preventDefault());
   dlg.addEventListener('close', () => {
     clearInterval(intervallo);
+    clearTimeout(chiusuraAutomatica);
     dlg.remove();
     aperta = false;
     impostaSchermataPranzo(false);
