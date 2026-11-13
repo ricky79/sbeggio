@@ -19,6 +19,13 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.15.1',
+    data: '2026-11-13',
+    voci: [
+      'A fine pausa pranzo la schermata mostra quanto è durata la pausa e dopo 3 secondi si chiude da sola. Se vuoi chiuderla prima, tocca Chiudi.',
+    ],
+  },
+  {
     versione: '2.15.0',
     data: '2026-10-27',
     voci: [
