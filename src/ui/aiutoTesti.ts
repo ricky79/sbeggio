@@ -92,7 +92,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       testo: [
         'Servono per la pausa pranzo, che non conta come ore coperte.',
         `Inizio pausa pranzo compare dall'inizio della fascia pranzo (${inizioFascia}): prima, se esci, è un permesso (Esco in permesso).`,
-        `Con Inizio pausa pranzo si apre una schermata con il cronometro della pausa e un piatto a sorpresa (ramen, pizza, panino o mela) che si svuota man mano fino a ${pausaMin}, la pausa minima. Fine pausa pranzo mostra in grande quanto è durata la pausa; "Annulla, sono ancora in pausa" riporta al cronometro. Se hai toccato Inizio per sbaglio, usa "Annulla pausa".`,
+        `Con Inizio pausa pranzo si apre una schermata con il cronometro della pausa e un piatto a sorpresa (ramen, pizza, panino o mela) che si svuota man mano fino a ${pausaMin}, la pausa minima. Fine pausa pranzo mostra in grande quanto è durata la pausa e dopo 3 secondi la schermata si chiude da sola (o subito con Chiudi); in quei secondi "Annulla, sono ancora in pausa" riporta al cronometro. Se hai toccato Inizio per sbaglio, usa "Annulla pausa".`,
         `Se la pausa dura meno di ${pausaMin}, viene comunque conteggiata come ${pausaMin}.`,
         'Con almeno 6 ore dovute nella giornata (quelle in Impostazioni, anche se prendi un permesso) la pausa pranzo è obbligatoria per legge e non si può saltare.',
         `Finché non hai fatto la pausa, l'uscita prevista include già ${pausaMin} di pausa, a qualunque ora (te lo segnala la scritta "inclusa pausa pranzo"). Non serve se esci entro la fine della fascia pranzo (${fineFascia}).`,
