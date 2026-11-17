@@ -26,3 +26,16 @@ describe('pagina Informazioni', () => {
     expect(html).not.toMatch(/@gmail\.com/i);
   });
 });
+
+describe('metadati delle pagine', () => {
+  it.each(['index.html', 'web.html', 'informazioni.html'])('%s dichiara autore e licenza', (file) => {
+    const sorgente = readFileSync(file, 'utf8');
+    expect(sorgente).toContain('<meta name="author" content="Riccardo Oliosi"');
+    const json = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(sorgente)?.[1];
+    const dati = JSON.parse(json!);
+    expect(dati['@type']).toBe('SoftwareApplication');
+    expect(dati.name).toBe('Sbeggio');
+    expect(dati.author).toEqual({ '@type': 'Person', name: 'Riccardo Oliosi', url: 'https://github.com/ricky79' });
+    expect(dati.license).toBe('https://www.gnu.org/licenses/gpl-3.0.html');
+  });
+});
