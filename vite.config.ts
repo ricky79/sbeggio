@@ -13,8 +13,10 @@ const BASE = '/';
 
 /**
  * vite-plugin-pwa inserisce il link al manifest in ogni pagina: web.sbeggio.app non è un'app
- * installabile, quindi da web.html lo togliamo (gira dopo il plugin, che è anch'esso "post").
+ * installabile, quindi da web.html e informazioni.html lo togliamo (gira dopo il plugin, che è anch'esso "post").
  */
+const PAGINE_SITO = ['/web.html', '/informazioni.html'];
+
 function sitoSenzaManifest(): Plugin {
   return {
     name: 'sito-senza-manifest',
@@ -22,7 +24,7 @@ function sitoSenzaManifest(): Plugin {
     enforce: 'post',
     transformIndexHtml: {
       order: 'post',
-      handler: (html, ctx) => (ctx.path === '/web.html' ? html.replace(/<link rel="manifest"[^>]*>\s*/, '') : html),
+      handler: (html, ctx) => (PAGINE_SITO.includes(ctx.path) ? html.replace(/<link rel="manifest"[^>]*>\s*/, '') : html),
     },
   };
 }
@@ -39,7 +41,10 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         // web.html è il sito web.sbeggio.app; l'app Android non lo include. Il nome "sito" dà ai suoi file
         // assets/sito-*: "web" si confonderebbe con i web.js delle librerie (es. @capacitor/local-notifications).
-        input: (android ? { index: 'index.html' } : { index: 'index.html', sito: 'web.html' }) as Record<string, string>,
+        // informazioni.html è la pagina statica web.sbeggio.app/informazioni, anche lei solo sul web.
+        input: (android
+          ? { index: 'index.html' }
+          : { index: 'index.html', sito: 'web.html', informazioni: 'informazioni.html' }) as Record<string, string>,
       },
     },
     plugins: [
@@ -74,7 +79,7 @@ export default defineConfig(({ mode }) => {
         injectManifest: {
           globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,mp3}'],
           // Il sito web.sbeggio.app non serve alla PWA.
-          globIgnores: ['web.html', 'assets/sito-*.js', 'assets/sito-*.css'],
+          globIgnores: ['web.html', 'assets/sito-*.js', 'assets/sito-*.css', 'informazioni.html', 'assets/informazioni-*.css'],
         },
       }),
       sitoSenzaManifest(),

@@ -19,6 +19,13 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.16.0',
+    data: '2026-11-17',
+    voci: [
+      'Nuova pagina Informazioni: chi ha fatto Sbeggio, la licenza, i contatti e come vengono trattati i tuoi dati. La trovi in fondo alle impostazioni e su web.sbeggio.app/informazioni.',
+    ],
+  },
+  {
     versione: '2.15.1',
     data: '2026-11-13',
     voci: [

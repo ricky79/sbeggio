@@ -72,6 +72,16 @@
 .sito-menu .sito-menu-app:hover {
   background: #1e8441;
 }
+/* Telefono: con tre voci nel menu il nome accanto al logo non ci sta più, resta il logo. */
+@media (max-width: 440px) {
+  .sito-marchio span {
+    display: none;
+  }
+  .sito-menu a {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+}
 
 .sito {
   flex: 1;

@@ -1015,6 +1015,11 @@ button {
   color: var(--testo-2);
   font-size: 13px;
 }
+.versione a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 input[type='time'],
 input[type='number'],
@@ -2013,9 +2018,14 @@ input:disabled {
 .risposta li + li {
   margin-top: 4px;
 }
-.risposta a {
+.risposta a,
+.link-informazioni a {
   color: var(--accento);
   font-weight: 500;
+}
+.nota.link-informazioni {
+  margin-top: 12px;
+  text-align: center;
 }
 .vista [id^='aiuto-'] {
   scroll-margin-top: calc(var(--sicuro-alto) + 12px);

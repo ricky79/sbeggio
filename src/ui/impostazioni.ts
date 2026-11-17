@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { NOMI_GIORNI } from '../core/tempo';
+import { URL_INFORMAZIONI } from '../core/segnalazione';
 import { selettoreOra } from './campi';
 import { IMPOSTAZIONI_PREDEFINITE, type TipoSigaretta } from '../core/tipi';
 import { clonaImpostazioni } from '../storage/migrazioni';
@@ -512,7 +513,17 @@ function elencoImpostazioni(nav: NavImpostazioni): HTMLElement {
         ),
     ),
   );
-  const menu = el('div', { class: 'menu-impostazioni' }, gruppi, el('p', { class: 'versione' }, `Sbeggio v${__VERSIONE_APP__}`));
+  const menu = el(
+    'div',
+    { class: 'menu-impostazioni' },
+    gruppi,
+    el(
+      'p',
+      { class: 'versione' },
+      `Sbeggio v${__VERSIONE_APP__} · di Riccardo Oliosi · `,
+      el('a', { href: URL_INFORMAZIONI }, 'Informazioni e privacy'),
+    ),
+  );
 
   // Ricerca unica, come sull'iPhone: mentre scrivi, al posto dell'elenco compaiono le impostazioni e
   // le domande dell'Aiuto che corrispondono.
