@@ -1,0 +1,36 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright (C) 2026 Riccardo Oliosi */
+
+/* Pagina statica web.sbeggio.app/informazioni: testo da leggere, larghezza di lettura. */
+.sito.informazioni .scheda {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+}
+.sito.informazioni h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.sito.informazioni p {
+  margin: 0 0 10px;
+}
+.sito.informazioni p:last-child {
+  margin-bottom: 0;
+}
+.sito.informazioni ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+.sito.informazioni li + li {
+  margin-top: 8px;
+}
+.sito.informazioni a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sito.informazioni code {
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+}

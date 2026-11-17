@@ -1,0 +1,111 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Copyright (C) 2026 Riccardo Oliosi -->
+<!-- Pagina statica: il testo è tutto qui, leggibile anche senza JavaScript (motori di ricerca, assistenti). -->
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Informazioni · Sbeggio</title>
+    <meta name="description" content="Chi ha fatto Sbeggio, licenza, contatti e informativa sulla privacy." />
+    <link rel="canonical" href="https://web.sbeggio.app/informazioni" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Stesso tema dell'app (variabili in src/style.css), qui solo dal sistema: senza JavaScript resta il chiaro.
+      document.documentElement.setAttribute('data-tema', matchMedia('(prefers-color-scheme: dark)').matches ? 'scuro' : 'chiaro');
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/sito/sito.css" />
+    <link rel="stylesheet" href="/src/sito/informazioni.css" />
+  </head>
+  <body class="pagina-sito">
+    <header class="sito-testata">
+      <a class="sito-marchio" href="/" aria-label="Sbeggio, pagina principale">
+        <img src="/logo.svg" alt="" width="36" height="36" />
+        <span>Sbeggio</span>
+      </a>
+      <nav class="sito-menu" aria-label="Sito">
+        <a href="/novita">Novità</a>
+        <a href="/informazioni" aria-current="page">Informazioni</a>
+        <a class="sito-menu-app" href="https://sbeggio.app">Apri l'app</a>
+      </nav>
+    </header>
+    <main class="sito informazioni">
+      <div class="sito-eroe">
+        <img class="sito-eroe-logo" src="/logo.svg" alt="" width="76" height="76" />
+        <h1>Informazioni</h1>
+        <p class="sito-sottotitolo">Chi ha fatto Sbeggio, la licenza, i contatti e come vengono trattati i tuoi dati.</p>
+      </div>
+
+      <section class="scheda" id="autore">
+        <h2>Chi l'ha fatta</h2>
+        <p>
+          Sbeggio nasce da un'esigenza concreta: sapere a che ora si può uscire dal lavoro senza rifare i conti
+          a mano ogni giorno, tra pause, permessi e giornate in smart working. È un progetto personale, scritto
+          e mantenuto da <a href="https://github.com/ricky79">Riccardo Oliosi</a>, e lo condivido come software
+          libero perché possa servire anche ad altri.
+        </p>
+      </section>
+
+      <section class="scheda" id="licenza">
+        <h2>Software libero</h2>
+        <p>
+          Il codice di Sbeggio è pubblicato con licenza
+          <a href="https://github.com/ricky79/sbeggio/blob/main/LICENSE">GNU GPL 3.0 o successive</a>:
+          puoi leggerlo, modificarlo e ridistribuirlo, purché resti libero anche lui.
+          <a href="https://github.com/ricky79/sbeggio">Il codice sorgente è su GitHub</a>.
+        </p>
+        <p>Il nome Sbeggio e il logo non sono coperti dalla licenza.</p>
+      </section>
+
+      <section class="scheda" id="contatti">
+        <h2>Contatti</h2>
+        <p>
+          Suggerimenti, problemi e domande: <a href="mailto:supporto@sbeggio.app">supporto@sbeggio.app</a>.
+          Dall'app ci arrivi anche da Aiuto → Suggerimenti e problemi, con un messaggio già pronto.
+        </p>
+      </section>
+
+      <section class="scheda" id="privacy">
+        <h2>Privacy</h2>
+        <p>Sbeggio non ha account, pubblicità, statistiche né tracciamento. In dettaglio:</p>
+        <ul>
+          <li>Timbrature, impostazioni e luogo di lavoro restano sul tuo dispositivo. Nessun server li riceve.</li>
+          <li>
+            La posizione, se le dai il permesso, viene letta sul dispositivo solo per proporti se oggi lavori da casa
+            o in sede. Non viene inviata a nessuno.
+          </li>
+          <li>
+            Gli avvisi della versione web (PWA): a <code>notifiche.sbeggio.app</code> arrivano solo il recapito per le
+            notifiche del tuo browser e l'orario dell'avviso, che vengono cancellati dopo l'invio. Il testo
+            dell'avviso resta nel browser. L'app Android usa invece notifiche locali, senza server.
+          </li>
+          <li>
+            Il passaggio delle timbrature al computer su web.sbeggio.app è cifrato dal telefono al browser: il server
+            in mezzo non può leggerle e non le salva.
+          </li>
+          <li>L'app Android controlla se ci sono aggiornamenti chiedendo a GitHub l'ultima versione pubblicata.</li>
+          <li>
+            Le mail scritte a supporto@sbeggio.app arrivano a Riccardo Oliosi. Il messaggio preparato dall'app
+            contiene la versione e, per le segnalazioni di problemi, alcuni dati tecnici (dispositivo, schermo,
+            tema, data e ora) e le impostazioni dell'orario di lavoro: puoi rileggerli e cancellarli prima
+            dell'invio.
+          </li>
+          <li>Sito, app web, notifiche e posta sono ospitati su Cloudflare.</li>
+        </ul>
+        <p class="nota">Ultimo aggiornamento: 17 novembre 2026.</p>
+      </section>
+    </main>
+    <footer class="sito-piede">
+      <img src="/logo.svg" alt="" width="24" height="24" />
+      <p>
+        Sbeggio è software libero, con licenza
+        <a href="https://github.com/ricky79/sbeggio/blob/main/LICENSE">GPL 3.0</a>.
+        <a href="https://github.com/ricky79/sbeggio">Codice sorgente</a> ·
+        <a href="/novita">Novità</a> ·
+        <a href="mailto:supporto@sbeggio.app">supporto@sbeggio.app</a>
+      </p>
+    </footer>
+  </body>
+</html>
