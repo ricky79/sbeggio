@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
-import { EMAIL_CONTATTO, linkSegnalazione, type ContestoApp, type TipoSegnalazione } from '../core/segnalazione';
+import { EMAIL_CONTATTO, linkSegnalazione, URL_INFORMAZIONI, type ContestoApp, type TipoSegnalazione } from '../core/segnalazione';
 import { inApp } from '../native/app';
 import { store } from '../storage/store';
 import { filtraAiuto, pezziRiga, SEZIONI_AIUTO, vociAiuto, type VoceAiuto } from './aiutoTesti';
@@ -154,6 +154,7 @@ function schedaContatti(): HTMLElement {
       `Si apre la tua app di posta con un messaggio già pronto per ${EMAIL_CONTATTO}: puoi rileggerlo e modificarlo prima di inviarlo.`,
     ),
     el('div', { class: 'pila-pulsanti' }, bottone('suggerimento', 'Invia un suggerimento'), bottone('problema', 'Segnala un problema')),
+    el('p', { class: 'nota link-informazioni' }, el('a', { href: URL_INFORMAZIONI }, 'Chi ha fatto Sbeggio e come tratta i tuoi dati')),
   );
 }
 

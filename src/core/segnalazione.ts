@@ -7,6 +7,9 @@ import type { Impostazioni } from './tipi';
 /** Indirizzo a cui arrivano suggerimenti e segnalazioni. */
 export const EMAIL_CONTATTO = 'supporto@sbeggio.app';
 
+/** Pagina pubblica con autore, licenza, contatti e privacy (informazioni.html). */
+export const URL_INFORMAZIONI = 'https://web.sbeggio.app/informazioni';
+
 export type TipoSegnalazione = 'suggerimento' | 'problema';
 
 export type Piattaforma = 'app Android' | 'app installata' | 'browser';

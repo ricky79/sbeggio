@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { describe, expect, it } from 'vitest';
-import { EMAIL_CONTATTO, linkSegnalazione, type ContestoApp } from '../src/core/segnalazione';
+import { EMAIL_CONTATTO, linkSegnalazione, URL_INFORMAZIONI, type ContestoApp } from '../src/core/segnalazione';
 import { impostazioni } from './helpers';
 
 const imp = impostazioni({ pausaDaScalare: 30 });
@@ -25,6 +25,10 @@ function leggi(link: string) {
 describe('link di segnalazione', () => {
   it('l\'indirizzo è quello dei contatti', () => {
     expect(EMAIL_CONTATTO).toBe('supporto@sbeggio.app');
+  });
+
+  it('la pagina Informazioni è sul sito pubblico', () => {
+    expect(URL_INFORMAZIONI).toBe('https://web.sbeggio.app/informazioni');
   });
 
   it('suggerimento: oggetto, spazio per il testo, versione e piattaforma, senza impostazioni', () => {
