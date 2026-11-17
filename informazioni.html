@@ -96,28 +96,41 @@
         <h2>Privacy</h2>
         <p>Sbeggio non ha account, pubblicità, statistiche né tracciamento. In dettaglio:</p>
         <ul>
-          <li>Timbrature, impostazioni e luogo di lavoro restano sul tuo dispositivo. Nessun server li riceve.</li>
+          <li>
+            Timbrature, impostazioni e luogo di lavoro sono salvati sul tuo dispositivo. Sbeggio non li manda a
+            nessun server, salvo quando scegli tu di inviarli (passaggio al computer e segnalazioni, vedi sotto).
+            Sull'app Android il backup di sistema, se è attivo, può includerli nel backup del tuo account Google.
+          </li>
           <li>
             La posizione, se le dai il permesso, viene letta sul dispositivo solo per proporti se oggi lavori da casa
             o in sede. Non viene inviata a nessuno.
           </li>
           <li>
-            Gli avvisi della versione web (PWA): a <code>notifiche.sbeggio.app</code> arrivano solo il recapito per le
-            notifiche del tuo browser e l'orario dell'avviso, che vengono cancellati dopo l'invio. Il testo
-            dell'avviso resta nel browser. L'app Android usa invece notifiche locali, senza server.
+            Gli avvisi della versione web (PWA): a <code>notifiche.sbeggio.app</code> arrivano il recapito per le
+            notifiche del tuo browser, l'orario e il tipo di avviso (uscita, pausa pranzo, sigaretta), insieme a un
+            codice casuale del dispositivo. Vengono cancellati dopo l'invio; restano solo nei registri tecnici del
+            server, che si cancellano da soli dopo pochi giorni. Il testo dell'avviso resta nel browser. L'app
+            Android usa invece notifiche locali, senza server.
           </li>
           <li>
             Il passaggio delle timbrature al computer su web.sbeggio.app è cifrato dal telefono al browser: il server
             in mezzo non può leggerle e non le salva.
           </li>
+          <li>
+            La fotocamera serve solo a inquadrare il codice QR di web.sbeggio.app: le immagini vengono lette sul
+            dispositivo, non vengono salvate né inviate. L'NFC dell'app Android serve solo a timbrare avvicinando il
+            telefono a un tag di Sbeggio.
+          </li>
           <li>L'app Android controlla se ci sono aggiornamenti chiedendo a GitHub l'ultima versione pubblicata.</li>
           <li>
-            Le mail scritte a supporto@sbeggio.app arrivano a Riccardo Oliosi. Il messaggio preparato dall'app
-            contiene la versione e, per le segnalazioni di problemi, alcuni dati tecnici (dispositivo, schermo,
+            Le mail scritte a supporto@sbeggio.app vengono inoltrate alla casella di posta di Riccardo Oliosi. Il
+            messaggio preparato dall'app contiene la versione e il tipo di app (Android, installata o browser) e,
+            per le segnalazioni di problemi, alcuni dati tecnici (modello del browser e del dispositivo, schermo,
             tema, data e ora) e le impostazioni dell'orario di lavoro: puoi rileggerli e cancellarli prima
-            dell'invio.
+            dell'invio. Le mail si conservano per poter rispondere; puoi chiedere di cancellarle scrivendo allo
+            stesso indirizzo.
           </li>
-          <li>Sito, app web, notifiche e posta sono ospitati su Cloudflare.</li>
+          <li>Sito, app web, notifiche e smistamento della posta sono ospitati su Cloudflare.</li>
         </ul>
         <p class="nota">Ultimo aggiornamento: 17 novembre 2026.</p>
       </section>

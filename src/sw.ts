@@ -14,6 +14,7 @@ import {
   opzioniNotifica,
   URL_NOTIFICHE,
 } from './core/avvisiPush';
+import { PAGINE_DEL_SITO } from './core/sito';
 
 /** Service worker della PWA: app offline (precache) e notifiche degli avvisi (web push dal backend). */
 
@@ -25,8 +26,9 @@ clientsClaim();
 
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
-// App a pagina singola: ogni navigazione riceve index.html dalla precache, anche offline.
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')));
+// App a pagina singola: ogni navigazione riceve index.html dalla precache, anche offline. Novità e
+// Informazioni no: vanno alla rete, dove il Worker le rimanda a web.sbeggio.app.
+registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), { denylist: [PAGINE_DEL_SITO] }));
 
 /** Il payload del push, o null se manca o non è JSON. */
 function leggiPayload(evento: PushEvent): unknown {

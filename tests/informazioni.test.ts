@@ -22,6 +22,23 @@ describe('pagina Informazioni', () => {
     for (const frase of ['notifiche.sbeggio.app', 'Cloudflare', 'GitHub', 'posizione', 'cifrat']) expect(html).toContain(frase);
   });
 
+  it('gli avvisi dichiarano anche tipo, codice del dispositivo e registri del server', () => {
+    expect(html).toContain('tipo di avviso');
+    expect(html).toContain('codice casuale del dispositivo');
+    expect(html).toContain('registri tecnici');
+  });
+
+  it('i dati locali non sono "mai su un server": ci sono gli invii scelti e il backup di Android', () => {
+    expect(html).not.toContain('Nessun server li riceve');
+    expect(html).toContain('backup');
+  });
+
+  it('dichiara fotocamera e NFC, e come chiedere di cancellare le mail', () => {
+    expect(html).toContain('fotocamera');
+    expect(html).toContain('NFC');
+    expect(html).toMatch(/cancellar[le]/);
+  });
+
   it('la mail personale non compare', () => {
     expect(html).not.toMatch(/@gmail\.com/i);
   });
