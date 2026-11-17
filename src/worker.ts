@@ -10,7 +10,8 @@ export { Collegamento } from './collegamento';
  * Worker Cloudflare davanti ai file statici (wrangler.jsonc):
  * - www.sbeggio.app rimanda alla radice di sbeggio.app, tenendo percorso e query;
  * - sbeggio.app serve la PWA;
- * - web.sbeggio.app serve il sito per scaricare le timbrature (web.html) e il relay /collega/<id>,
+ * - web.sbeggio.app serve il sito per scaricare le timbrature (web.html), la pagina statica
+ *   /informazioni (informazioni.html: autore, licenza, contatti, privacy) e il relay /collega/<id>,
  *   un Durable Object per collegamento (src/collegamento.ts). In locale il relay risponde anche su localhost.
  * Riceve anche la posta di supporto@sbeggio.app (src/email.ts).
  */
@@ -27,6 +28,8 @@ const SITO = `web.${DOMINIO}`;
 /** PWA, app Android (Capacitor) e server di sviluppo di Vite. */
 const ORIGINI_CORS = ['https://sbeggio.app', 'https://localhost', 'http://localhost:5173'];
 const PREFISSO_COLLEGA = '/collega/';
+/** Pagina Informazioni, anche con la barra finale o con .html. */
+const PERCORSO_INFORMAZIONI = /^\/informazioni(\.html|\/)?$/;
 
 function intestazioniCors(origine: string | null): Headers {
   const h = new Headers({ Vary: 'Origin' });
@@ -56,9 +59,14 @@ async function collega(richiesta: Request, env: Env, url: URL): Promise<Response
   return new Response(risposta.body, { status: risposta.status, headers: intestazioni });
 }
 
-/** I chunk in /assets/, la favicon e il logo restano quelli richiesti; ogni altro percorso è la pagina del sito. */
+/**
+ * I chunk in /assets/, la favicon e il logo restano quelli richiesti; /informazioni è la pagina statica
+ * informazioni.html; ogni altro percorso è la pagina del sito.
+ */
 function richiestaSito(richiesta: Request, url: URL): Request {
   if (url.pathname.startsWith('/assets/') || url.pathname === '/favicon.svg' || url.pathname === '/logo.svg') return richiesta;
+  // Workers Assets (html_handling predefinito) serve informazioni.html all'indirizzo /informazioni.
+  if (PERCORSO_INFORMAZIONI.test(url.pathname)) return new Request(new URL('/informazioni', url), richiesta);
   // Workers Assets (html_handling predefinito) serve web.html all'indirizzo /web.
   return new Request(new URL('/web', url), richiesta);
 }
@@ -73,6 +81,10 @@ export default {
     }
     // sbeggio.app/novita: la pagina delle novità sta sul sito (qui c'è la PWA).
     if (url.hostname === DOMINIO && /^\/novita\/?$/.test(url.pathname)) return Response.redirect(`https://${SITO}/novita`, 302);
+    // sbeggio.app/informazioni: anche questa sta sul sito, come pagina statica.
+    if (url.hostname === DOMINIO && PERCORSO_INFORMAZIONI.test(url.pathname)) {
+      return Response.redirect(`https://${SITO}/informazioni`, 302);
+    }
     const locale = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
     if ((url.hostname === SITO || locale) && url.pathname.startsWith(PREFISSO_COLLEGA)) return collega(richiesta, env, url);
     if (url.hostname === SITO) return env.ASSETS.fetch(richiestaSito(richiesta, url));
