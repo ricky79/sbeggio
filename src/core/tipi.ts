@@ -110,6 +110,12 @@ export interface Avvisi {
 /** Disegno della schermata della pausa sigaretta. */
 export type TipoSigaretta = 'normale' | 'elettronica';
 
+/**
+ * Stile della pausa breve: nome, emoji e disegno in tutta l'app (src/core/pausaBreve.ts). Il
+ * funzionamento è lo stesso; nei dati e nel codice la pausa breve si chiama ancora "sigaretta".
+ */
+export type StilePausaBreve = 'base' | 'sigaretta' | 'birretta';
+
 export interface Impostazioni {
   minutiDovuti: {
     predefinito: number;
@@ -127,6 +133,8 @@ export interface Impostazioni {
   tolleranzaSigaretta: number;
   /** Disegno della schermata della pausa: sigaretta normale o elettronica. */
   tipoSigaretta: TipoSigaretta;
+  /** Stile della pausa breve. */
+  pausaBreve: StilePausaBreve;
   avvisi: Avvisi;
   /** Posizione dell'ufficio, per proporre casa o sede all'apertura; null = non impostata. */
   ufficio: Coordinate | null;
@@ -140,6 +148,7 @@ export const IMPOSTAZIONI_PREDEFINITE: Impostazioni = {
   pausaMinima: 30,
   tolleranzaSigaretta: 11,
   tipoSigaretta: 'normale',
+  pausaBreve: 'base',
   ufficio: null,
   avvisi: { uscita: true, sigaretta: true, sigarettaAnticipo: 2, pranzo: true, pranzoMinuti: 30 },
 };

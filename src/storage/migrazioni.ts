@@ -106,6 +106,10 @@ export function normalizzaImpostazioni(v: unknown): Impostazioni {
   imp.tolleranzaSigaretta = intIn(v.tolleranzaSigaretta, 0, 60) ?? p.tolleranzaSigaretta;
   const tipo = v.tipoSigaretta;
   imp.tipoSigaretta = tipo === 'normale' || tipo === 'elettronica' ? tipo : p.tipoSigaretta;
+  // Eccezione alla regola "campo mancante = predefinito": chi ha impostazioni salvate prima che esistesse
+  // lo stile usava la pausa sigaretta e resta lì; solo chi installa ora parte dallo stile base.
+  const stile = v.pausaBreve;
+  imp.pausaBreve = stile === 'base' || stile === 'sigaretta' || stile === 'birretta' ? stile : 'sigaretta';
   if (isObj(v.avvisi)) {
     const a = v.avvisi;
     imp.avvisi = {
