@@ -10,7 +10,7 @@ import type { Evento, Giornata } from './tipi';
  */
 
 /** I cibi della schermata: uno a sorpresa per ogni pausa. */
-export const CIBI = ['ramen', 'pizza', 'panino', 'mela'] as const;
+export const CIBI = ['ramen', 'pizza', 'panino', 'mela', 'spaghetti', 'gelato', 'insalata', 'sushi'] as const;
 export type Cibo = (typeof CIBI)[number];
 
 /**

@@ -14,6 +14,9 @@ const tra0e1 = (n: number) => Math.min(1, Math.max(0, n));
 /** Centro del cibo nel disegno. */
 const CX = 118;
 
+/** Pezzi di sushi sul tagliere (servono già al disegno, più in basso). */
+export const PEZZI_SUSHI = 6;
+
 const PIATTO = `
   <ellipse cx="${CX}" cy="130" rx="92" ry="34" fill="#d6d3d1"/>
   <ellipse cx="${CX}" cy="126" rx="92" ry="34" fill="#fafaf9"/>
@@ -153,7 +156,166 @@ const MELA = svg(`
   <path d="M118 62 Q118 50 123 42" fill="none" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
   <ellipse cx="133" cy="48" rx="10" ry="5" fill="#16a34a" transform="rotate(-25 133 48)"/>`);
 
-const SVG: Record<Cibo, string> = { ramen: RAMEN, pizza: PIZZA, panino: PANINO, mela: MELA };
+/* Spaghetti al pomodoro: il nido si rimpicciolisce (creaDisegnoPranzo), la forchetta arrotola. */
+const SPAGHETTI = svg(`
+  ${PIATTO}
+  <g class="cibo-resti">
+    <ellipse cx="${CX}" cy="124" rx="30" ry="9" fill="#c2410c" opacity="0.75"/>
+    <g fill="none" stroke="#f4d27a" stroke-width="3" stroke-linecap="round">
+      <path d="M92 128 q12 -8 26 -2 t24 0"/><path d="M108 120 q10 6 22 2"/>
+    </g>
+  </g>
+  <g class="cibo-porzione spaghetti-nido">
+    <ellipse cx="${CX}" cy="106" rx="60" ry="24" fill="#e9bd55"/>
+    <g fill="none" stroke-width="3" stroke-linecap="round">
+      <g stroke="#fbe08f">
+        <path d="M62 104 q28 -22 56 -6 t56 -2"/><path d="M66 114 q30 14 56 0 t52 2"/><path d="M76 96 q20 26 46 12 t42 -14"/>
+      </g>
+      <g stroke="#d9a53c">
+        <path d="M70 108 q24 -16 50 0 t50 0"/><path d="M84 120 q18 -12 36 0 t34 -2"/><path d="M80 92 q22 8 40 -2 t38 4"/>
+      </g>
+    </g>
+    <ellipse cx="${CX}" cy="96" rx="30" ry="13" fill="#dc2626"/>
+    <g fill="#b91c1c"><circle cx="106" cy="94" r="4"/><circle cx="128" cy="99" r="3.5"/><circle cx="120" cy="90" r="2.5"/></g>
+    <ellipse cx="112" cy="86" rx="9" ry="4.5" fill="#16a34a" transform="rotate(-20 112 86)"/>
+    <ellipse cx="124" cy="85" rx="8" ry="4" fill="#22c55e" transform="rotate(25 124 85)"/>
+  </g>
+  <g class="forchetta">
+    <g transform="translate(150 84) rotate(32)">
+      <rect x="-3" y="-86" width="6" height="58" rx="3" fill="#9ca3af"/>
+      <path d="M-10 -28 h20 l-3 8 h-14 z" fill="#9ca3af"/>
+      <g fill="#9ca3af"><rect x="-10" y="-22" width="3" height="22" rx="1"/><rect x="-4.5" y="-22" width="3" height="22" rx="1"/>
+        <rect x="1.5" y="-22" width="3" height="22" rx="1"/><rect x="7" y="-22" width="3" height="22" rx="1"/></g>
+      <g fill="none" stroke="#fbe08f" stroke-width="3"><ellipse cx="0" cy="-8" rx="13" ry="5"/><ellipse cx="0" cy="-2" rx="12" ry="4.5"/></g>
+    </g>
+  </g>`);
+
+/*
+ * Gelato in coppetta: una cucchiata alla volta. Ogni pallina ha la sua maschera con tre cerchi neri sul
+ * bordo: ogni cucchiata ne mostra uno e toglie un arco; alla quarta la pallina sparisce (statoGelato).
+ */
+const PALLINE = [
+  // Dal basso: cioccolato, pistacchio, fragola in cima (si mangia per prima).
+  { cx: 92, cy: 98, colore: '#7c4a2d', luce: '#a16a4a', puntini: '#3f2a1d', angoli: [-140, 170, -100] },
+  { cx: 144, cy: 98, colore: '#a3c76d', luce: '#d9f99d', puntini: '#65a30d', angoli: [-40, 10, -80] },
+  { cx: 118, cy: 64, colore: '#f9a8d4', luce: '#fce7f3', puntini: '#be185d', angoli: [-30, -150, -90] },
+];
+const R_PALLINA = 28;
+const gelatoPallina = (p: (typeof PALLINE)[number], i: number) => {
+  const cucchiate = p.angoli
+    .map((a) => {
+      const r = ((a * Math.PI) / 180);
+      return `<circle class="gelato-cucchiata" cx="${(p.cx + (R_PALLINA + 4) * Math.cos(r)).toFixed(1)}" cy="${(p.cy + (R_PALLINA + 4) * Math.sin(r)).toFixed(1)}" r="12"/>`;
+    })
+    .join('');
+  return `
+    <mask id="gelato-mask-${i}" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="180">
+      <rect x="0" y="0" width="300" height="180" fill="#fff"/><g fill="#000">${cucchiate}</g>
+    </mask>
+    <g class="gelato-pallina" mask="url(#gelato-mask-${i})">
+      <circle cx="${p.cx}" cy="${p.cy}" r="${R_PALLINA}" fill="${p.colore}"/>
+      <ellipse cx="${p.cx - 9}" cy="${p.cy - 10}" rx="9" ry="6" fill="${p.luce}" opacity="0.7" transform="rotate(-25 ${p.cx - 9} ${p.cy - 10})"/>
+      <g fill="${p.puntini}"><circle cx="${p.cx + 8}" cy="${p.cy + 4}" r="2"/><circle cx="${p.cx - 4}" cy="${p.cy + 12}" r="1.8"/><circle cx="${p.cx + 14}" cy="${p.cy - 8}" r="1.6"/></g>
+    </g>`;
+};
+const GELATO = svg(`
+  <ellipse cx="${CX}" cy="164" rx="44" ry="6" fill="#000" opacity="0.3"/>
+  <g class="cibo-resti">
+    <path d="M70 112 Q72 96 ${CX} 98 Q164 96 166 112 Z" fill="#f5c6d8"/>
+    <path d="M84 106 q14 -6 28 0 t28 0" fill="none" stroke="#a3c76d" stroke-width="3" stroke-linecap="round"/>
+    <path d="M100 103 q10 -4 20 0" fill="none" stroke="#7c4a2d" stroke-width="3" stroke-linecap="round"/>
+    <path d="M150 110 q4 8 0 14" fill="none" stroke="#f5c6d8" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  ${PALLINE.map(gelatoPallina).join('')}
+  <path d="M72 116 L94 160 H142 L164 116 Z" fill="#d9a35b"/>
+  <g stroke="#b7792f" stroke-width="2" opacity="0.8">
+    <path d="M86 116 L112 160 M104 116 L128 160 M122 116 L142 156 M140 116 L154 140"/>
+    <path d="M150 116 L124 160 M132 116 L108 160 M114 116 L96 152 M96 116 L84 140"/>
+  </g>
+  <rect x="64" y="110" width="108" height="12" rx="6" fill="#e5b26b"/>
+  <g class="cucchiaino">
+    <path d="M196 34 L162 80" stroke="#d1d5db" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="158" cy="86" rx="9" ry="6" fill="#e5e7eb" transform="rotate(-54 158 86)"/>
+  </g>`);
+
+/* Insalata nella ciotola: gli ingredienti spariscono uno alla volta (creaDisegnoPranzo), le foglie per ultime. */
+const INSALATA = svg(`
+  <ellipse cx="${CX}" cy="156" rx="56" ry="7" fill="#000" opacity="0.3"/>
+  <ellipse cx="${CX}" cy="84" rx="78" ry="25" fill="#e7e5e4"/>
+  <ellipse cx="${CX}" cy="84" rx="74" ry="22" fill="#f5f5f4"/>
+  <g class="cibo-resti">
+    <g fill="#facc15" opacity="0.75"><ellipse cx="100" cy="90" rx="6" ry="2.5"/><ellipse cx="134" cy="94" rx="5" ry="2"/><ellipse cx="118" cy="86" rx="4" ry="1.8"/></g>
+    <ellipse cx="128" cy="86" rx="10" ry="4" fill="#4ade80" transform="rotate(-15 128 86)"/>
+  </g>
+  <g class="cibo-porzione">
+    <g class="insalata-foglie">
+      <ellipse cx="72" cy="78" rx="22" ry="11" fill="#22c55e" transform="rotate(-25 72 78)"/>
+      <ellipse cx="164" cy="78" rx="22" ry="11" fill="#22c55e" transform="rotate(25 164 78)"/>
+      <ellipse cx="96" cy="66" rx="24" ry="12" fill="#4ade80" transform="rotate(-12 96 66)"/>
+      <ellipse cx="142" cy="66" rx="24" ry="12" fill="#4ade80" transform="rotate(14 142 66)"/>
+      <ellipse cx="118" cy="58" rx="22" ry="12" fill="#86efac"/>
+      <ellipse cx="118" cy="82" rx="40" ry="12" fill="#16a34a"/>
+      <g fill="none" stroke="#15803d" stroke-width="1.5" opacity="0.6"><path d="M80 64 L112 68"/><path d="M126 68 L158 62"/><path d="M106 56 L130 60"/></g>
+    </g>
+    <g class="insalata-carote" fill="#f97316">
+      <rect x="86" y="72" width="20" height="4" rx="2" transform="rotate(-20 96 74)"/>
+      <rect x="132" y="80" width="20" height="4" rx="2" transform="rotate(15 142 82)"/>
+      <rect x="110" y="66" width="18" height="4" rx="2" transform="rotate(30 119 68)"/>
+    </g>
+    <g class="insalata-mais" fill="#facc15">
+      <circle cx="102" cy="82" r="3"/><circle cx="108" cy="86" r="3"/><circle cx="140" cy="70" r="3"/>
+      <circle cx="146" cy="74" r="3"/><circle cx="80" cy="74" r="3"/><circle cx="126" cy="88" r="3"/>
+    </g>
+    <g class="insalata-pomodorini">
+      <g fill="#ef4444"><circle cx="92" cy="60" r="9"/><circle cx="150" cy="84" r="9"/><circle cx="130" cy="54" r="8"/></g>
+      <g fill="#15803d"><circle cx="92" cy="52" r="2.2"/><circle cx="150" cy="76" r="2.2"/><circle cx="130" cy="47" r="2"/></g>
+    </g>
+  </g>
+  <path d="M40 84 A78 25 0 0 0 196 84 Q194 144 ${CX} 150 Q42 144 40 84 Z" fill="#fafaf9"/>
+  <path d="M46 108 Q${CX} 130 190 108" fill="none" stroke="#0f766e" stroke-width="3"/>`);
+
+/* Sushi sul tagliere: i pezzi (maki e nigiri alternati) spariscono uno alla volta da sinistra. */
+const pezzoSushi = (i: number) => {
+  const x = 46 + i * 28;
+  return i % 2 === 0
+    ? `<g class="sushi-pezzo">
+        <ellipse cx="${x}" cy="120" rx="11" ry="6" fill="#1f2937"/>
+        <rect x="${x - 11}" y="102" width="22" height="18" fill="#1f2937"/>
+        <ellipse cx="${x}" cy="102" rx="11" ry="6" fill="#fafaf9"/>
+        <ellipse cx="${x}" cy="102" rx="5" ry="3" fill="#fb923c"/>
+        <circle cx="${x + 2}" cy="101" r="1.2" fill="#4ade80"/>
+      </g>`
+    : `<g class="sushi-pezzo">
+        <ellipse cx="${x}" cy="116" rx="12" ry="7" fill="#fafaf9"/>
+        <ellipse cx="${x}" cy="107" rx="13" ry="7" fill="#fb923c"/>
+        <g fill="none" stroke="#fed7aa" stroke-width="1.5"><path d="M${x - 8} 104 l5 6"/><path d="M${x - 2} 102 l5 7"/><path d="M${x + 4} 102 l4 6"/></g>
+      </g>`;
+};
+const SUSHI = svg(`
+  <rect x="26" y="98" width="184" height="44" rx="8" fill="#1c1917"/>
+  <rect x="26" y="92" width="184" height="42" rx="8" fill="#44403c"/>
+  <g class="cibo-resti" fill="#fafaf9">
+    <ellipse cx="72" cy="114" rx="2" ry="1.2"/><ellipse cx="118" cy="120" rx="2" ry="1.2"/><ellipse cx="160" cy="110" rx="2" ry="1.2"/>
+    <ellipse cx="96" cy="108" rx="1.6" ry="1"/>
+  </g>
+  <g class="cibo-porzione">${Array.from({ length: PEZZI_SUSHI }, (_, i) => pezzoSushi(i)).join('')}</g>
+  <ellipse cx="196" cy="156" rx="20" ry="8" fill="#e7e5e4"/>
+  <ellipse cx="196" cy="155" rx="15" ry="5.5" fill="#451a03"/>
+  <ellipse cx="174" cy="152" rx="7" ry="4" fill="#84cc16"/>
+  <g stroke="#a16207" stroke-width="4" stroke-linecap="round">
+    <path d="M52 74 L196 62"/><path d="M54 82 L198 70"/>
+  </g>`);
+
+const SVG: Record<Cibo, string> = {
+  ramen: RAMEN,
+  pizza: PIZZA,
+  panino: PANINO,
+  mela: MELA,
+  spaghetti: SPAGHETTI,
+  gelato: GELATO,
+  insalata: INSALATA,
+  sushi: SUSHI,
+};
 
 export interface DisegnoPranzo {
   elemento: Element;
@@ -248,11 +410,26 @@ export function ingredientiInsalata(mangiato: number): (keyof typeof INGREDIENTI
   return (Object.keys(INGREDIENTI_INSALATA) as (keyof typeof INGREDIENTI_INSALATA)[]).filter((k) => m < INGREDIENTI_INSALATA[k]);
 }
 
-export const PEZZI_SUSHI = 6;
-
 /** Pezzi di sushi ancora sul tagliere: si parte da 6, a fine pausa minima non ne resta nessuno. */
 export function pezziSushi(mangiato: number): number {
   return Math.ceil(PEZZI_SUSHI * (1 - tra0e1(mangiato)));
+}
+
+let disegniCreati = 0;
+
+/**
+ * Id di maschere e ritagli unici per ogni disegno: con due disegni nella stessa pagina `url(#…)` userebbe
+ * quello del primo (per il gelato, le cucchiate di un altro).
+ */
+function idUnici(elemento: Element): void {
+  const suffisso = `-${++disegniCreati}`;
+  for (const nodo of elemento.querySelectorAll('[id]')) nodo.id += suffisso;
+  for (const nodo of elemento.querySelectorAll('[mask], [clip-path]')) {
+    for (const attributo of ['mask', 'clip-path']) {
+      const valore = nodo.getAttribute(attributo);
+      if (valore) nodo.setAttribute(attributo, valore.replace(/url\(#([^)]+)\)/, `url(#$1${suffisso})`));
+    }
+  }
 }
 
 /** Crea il disegno del cibo `cibo`. */
@@ -260,6 +437,9 @@ export function creaDisegnoPranzo(cibo: Cibo): DisegnoPranzo {
   const contenitore = document.createElement('div');
   contenitore.innerHTML = SVG[cibo]; // markup statico, nessun dato dell'utente
   const elemento = contenitore.firstElementChild!;
+  // Prima di idUnici: le cucchiate del gelato si trovano dall'id della maschera di ogni pallina.
+  const cucchiateGelato = [...elemento.querySelectorAll('mask[id^="gelato-mask-"]')].map((m) => [...m.querySelectorAll('.gelato-cucchiata')]);
+  idUnici(elemento);
   elemento.classList.add(`pranzo-${cibo}`);
 
   if (cibo === 'pizza') {
@@ -301,6 +481,52 @@ export function creaDisegnoPranzo(cibo: Cibo): DisegnoPranzo {
           else if (sx) f.setAttribute('width', String(Math.max(0, centro)));
           else f.setAttribute('x', String(centro));
         }
+      },
+    };
+  }
+  if (cibo === 'spaghetti') {
+    const nido = elemento.querySelector('.spaghetti-nido')!;
+    return {
+      elemento,
+      aggiorna: (m) => nido.setAttribute('transform', `translate(${CX} 104) scale(${scalaSpaghetti(m)}) translate(${-CX} -104)`),
+    };
+  }
+  if (cibo === 'gelato') {
+    const palline = [...elemento.querySelectorAll('.gelato-pallina')];
+    const cucchiate = cucchiateGelato;
+    return {
+      elemento,
+      aggiorna: (m) => {
+        const s = statoGelato(m);
+        palline.forEach((p, i) => {
+          p.setAttribute('visibility', i < s.palline ? 'visible' : 'hidden');
+          // Solo la pallina in cima ha gli archi tolti dalle cucchiate.
+          const presi = i === s.palline - 1 ? s.cucchiate : 0;
+          cucchiate[i]!.forEach((c, j) => c.setAttribute('visibility', j < presi ? 'visible' : 'hidden'));
+        });
+      },
+    };
+  }
+  if (cibo === 'insalata') {
+    const ingredienti = (Object.keys(INGREDIENTI_INSALATA) as (keyof typeof INGREDIENTI_INSALATA)[]).map(
+      (k) => [k, elemento.querySelector(`.insalata-${k}`)!] as const,
+    );
+    return {
+      elemento,
+      aggiorna: (m) => {
+        const restano = ingredientiInsalata(m);
+        for (const [k, nodo] of ingredienti) nodo.setAttribute('visibility', restano.includes(k) ? 'visible' : 'hidden');
+      },
+    };
+  }
+  if (cibo === 'sushi') {
+    const pezzi = [...elemento.querySelectorAll('.sushi-pezzo')];
+    return {
+      elemento,
+      aggiorna: (m) => {
+        const n = pezziSushi(m);
+        // Si mangia da sinistra: restano visibili gli ultimi n.
+        pezzi.forEach((p, i) => p.setAttribute('visibility', i >= PEZZI_SUSHI - n ? 'visible' : 'hidden'));
       },
     };
   }
