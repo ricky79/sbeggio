@@ -5,6 +5,7 @@ import { DURATA_PAUSA_PROPOSTA, OFFSET_PAUSA_PROPOSTA } from '../core/pausaPranz
 import { RAGGIO_UFFICIO } from '../core/posizione';
 import type { Azione } from '../core/statoGiornata';
 import { corrisponde } from '../core/testi';
+import { etichettaPausa, nomePausa } from '../core/pausaBreve';
 import { formattaDurata, formattaOra } from '../core/tempo';
 import type { Impostazioni } from '../core/tipi';
 import { URL_APK } from './aggiornamento';
@@ -46,8 +47,28 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
   const pausaProposta = `${formattaOra(inizioProposta)}–${formattaOra(inizioProposta + DURATA_PAUSA_PROPOSTA)}`;
   const inizioFascia = formattaOra(imp.pranzo.inizio);
   const fineFascia = formattaOra(imp.pranzo.fine);
-  const fineSigaretta =
-    imp.tipoSigaretta === 'elettronica' ? 'il serbatoio si svuota, il LED lampeggia' : 'la sigaretta finisce nel posacenere';
+  // Pausa breve: nome e disegno secondo lo stile scelto (src/core/pausaBreve.ts).
+  const stile = imp.pausaBreve;
+  const nomeP = nomePausa(stile);
+  const etichettaP = etichettaPausa(stile);
+  const consumo =
+    stile === 'base'
+      ? "l'anello si chiude mentre il tempo passa"
+      : stile === 'birretta'
+        ? 'la birra nella pinta cala mentre il tempo passa'
+        : 'la sigaretta si consuma mentre il tempo passa';
+  const fineDisegno =
+    stile === 'base'
+      ? "l'anello diventa rosso"
+      : stile === 'birretta'
+        ? 'la pinta resta vuota'
+        : imp.tipoSigaretta === 'elettronica'
+          ? 'il serbatoio si svuota, il LED lampeggia'
+          : 'la sigaretta finisce nel posacenere';
+  const doveSiCambia =
+    stile === 'sigaretta'
+      ? 'Tolleranza, stile e tipo di sigaretta (normale o elettronica) si cambiano in Impostazioni → Pause → Pausa breve.'
+      : 'Tolleranza e stile della pausa si cambiano in Impostazioni → Pause → Pausa breve.';
 
   return [
     // --- Primi passi
@@ -59,7 +80,7 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
         'Ogni volta che timbri al lavoro, tocca il bottone grande nella schermata Oggi: l\'app registra l\'orario attuale e ti propone già l\'azione successiva (Entrata → Inizio pausa pranzo → Fine pausa pranzo → Uscita).',
         'In alto vedi l\'ora di uscita prevista, le ore coperte rispetto a quelle dovute e il saldo della giornata.',
         'Sotto il bottone grande compaiono le azioni meno frequenti (permessi, uscita anticipata…), solo quando hanno senso in quel momento.',
-        `Prima della fascia pranzo (${inizioFascia}) la pausa pranzo non si può segnare: al suo posto ci sono due bottoni grandi, 🚬 Pausa sigaretta ed Esco in permesso.`,
+        `Prima della fascia pranzo (${inizioFascia}) la pausa pranzo non si può segnare: al suo posto ci sono due bottoni grandi, ${etichettaP} ed Esco in permesso.`,
       ],
     },
     {
@@ -166,16 +187,16 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       id: 'pausa-sigaretta',
       sezione: 'I bottoni',
       azione: 'PAUSA_SIGARETTA',
-      domanda: 'Pausa sigaretta',
+      domanda: nomeP,
       testo: [
-        `Registra un'uscita in permesso e apre una schermata con il conto alla rovescia di ${tolleranza}: la sigaretta si consuma mentre il tempo passa. Quando torni tocca "Rientro".`,
-        `Negli ultimi 30 secondi lo schermo lampeggia di rosso; oltre la tolleranza ${fineSigaretta} e lo sfondo resta rosso finché non rientri.`,
-        `• Rientri entro ${tolleranza}: la pausa non conta nelle ore. Resta tra le timbrature come "🚬 Pausa sigaretta" con la durata e "non conteggiata": toccala per cambiarne orario e durata o per eliminarla. Puoi aggiungerne una a mano da "Aggiungi timbratura"; anche se è lunga non entra mai nel calcolo.`,
+        `Registra un'uscita in permesso e apre una schermata con il conto alla rovescia di ${tolleranza}: ${consumo}. Quando torni tocca "Rientro".`,
+        `Negli ultimi 30 secondi lo schermo lampeggia di rosso; oltre la tolleranza ${fineDisegno} e lo sfondo resta rosso finché non rientri.`,
+        `• Rientri entro ${tolleranza}: la pausa non conta nelle ore. Resta tra le timbrature come "${etichettaP}" con la durata e "non conteggiata": toccala per cambiarne orario e durata o per eliminarla. Puoi aggiungerne una a mano da "Aggiungi timbratura"; anche se è lunga non entra mai nel calcolo.`,
         '• Rientri dopo: la pausa diventa permesso a blocchi di 30 min (fino a 30 min → 30 min, fino a 1h → 1h, e così via).',
         'Le ore coperte e l\'uscita prevista non cambiano: il tempo del blocco oltre la pausa reale passa dalle ore lavorate al permesso.',
         'Esempio: pausa di 15 min → 30 min di permesso e 15 min in meno di lavorate; pausa di 42 min → 1h di permesso.',
         'Hai toccato il bottone per sbaglio? Usa "Annulla pausa" nella schermata. Se chiudi l\'app durante la pausa, alla riapertura il conto riprende da dove era.',
-        'Tolleranza e tipo di sigaretta (normale o elettronica) si cambiano in Impostazioni → Pause → Pausa sigaretta.',
+        doveSiCambia,
       ],
     },
     {
@@ -236,13 +257,13 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
       testo: [
         'Nell\'app per Android puoi timbrare avvicinando il telefono a un tag NFC di Sbeggio, per esempio quello vicino ai tornelli, anche ad app chiusa: Sbeggio si apre e registra l\'azione del bottone principale.',
         '• Giornata non iniziata: Entrata.',
-        `• Al lavoro prima della fascia pranzo (${inizioFascia}): ti chiede se è Pausa sigaretta o Esco in permesso.`,
+        `• Al lavoro prima della fascia pranzo (${inizioFascia}): ti chiede se è ${nomeP} o Esco in permesso.`,
         `• Al lavoro senza pausa: Inizio pausa pranzo. Dopo le ${fineFascia}, finita la fascia pranzo, ti chiede se è Inizio pausa pranzo o Uscita.`,
         '• In pausa: Fine pausa pranzo.',
         '• Al lavoro dopo la pausa: Uscita.',
-        `• Pausa sigaretta in corso: Rientro, come con il tasto (entro ${tolleranza} la pausa non conta).`,
+        `• ${nomeP} in corso: Rientro, come con il tasto (entro ${tolleranza} la pausa non conta).`,
         '• In permesso: Rientro da permesso.',
-        'Il telefono vibra e compare il solito messaggio, con il tasto Annulla per 5 secondi se il tag ha registrato la cosa sbagliata. Una seconda lettura entro un minuto viene ignorata. Dalla fascia pranzo in poi l\'inizio della pausa sigaretta e l\'uscita in permesso si fanno con i bottoni.',
+        'Il telefono vibra e compare il solito messaggio, con il tasto Annulla per 5 secondi se il tag ha registrato la cosa sbagliata. Una seconda lettura entro un minuto viene ignorata. Dalla fascia pranzo in poi l\'inizio della ' + nomeP.toLowerCase() + ' e l\'uscita in permesso si fanno con i bottoni.',
         'Il telefono deve essere sbloccato e con l\'NFC attivo: lo vedi in Impostazioni → Tag NFC.',
       ],
     },
@@ -400,8 +421,8 @@ export function vociAiuto(imp: Impostazioni): VoceAiuto[] {
         '• Uscita prevista: quando puoi andare via. Si programma mentre sei al lavoro e si aggiorna se modifichi le timbrature.',
         `• Rientro dal pranzo: ${pranzoAvviso} dopo l'inizio della pausa. La durata si cambia in Impostazioni → Avvisi.`,
         imp.avvisi.sigarettaAnticipo > 0
-          ? `• Pausa sigaretta: ${formattaDurata(imp.avvisi.sigarettaAnticipo)} prima della fine della tolleranza (${tolleranza}), per rientrare prima che diventi permesso. L'anticipo si cambia in Impostazioni → Avvisi.`
-          : `• Pausa sigaretta: allo scadere della tolleranza (${tolleranza}). Puoi anticiparlo in Impostazioni → Avvisi.`,
+          ? `• ${nomeP}: ${formattaDurata(imp.avvisi.sigarettaAnticipo)} prima della fine della tolleranza (${tolleranza}), per rientrare prima che diventi permesso. L'anticipo si cambia in Impostazioni → Avvisi.`
+          : `• ${nomeP}: allo scadere della tolleranza (${tolleranza}). Puoi anticiparlo in Impostazioni → Avvisi.`,
         'Ogni avviso si può disattivare dalle Impostazioni. Nessun avviso se la giornata è chiusa, da correggere o se l\'orario è già passato. Per riceverli tocca "Autorizza gli avvisi" in Impostazioni → Avvisi.',
         'Nell\'app per Android gli avvisi sono programmati sul telefono: non serve connessione e nessun dato esce dal dispositivo.',
         'Nella PWA (Chrome, Safari, Firefox) l\'orario di ogni avviso va a un server che invia la notifica al momento giusto: quando timbri serve internet e l\'avviso può arrivare con un minuto di ritardo. Su iPhone funziona solo con l\'app aggiunta alla schermata Home (iOS 16.4 o successivi); sul computer le notifiche arrivano solo con il browser aperto. Al server arrivano solo l\'orario e il tipo di ogni avviso e l\'indirizzo per le notifiche del browser: niente timbrature né testi.',

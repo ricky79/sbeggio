@@ -43,6 +43,12 @@ describe('cercaImpostazioni', () => {
     expect(ids('campanelle')).toContain('suoni');
   });
 
+  it('trova lo stile della pausa breve con le parole di ogni stile', () => {
+    expect(ids('birretta')).toContain('stile-pausa');
+    expect(ids('sigaretta')).toContain('stile-pausa');
+    expect(ids('stile')).toContain('stile-pausa');
+  });
+
   it('ignora gli accenti', () => {
     expect(ids('lunedi')).toEqual(['ore-per-giorno']);
     expect(ids('Lunedì')).toEqual(['ore-per-giorno']);

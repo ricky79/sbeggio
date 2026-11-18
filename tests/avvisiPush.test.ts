@@ -162,7 +162,7 @@ describe('testo della notifica', () => {
       tag: idUscita,
     });
     expect(notificaDaPush({ ...payload, id: idAvviso(DISPOSITIVO, 'sigaretta') }, null)).toMatchObject({
-      titolo: 'Pausa sigaretta',
+      titolo: 'Pausa breve', // il service worker non conosce lo stile scelto
       testo: 'Rientra prima che diventi permesso.',
     });
   });

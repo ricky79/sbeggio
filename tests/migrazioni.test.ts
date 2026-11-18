@@ -3,7 +3,15 @@
 
 import { describe, expect, it } from 'vitest';
 import { IMPOSTAZIONI_PREDEFINITE } from '../src/core/tipi';
-import { ErroreMigrazione, migra, VERSIONE_CORRENTE } from '../src/storage/migrazioni';
+import {
+  clonaImpostazioni,
+  datiVuoti,
+  ErroreMigrazione,
+  impostazioniRipristinate,
+  migra,
+  normalizzaImpostazioni,
+  VERSIONE_CORRENTE,
+} from '../src/storage/migrazioni';
 
 describe('migrazioni', () => {
   it('dati senza version (v0) vengono portati alla versione corrente', () => {
@@ -137,6 +145,27 @@ describe('migrazioni', () => {
     expect(ufficio({ lat: 91, lon: 7 })).toBeNull();
     expect(ufficio({ lat: '45', lon: 7 })).toBeNull();
     expect(ufficio('Torino')).toBeNull();
+  });
+
+  it('stile della pausa breve: chi ha già dati resta su sigaretta, chi installa ora parte da base', () => {
+    const stile = (v: unknown) => migra({ version: 1, impostazioni: v }).impostazioni.pausaBreve;
+    expect(stile({})).toBe('sigaretta'); // impostazioni salvate prima che esistesse lo stile
+    expect(stile({ tolleranzaSigaretta: 11 })).toBe('sigaretta');
+    expect(stile({ pausaBreve: 'birretta' })).toBe('birretta');
+    expect(stile({ pausaBreve: 'base' })).toBe('base');
+    expect(stile({ pausaBreve: 'caffè' })).toBe('sigaretta');
+    expect(datiVuoti().impostazioni.pausaBreve).toBe('base');
+    expect(normalizzaImpostazioni(null).pausaBreve).toBe('base');
+    expect(IMPOSTAZIONI_PREDEFINITE.pausaBreve).toBe('base');
+  });
+
+  it('ripristinare le impostazioni non cambia lo stile della pausa breve', () => {
+    const attuali = { ...clonaImpostazioni(IMPOSTAZIONI_PREDEFINITE), pausaBreve: 'birretta' as const, tolleranzaSigaretta: 5, pausaMinima: 45 };
+    const r = impostazioniRipristinate(attuali);
+    expect(r.pausaBreve).toBe('birretta');
+    expect(r.tolleranzaSigaretta).toBe(IMPOSTAZIONI_PREDEFINITE.tolleranzaSigaretta);
+    expect(r.pausaMinima).toBe(IMPOSTAZIONI_PREDEFINITE.pausaMinima);
+    expect(attuali.tolleranzaSigaretta).toBe(5); // non modifica l'oggetto ricevuto
   });
 
   it('tipo di sigaretta: predefinito normale, valori sconosciuti scartati', () => {

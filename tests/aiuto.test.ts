@@ -106,7 +106,7 @@ describe('aiuto', () => {
 
   it('la pausa sigaretta descrive il disegno scelto', () => {
     const testo = (tipoSigaretta: 'normale' | 'elettronica') =>
-      vociAiuto(impostazioni({ tipoSigaretta })).find((x) => x.id === 'pausa-sigaretta')!.testo.join(' ');
+      vociAiuto(impostazioni({ pausaBreve: 'sigaretta', tipoSigaretta })).find((x) => x.id === 'pausa-sigaretta')!.testo.join(' ');
     expect(testo('normale')).toContain('posacenere');
     expect(testo('elettronica')).toContain('LED');
     expect(testo('elettronica')).not.toContain('posacenere');
@@ -150,5 +150,24 @@ describe('aiuto', () => {
     expect(preparare).toContain('sbeggio://timbra');
     expect(preparare).toContain('Blocca');
     expect(preparare).toContain('definitivo');
+  });
+
+  it('con lo stile base o birretta non si parla di sigarette', () => {
+    for (const pausaBreve of ['base', 'birretta'] as const) {
+      const voci = vociAiuto(impostazioni({ pausaBreve }));
+      const tutto = voci.map((v) => `${v.domanda} ${v.testo.join(' ')}`).join(' ');
+      expect(tutto, pausaBreve).not.toMatch(/sigarett|🚬/i);
+    }
+  });
+
+  it('la voce della pausa breve prende nome e disegno dallo stile', () => {
+    const voce = (pausaBreve: 'base' | 'sigaretta' | 'birretta') =>
+      vociAiuto(impostazioni({ pausaBreve })).find((x) => x.id === 'pausa-sigaretta')!;
+    expect(voce('base').domanda).toBe('Pausa breve');
+    expect(voce('base').testo.join(' ')).toContain('anello');
+    expect(voce('sigaretta').domanda).toBe('Pausa sigaretta');
+    expect(voce('birretta').domanda).toBe('Pausa birretta');
+    expect(voce('birretta').testo.join(' ')).toContain('pinta');
+    expect(voce('base').testo.join(' ')).toContain('Impostazioni → Pause → Pausa breve');
   });
 });

@@ -62,6 +62,11 @@ export function testoTimer(c: Countdown): string {
   return c.scaduta ? `+${mmss(Math.floor(c.oltreMs / 1000))}` : mmss(Math.ceil(c.residuoMs / 1000));
 }
 
+/** Sotto l'anello dello stile base: "entro le 10:23" durante la pausa, "oltre le 10:23" a tempo scaduto (col "+" del timer). */
+export function scrittaAnello(fase: FaseSigaretta, entro: string): string {
+  return `${fase === 'scaduta' ? 'oltre' : 'entro'} le ${entro}`;
+}
+
 /**
  * La sequenza del posacenere parte solo se la pausa scade con la schermata aperta:
  * aprendola già scaduta (`precedente` null) si vede subito lo stato finale.
