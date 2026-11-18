@@ -1579,8 +1579,27 @@ input:disabled {
 .pranzo.finito .bacchette,
 .pranzo.finito .ramen-vapore,
 .pranzo.finito .ramen-alga,
-.pranzo.finito .mela-buccia {
+.pranzo.finito .mela-buccia,
+.pranzo.finito .forchetta,
+.pranzo.finito .cucchiaino,
+.pranzo.finito .sushi-bacchette,
+.pranzo.finito .gelato-pallina {
   display: none;
+}
+/* La forchetta arrotola gli spaghetti. */
+.forchetta {
+  transform-box: fill-box;
+  transform-origin: 100% 0;
+  animation: forchetta 2.8s ease-in-out infinite;
+}
+@keyframes forchetta {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
 }
 /* Le bacchette pescano i noodles, il ramen fuma (senza animazione il vapore resta invisibile). */
 .bacchette {

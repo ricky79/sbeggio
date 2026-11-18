@@ -24,6 +24,7 @@ export const NOVITA: readonly Novita[] = [
     voci: [
       'Nuova pagina Informazioni: chi ha fatto Sbeggio, la licenza, i contatti e come vengono trattati i tuoi dati. La trovi in fondo alle impostazioni e su web.sbeggio.app/informazioni.',
       'Gli orari si scrivono con il tastierino numerico: tocca le ore o i minuti e digita, il cursore passa da solo ai minuti.',
+      'Nella pausa pranzo arrivano spaghetti, gelato (una cucchiata alla volta), insalata e sushi, e il cibo cambia davvero da un giorno all\'altro anche se vai in pausa sempre alla stessa ora.',
     ],
   },
   {
