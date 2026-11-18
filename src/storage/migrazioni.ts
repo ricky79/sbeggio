@@ -26,6 +26,11 @@ export function datiVuoti(): DatiSalvati {
   return { version: VERSIONE_CORRENTE, impostazioni: clonaImpostazioni(IMPOSTAZIONI_PREDEFINITE), giornate: {} };
 }
 
+/** "Ripristina impostazioni predefinite": tutto torna ai valori iniziali tranne lo stile della pausa breve, che è un gusto. */
+export function impostazioniRipristinate(attuali: Impostazioni): Impostazioni {
+  return { ...clonaImpostazioni(IMPOSTAZIONI_PREDEFINITE), pausaBreve: attuali.pausaBreve };
+}
+
 export function clonaImpostazioni(i: Impostazioni): Impostazioni {
   return {
     ...i,

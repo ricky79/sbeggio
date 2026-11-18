@@ -65,6 +65,7 @@ const VOCI: readonly Voce[] = [
   { id: 'fine-pranzo', nome: 'Fine fascia pranzo', pagina: 'pause', sinonimi: 'pausa orario mensa' },
   { id: 'pausa-scalare', nome: 'Pausa da scalare', pagina: 'pause', sinonimi: 'permesso minuti trattenuta pranzo' },
   { id: 'pausa-minima', nome: 'Pausa minima', pagina: 'pause', sinonimi: 'obbligatoria minuti pranzo' },
+  { id: 'stile-pausa', nome: 'Stile della pausa breve', pagina: 'pause', sinonimi: 'pausa breve base anello sigaretta birretta birra caffè disegno fumo' },
   { id: 'tipo-sigaretta', nome: 'Tipo di sigaretta', pagina: 'pause', sinonimi: 'pausa normale elettronica svapo disegno fumo' },
   { id: 'tolleranza-sigaretta', nome: 'Tolleranza', pagina: 'pause', sinonimi: 'pausa breve sigaretta birretta birra minuti fumo' },
   { id: 'posizione-ufficio', nome: 'Posizione dell\'ufficio', pagina: 'sede', sinonimi: 'gps luogo casa smart working sede ufficio' },
