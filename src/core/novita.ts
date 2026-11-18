@@ -19,6 +19,13 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.17.0',
+    data: '2026-11-18',
+    voci: [
+      'La pausa breve ora ha uno stile a scelta: base con l\'anello, sigaretta o birretta con la pinta che cala. Lo scegli in Impostazioni → Pause → Pausa breve, e tutta l\'app usa il nome che hai scelto.',
+    ],
+  },
+  {
     versione: '2.16.0',
     data: '2026-11-18',
     voci: [
