@@ -37,6 +37,17 @@ export function normalizza(scritto: string, massimo: number): Casella {
   return { testo, completa: false, resto: '' };
 }
 
+/**
+ * Cosa normalizzare dopo un `input`. Di norma tutto il valore; ma se la casella era già piena (due cifre) e
+ * l'evento dice cosa è stato scritto o incollato, solo quello: senza selezione (secondo tocco, select() che
+ * non tiene, cursore spostato) la cifra nuova si unirebbe alle vecchie ("08" + 9 → "089" → 08:09).
+ */
+export function testoDaNormalizzare(prima: string, dopo: string, tipo: string | undefined, inseriti: string | null): string {
+  const piena = prima.replace(/\D/g, '').length >= 2;
+  if (piena && inseriti !== null && (tipo === 'insertText' || tipo === 'insertFromPaste')) return inseriti;
+  return dopo;
+}
+
 /** Valore all'uscita dalla casella: vuota torna a quello di prima, altrimenti il numero scritto. */
 export function chiudi(testo: string, precedente: number): number {
   return testo === '' ? precedente : Number(testo);

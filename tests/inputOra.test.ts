@@ -2,7 +2,22 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { describe, expect, it } from 'vitest';
-import { chiudi, normalizza } from '../src/core/inputOra';
+import { chiudi, normalizza, testoDaNormalizzare } from '../src/core/inputOra';
+
+describe('testoDaNormalizzare: una casella piena si riscrive, non si allunga', () => {
+  it.each([
+    // [prima, dopo, inputType, data, atteso]
+    ['08', '089', 'insertText', '9', '9'], // cursore in fondo
+    ['08', '908', 'insertText', '9', '9'], // cursore all'inizio
+    ['08', '08:47', 'insertFromPaste', '08:47', '08:47'], // incolla su casella piena
+    ['', '8', 'insertText', '8', '8'],
+    ['2', '23', 'insertText', '3', '23'], // seconda cifra: si tiene la prima
+    ['08', '0', 'deleteContentBackward', null, '0'],
+    ['08', '089', 'insertCompositionText', null, '089'], // tastiere che compongono: valore intero
+  ])('%s → %s (%s)', (prima, dopo, tipo, data, atteso) => {
+    expect(testoDaNormalizzare(prima, dopo, tipo, data)).toBe(atteso);
+  });
+});
 
 describe('normalizza: ore (massimo 23)', () => {
   it.each([
