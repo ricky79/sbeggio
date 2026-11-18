@@ -3,7 +3,17 @@
 
 import { describe, expect, it } from 'vitest';
 import { avanzamentoPranzo, CIBI, ciboDellaPausa, pranzoDaRiprendere, pranzoInCorso, testoCronometro } from '../src/core/pranzo';
-import { bordiMela, bordoPanino, ingredientiRamen, livelloRamen, spicchiRimasti } from '../src/ui/pranzoDisegni';
+import {
+  bordiMela,
+  bordoPanino,
+  ingredientiInsalata,
+  ingredientiRamen,
+  livelloRamen,
+  pezziSushi,
+  scalaSpaghetti,
+  spicchiRimasti,
+  statoGelato,
+} from '../src/ui/pranzoDisegni';
 import { giornata } from './helpers';
 
 const MIN = 60_000;
@@ -95,5 +105,36 @@ describe('disegni', () => {
     expect(ingredientiRamen(0)).toEqual(['alga', 'uovo', 'naruto', 'carne']);
     expect(ingredientiRamen(0.5)).toEqual(['naruto', 'carne']);
     expect(ingredientiRamen(1)).toEqual([]);
+  });
+
+  it('spaghetti: il nido si rimpicciolisce', () => {
+    expect(scalaSpaghetti(0)).toBe(1);
+    expect(scalaSpaghetti(1)).toBe(0.35);
+    expect(scalaSpaghetti(-1)).toBe(1);
+    expect(scalaSpaghetti(2)).toBe(0.35);
+  });
+
+  it('gelato: una cucchiata alla volta, dalla pallina in cima', () => {
+    expect(statoGelato(0)).toEqual({ palline: 3, cucchiate: 0 });
+    expect(statoGelato(1 / 12)).toEqual({ palline: 3, cucchiate: 1 });
+    expect(statoGelato(3 / 12)).toEqual({ palline: 3, cucchiate: 3 });
+    expect(statoGelato(4 / 12)).toEqual({ palline: 2, cucchiate: 0 }); // all'ultima cucchiata la pallina sparisce
+    expect(statoGelato(0.5)).toEqual({ palline: 2, cucchiate: 2 });
+    expect(statoGelato(1)).toEqual({ palline: 0, cucchiate: 0 });
+    expect(statoGelato(2)).toEqual({ palline: 0, cucchiate: 0 });
+  });
+
+  it('insalata: gli ingredienti spariscono uno alla volta, le foglie per ultime', () => {
+    expect(ingredientiInsalata(0)).toEqual(['mais', 'carote', 'pomodorini', 'foglie']);
+    expect(ingredientiInsalata(0.5)).toEqual(['pomodorini', 'foglie']);
+    expect(ingredientiInsalata(0.9)).toEqual(['foglie']);
+    expect(ingredientiInsalata(1)).toEqual([]);
+  });
+
+  it('sushi: sei pezzi che spariscono uno alla volta', () => {
+    expect(pezziSushi(0)).toBe(6);
+    expect(pezziSushi(0.5)).toBe(3);
+    expect(pezziSushi(1)).toBe(0);
+    expect(pezziSushi(-1)).toBe(6);
   });
 });

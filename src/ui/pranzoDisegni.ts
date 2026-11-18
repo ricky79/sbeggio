@@ -220,6 +220,41 @@ export function ingredientiRamen(mangiato: number): (keyof typeof INGREDIENTI_RA
   return (Object.keys(INGREDIENTI_RAMEN) as (keyof typeof INGREDIENTI_RAMEN)[]).filter((k) => mangiato < INGREDIENTI_RAMEN[k]);
 }
 
+/** Nido di spaghetti: la scala va da 1 (piatto pieno) a 0,35 (ultime forchettate). */
+export function scalaSpaghetti(mangiato: number): number {
+  return 1 - 0.65 * tra0e1(mangiato);
+}
+
+export const PALLINE_GELATO = 3;
+export const CUCCHIATE_PER_PALLINA = 4;
+
+/**
+ * Gelato: palline ancora nella coppetta e archi già tolti alla pallina in cima. Le cucchiate sono 4 per
+ * pallina: le prime 3 tolgono un arco dal bordo, la quarta finisce la pallina.
+ */
+export function statoGelato(mangiato: number): { palline: number; cucchiate: number } {
+  const totali = PALLINE_GELATO * CUCCHIATE_PER_PALLINA;
+  // Il piccolo margine evita che 4/12 · 12 diventi 3,9999… per l'aritmetica in virgola mobile.
+  const prese = Math.min(totali, Math.floor(totali * tra0e1(mangiato) + 1e-9));
+  return { palline: PALLINE_GELATO - Math.floor(prese / CUCCHIATE_PER_PALLINA), cucchiate: prese % CUCCHIATE_PER_PALLINA };
+}
+
+/** Ingredienti dell'insalata e quanto si è mangiato quando spariscono: le foglie per ultime. */
+export const INGREDIENTI_INSALATA = { mais: 0.25, carote: 0.5, pomodorini: 0.75, foglie: 1 } as const;
+
+/** Gli ingredienti ancora nella ciotola. */
+export function ingredientiInsalata(mangiato: number): (keyof typeof INGREDIENTI_INSALATA)[] {
+  const m = tra0e1(mangiato);
+  return (Object.keys(INGREDIENTI_INSALATA) as (keyof typeof INGREDIENTI_INSALATA)[]).filter((k) => m < INGREDIENTI_INSALATA[k]);
+}
+
+export const PEZZI_SUSHI = 6;
+
+/** Pezzi di sushi ancora sul tagliere: si parte da 6, a fine pausa minima non ne resta nessuno. */
+export function pezziSushi(mangiato: number): number {
+  return Math.ceil(PEZZI_SUSHI * (1 - tra0e1(mangiato)));
+}
+
 /** Crea il disegno del cibo `cibo`. */
 export function creaDisegnoPranzo(cibo: Cibo): DisegnoPranzo {
   const contenitore = document.createElement('div');
