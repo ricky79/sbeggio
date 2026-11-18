@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { describe, expect, it } from 'vitest';
-import { analizzaGiornata, azioniDisponibili } from '../src/core/statoGiornata';
+import { analizzaGiornata, azioniDisponibili, ETICHETTE_AZIONE, etichettaAzione } from '../src/core/statoGiornata';
 import { giornata } from './helpers';
 
 describe('macchina a stati', () => {
@@ -61,5 +61,15 @@ describe('azioni disponibili', () => {
     expect(azioniDisponibili('IN_PAUSA', false, true)).toEqual(azioniDisponibili('IN_PAUSA', false));
     // Pausa già coperta (es. da un permesso): resta Uscita, non c'è pranzo da nascondere.
     expect(azioniDisponibili('AL_LAVORO', true, true)).toEqual(azioniDisponibili('AL_LAVORO', true));
+  });
+});
+
+describe('etichette delle azioni', () => {
+  it('la pausa breve prende emoji e nome dallo stile, le altre restano uguali', () => {
+    expect(etichettaAzione('PAUSA_SIGARETTA', 'birretta')).toBe('🍺 Pausa birretta');
+    expect(etichettaAzione('PAUSA_SIGARETTA', 'sigaretta')).toBe('🚬 Pausa sigaretta');
+    expect(etichettaAzione('PAUSA_SIGARETTA', 'base')).toBe('☕ Pausa breve');
+    expect(etichettaAzione('ENTRATA', 'birretta')).toBe(ETICHETTE_AZIONE.ENTRATA);
+    expect(ETICHETTE_AZIONE.PAUSA_SIGARETTA).toBe('Pausa breve');
   });
 });

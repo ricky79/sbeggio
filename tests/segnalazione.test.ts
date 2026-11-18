@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { describe, expect, it } from 'vitest';
-import { EMAIL_CONTATTO, linkSegnalazione, type ContestoApp } from '../src/core/segnalazione';
+import { EMAIL_CONTATTO, linkSegnalazione, URL_INFORMAZIONI, type ContestoApp } from '../src/core/segnalazione';
 import { impostazioni } from './helpers';
 
 const imp = impostazioni({ pausaDaScalare: 30 });
@@ -25,6 +25,10 @@ function leggi(link: string) {
 describe('link di segnalazione', () => {
   it('l\'indirizzo è quello dei contatti', () => {
     expect(EMAIL_CONTATTO).toBe('supporto@sbeggio.app');
+  });
+
+  it('la pagina Informazioni è sul sito pubblico', () => {
+    expect(URL_INFORMAZIONI).toBe('https://web.sbeggio.app/informazioni');
   });
 
   it('suggerimento: oggetto, spazio per il testo, versione e piattaforma, senza impostazioni', () => {
@@ -56,8 +60,8 @@ describe('link di segnalazione', () => {
       'Pausa da scalare: 30 min',
       'Pausa minima: 30 min',
       'Inizio conteggio: 08:30',
-      'Pausa sigaretta: tolleranza 11 min, normale',
-      'Avvisi: uscita sì, sigaretta sì (1 min prima), pranzo sì (dopo 30 min)',
+      'Pausa breve: stile base, tolleranza 11 min',
+      'Avvisi: uscita sì, pausa breve sì (1 min prima), pranzo sì (dopo 30 min)',
     ]) {
       expect(testo, atteso).toContain(atteso);
     }
@@ -72,5 +76,12 @@ describe('link di segnalazione', () => {
   it('resta sotto i 2000 caratteri anche con un dispositivo dal nome lungo', () => {
     const lungo = { ...contesto, dispositivo: 'Mozilla/5.0 '.repeat(20) };
     expect(linkSegnalazione('problema', lungo, imp).length).toBeLessThan(2000);
+  });
+});
+
+describe('segnalazione: stile della pausa breve', () => {
+  it('con lo stile sigaretta c\'è anche il tipo', () => {
+    const testo = decodeURIComponent(linkSegnalazione('problema', contesto, impostazioni({ pausaBreve: 'sigaretta', tipoSigaretta: 'elettronica' })));
+    expect(testo).toContain('Pausa breve: stile sigaretta (elettronica), tolleranza 11 min');
   });
 });

@@ -3,7 +3,8 @@
 
 import { calcolaGiornata, propostaRientro } from '../core/calcolo';
 import { nuovoId } from '../core/id';
-import { analizzaGiornata, azioniDisponibili, ETICHETTE_AZIONE, type Azione } from '../core/statoGiornata';
+import { etichettaPausa, nomePausaMinuscolo } from '../core/pausaBreve';
+import { analizzaGiornata, azioniDisponibili, etichettaAzione, type Azione } from '../core/statoGiornata';
 import { formattaDataLunga, formattaDurata, formattaOra, formattaSaldo } from '../core/tempo';
 import { dettaglioSigarettaNonConteggiata, testoPausa } from '../core/testi';
 import { ETICHETTE_EVENTO, type Evento, type Giornata, type RisultatoGiornata } from '../core/tipi';
@@ -175,7 +176,7 @@ function pulsantiAzione(data: string, r: RisultatoGiornata, adesso: number): HTM
   const primaDelPranzo = adesso < store.impostazioni.pranzo.inizio;
   const { principali, secondarie } = azioniDisponibili(r.stato, r.pausaFatta, primaDelPranzo);
   const tutte = [...principali, ...secondarie];
-  const etichetta = (a: Azione) => (a === 'PAUSA_SIGARETTA' ? `🚬 ${ETICHETTE_AZIONE[a]}` : ETICHETTE_AZIONE[a]);
+  const etichetta = (a: Azione) => etichettaAzione(a, store.impostazioni.pausaBreve);
   const grandi = principali.map((a) =>
     el(
       'button',
@@ -303,7 +304,7 @@ export async function eseguiAzione(azione: Azione, data: string, annulla?: () =>
       aggiungi(azione);
   }
   void suona('timbratura');
-  toast(`${ETICHETTE_AZIONE[azione]} alle ${formattaOra(minuti)}`, annulla);
+  toast(`${etichettaAzione(azione, store.impostazioni.pausaBreve)} alle ${formattaOra(minuti)}`, annulla);
 }
 
 function timeline(
@@ -343,13 +344,13 @@ function timeline(
     const dettaglio = rip
       ? `${formattaDurata(rip.pausa)} pausa + ${formattaDurata(pi?.permesso ?? rip.permesso)} permesso${rip.confermata ? '' : ' (proposta)'}`
       : sig
-        ? `${formattaDurata(sig.permesso)} di permesso (pausa sigaretta di ${formattaDurata(sig.durata)})`
+        ? `${formattaDurata(sig.permesso)} di permesso (${nomePausaMinuscolo(store.impostazioni.pausaBreve)} di ${formattaDurata(sig.durata)})`
         : pi
           ? `${formattaDurata(pi.permesso)} di permesso${pi.permesso !== pi.durata ? ` (assenza di ${formattaDurata(pi.durata)})` : ''}`
           : scartati.has(e.id)
             ? 'non coerente: da correggere'
             : e.tipo === 'USCITA_PERMESSO' && e.sigaretta
-              ? '🚬 pausa sigaretta'
+              ? etichettaPausa(store.impostazioni.pausaBreve).toLowerCase()
               : null;
     conOrario.push({
       minuti: e.minuti,
@@ -381,7 +382,7 @@ function timeline(
           'button',
           { type: 'button', class: 'voce voce-sigaretta', onclick: () => void editorSigarettaNonConteggiata(data, indice) },
           el('span', { class: 'voce-ora' }, formattaOra(s.minuti)),
-          el('span', { class: 'voce-testo' }, '🚬 Pausa sigaretta', el('small', {}, dettaglioSigarettaNonConteggiata(s))),
+          el('span', { class: 'voce-testo' }, etichettaPausa(store.impostazioni.pausaBreve), el('small', {}, dettaglioSigarettaNonConteggiata(s))),
           el('span', { class: 'voce-freccia', 'aria-hidden': 'true' }, '›'),
         ),
       ),

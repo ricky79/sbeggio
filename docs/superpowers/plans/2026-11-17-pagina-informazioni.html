@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagina Informazioni — piano di implementazione</title>
+<style>/*
+ * mdlib-pure — default theme for rendered Markdown.
+ *
+ * Usage: put class="md" on the element that holds the rendered HTML.
+ *
+ * - Every rule is in `@layer mdlib` and inside `:where()`: zero specificity,
+ *   so any class, utility or unlayered rule overrides it.
+ * - Customize through the --md-* tokens, on :root, on .md or on any ancestor.
+ * - Neutral colors derive from `currentColor`, so they fit any background.
+ *   Hued colors use light-dark(): they follow `color-scheme` (set
+ *   `color-scheme: light dark` on :root, or `color-scheme: dark` on `.dark`
+ *   with Tailwind's class-based dark mode).
+ * - Tokens marked "unset" are not defined: the page's value is inherited.
+ *
+ * Browser support: Baseline 2024 (light-dark, color-mix, :has, text-wrap).
+ */
+@layer mdlib {
+  :where(:root, :host) {
+    /* --- Color ------------------------------------------------------------ */
+    /* --md-color-text:     unset → inherits the page color                  */
+    /* --md-color-heading:  unset → inherits                                  */
+    --md-color-muted: color-mix(in oklab, currentColor 68%, transparent);
+    --md-color-link: light-dark(#0969da, #4493f8);
+    --md-color-link-hover: light-dark(#0550ae, #79c0ff);
+    --md-color-accent: var(--md-color-link);
+    --md-color-border: color-mix(in oklab, currentColor 18%, transparent);
+    --md-color-surface: color-mix(in oklab, currentColor 5%, transparent);
+    --md-color-code-bg: color-mix(in oklab, currentColor 9%, transparent);
+    --md-color-quote: var(--md-color-muted);
+    --md-color-quote-border: var(--md-color-border);
+    --md-color-mark: light-dark(#fff3a3, #6b5a0f);
+
+    /* Alerts (> [!NOTE] …) */
+    --md-color-note: light-dark(#0969da, #4493f8);
+    --md-color-tip: light-dark(#1a7f37, #3fb950);
+    --md-color-important: light-dark(#8250df, #ab7df8);
+    --md-color-warning: light-dark(#9a6700, #d29922);
+    --md-color-caution: light-dark(#d1242f, #f85149);
+
+    /* --- Typography ------------------------------------------------------- */
+    /* --md-font-body:     unset → inherits                                   */
+    /* --md-font-heading:  unset → inherits                                   */
+    --md-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --md-leading: 1.6;
+    --md-leading-heading: 1.25;
+    --md-weight-heading: 600;
+    --md-size-h1: 2em;
+    --md-size-h2: 1.5em;
+    --md-size-h3: 1.25em;
+    --md-size-h4: 1.125em;
+    --md-size-h5: 1em;
+    --md-size-h6: 0.875em;
+    --md-size-code: 0.875em;
+    --md-size-small: 0.875em;
+
+    /* --- Space & shape ---------------------------------------------------- */
+    --md-space-block: 1em;
+    --md-space-heading: 1.5em;
+    --md-space-indent: 1.75em;
+    --md-space-item: 0.25em;
+    --md-pad-code: 0.875em 1em;
+    --md-radius: 0.375rem;
+    --md-border-width: 1px;
+  }
+
+  /* --- Container & flow ---------------------------------------------------- */
+
+  :where(.md) {
+    color: var(--md-color-text);
+    font-family: var(--md-font-body);
+    line-height: var(--md-leading);
+    overflow-wrap: break-word;
+  }
+
+  :where(.md) :where(p, ul, ol, dl, blockquote, pre, table, figure, details, hr, .markdown-alert) {
+    margin-block: 0 var(--md-space-block);
+  }
+
+  /* --- Headings ---------------------------------------------------------------- */
+
+  :where(.md) :where(h1, h2, h3, h4, h5, h6) {
+    margin-block: var(--md-space-heading) calc(var(--md-space-block) * 0.5);
+    color: var(--md-color-heading);
+    font-family: var(--md-font-heading);
+    font-weight: var(--md-weight-heading);
+    line-height: var(--md-leading-heading);
+    text-wrap: balance;
+  }
+
+  :where(.md) :where(h1) { font-size: var(--md-size-h1); }
+  :where(.md) :where(h2) { font-size: var(--md-size-h2); }
+  :where(.md) :where(h3) { font-size: var(--md-size-h3); }
+  :where(.md) :where(h4) { font-size: var(--md-size-h4); }
+  :where(.md) :where(h5) { font-size: var(--md-size-h5); }
+  :where(.md) :where(h6) { font-size: var(--md-size-h6); color: var(--md-color-muted); }
+
+  /* --- Inline ------------------------------------------------------------------ */
+
+  /* Underlined as by the browser, also under resets (Tailwind's preflight). */
+  :where(.md) :where(a) {
+    color: var(--md-color-link);
+    text-decoration-line: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  :where(.md) :where(a:hover) {
+    color: var(--md-color-link-hover);
+  }
+
+  :where(.md) :where(a:focus-visible) {
+    outline: 2px solid var(--md-color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  :where(.md) :where(code, kbd, samp) {
+    font-family: var(--md-font-mono);
+    font-size: var(--md-size-code);
+  }
+
+  :where(.md) :where(:not(pre) > code) {
+    padding: 0.15em 0.35em;
+    border-radius: calc(var(--md-radius) * 0.75);
+    background: var(--md-color-code-bg);
+  }
+
+  /* Raised without growing the line box (footnote references). */
+  :where(.md) :where(sub, sup) {
+    position: relative;
+    font-size: 75%;
+    line-height: 0;
+    vertical-align: baseline;
+  }
+
+  :where(.md) :where(sub) { inset-block-end: -0.25em; }
+  :where(.md) :where(sup) { inset-block-start: -0.5em; }
+
+  :where(.md) :where(mark) {
+    padding: 0.05em 0.2em;
+    border-radius: calc(var(--md-radius) * 0.5);
+    background: var(--md-color-mark);
+    color: inherit;
+  }
+
+  /* Inline, as by the browser (Tailwind's preflight makes images blocks). */
+  :where(.md) :where(img) {
+    display: inline;
+    max-inline-size: 100%;
+    block-size: auto;
+    vertical-align: baseline;
+  }
+
+  /* --- Blocks --------------------------------------------------------------------- */
+
+  /* The family is set here, not only on <code>: with the browser's bare
+     `monospace`, Chromium computes 0.875em from 13px (11.4px, not 14px). */
+  :where(.md) :where(pre) {
+    font-family: var(--md-font-mono);
+    padding: var(--md-pad-code);
+    border-radius: var(--md-radius);
+    background: var(--md-color-surface);
+    font-size: var(--md-size-code);
+    line-height: 1.45;
+    overflow-x: auto;
+  }
+
+  :where(.md) :where(pre code) {
+    font-size: inherit;
+  }
+
+  :where(.md) :where(blockquote) {
+    margin-inline: 0;
+    padding-inline-start: 1em;
+    border-inline-start: 0.25em solid var(--md-color-quote-border);
+    color: var(--md-color-quote);
+  }
+
+  :where(.md) :where(hr) {
+    block-size: 0;
+    margin-block: calc(var(--md-space-block) * 1.5);
+    border: 0;
+    border-block-start: var(--md-border-width) solid var(--md-color-border);
+  }
+
+  /* Markers as by the browser, also under resets (Tailwind's preflight sets
+     `list-style: none`); nested lists keep circle, then square. */
+  :where(.md) :where(ul, ol) {
+    padding-inline-start: var(--md-space-indent);
+  }
+
+  :where(.md) :where(ul) { list-style-type: disc; }
+  :where(.md) :where(ol) { list-style-type: decimal; }
+  :where(.md) :where(ul, ol) :where(ul) { list-style-type: circle; }
+  :where(.md) :where(ul, ol) :where(ul, ol) :where(ul) { list-style-type: square; }
+
+  :where(.md) :where(li + li, li > ul, li > ol) {
+    margin-block-start: var(--md-space-item);
+  }
+
+  :where(.md) :where(li > ul, li > ol) {
+    margin-block-end: 0;
+  }
+
+  /* Task lists: <li><input type="checkbox" disabled> … */
+  :where(.md) :where(li:has(> input[type='checkbox']:first-child)) {
+    list-style: none;
+  }
+
+  /* `font: inherit` so that the em margin matches the list indent. */
+  :where(.md) :where(li > input[type='checkbox']:first-child) {
+    margin-block: 0;
+    margin-inline: calc(var(--md-space-indent) * -1) 0.4em;
+    font: inherit;
+    accent-color: var(--md-color-accent);
+    vertical-align: -0.1em;
+  }
+
+  :where(.md) :where(table) {
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :where(.md) :where(th, td) {
+    padding: 0.4em 0.8em;
+    border: var(--md-border-width) solid var(--md-color-border);
+  }
+
+  :where(.md) :where(th) {
+    background: var(--md-color-surface);
+    font-weight: var(--md-weight-heading);
+  }
+
+  /* --- GFM extras: footnotes and alerts ------------------------------------------- */
+
+  :where(.md) :where(.footnotes) {
+    margin-block-start: calc(var(--md-space-block) * 2);
+    padding-block-start: var(--md-space-block);
+    border-block-start: var(--md-border-width) solid var(--md-color-border);
+    color: var(--md-color-muted);
+    font-size: var(--md-size-small);
+  }
+
+  :where(.md) :where(.markdown-alert) {
+    --md-alert: var(--md-color-note);
+    padding: 0.5em 1em;
+    border-inline-start: 0.25em solid var(--md-alert);
+  }
+
+  :where(.md) :where(.markdown-alert-tip) { --md-alert: var(--md-color-tip); }
+  :where(.md) :where(.markdown-alert-important) { --md-alert: var(--md-color-important); }
+  :where(.md) :where(.markdown-alert-warning) { --md-alert: var(--md-color-warning); }
+  :where(.md) :where(.markdown-alert-caution) { --md-alert: var(--md-color-caution); }
+
+  :where(.md) :where(.markdown-alert-title) {
+    margin-block-end: 0.25em;
+    color: var(--md-alert);
+    font-weight: var(--md-weight-heading);
+  }
+
+  /* --- Containers (container plugin) ---------------------------------------------- */
+
+  :where(.md) :where(.md-container) {
+    --md-container: var(--md-color-border);
+    margin-block: 0 var(--md-space-block);
+    padding: 0.5em 1em;
+    border-inline-start: 0.25em solid var(--md-container);
+    background: var(--md-color-surface);
+  }
+
+  /* Common kinds reuse the alert hues. */
+  :where(.md) :where(.md-container-note, .md-container-info) { --md-container: var(--md-color-note); }
+  :where(.md) :where(.md-container-tip) { --md-container: var(--md-color-tip); }
+  :where(.md) :where(.md-container-important) { --md-container: var(--md-color-important); }
+  :where(.md) :where(.md-container-warning) { --md-container: var(--md-color-warning); }
+  :where(.md) :where(.md-container-caution, .md-container-danger) { --md-container: var(--md-color-caution); }
+
+  :where(.md) :where(.md-container-title) {
+    margin-block-end: 0.25em;
+    font-weight: var(--md-weight-heading);
+  }
+
+  /* --- Definition lists (deflist plugin) ----------------------------------------- */
+
+  :where(.md) :where(dt) {
+    font-weight: var(--md-weight-heading);
+  }
+
+  :where(.md) :where(dd) {
+    margin-inline-start: var(--md-space-indent);
+  }
+
+  :where(.md) :where(dd + dt) {
+    margin-block-start: calc(var(--md-space-block) * 0.5);
+  }
+
+  /* --- Diagrams (mermaid plugin) ------------------------------------------------ */
+
+  /* Before Mermaid runs (or without JS) the source looks like a code block;
+     once rendered, the SVG sits on the page background, centered. */
+  :where(.md) :where(pre.mermaid[data-processed]) {
+    padding: 0;
+    background: none;
+    text-align: center;
+  }
+
+  :where(.md) :where(pre.mermaid-error) {
+    border-inline-start: 0.25em solid var(--md-color-caution);
+  }
+
+  /* --- Math (math plugin) ------------------------------------------------------- */
+
+  :where(.md) :where(.math-display) {
+    overflow-x: auto;
+  }
+
+  :where(.md) :where(div.math-display) {
+    margin-block: 0 var(--md-space-block);
+  }
+
+  /* --- Heading permalinks (headings plugin) ------------------------------------ */
+
+  :where(.md) :where(.md-anchor) {
+    color: var(--md-color-muted);
+    text-decoration: none;
+    opacity: 0;
+  }
+
+  :where(.md) :where(:is(h1, h2, h3, h4, h5, h6):hover > .md-anchor, .md-anchor:focus-visible) {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    :where(.md) :where(.md-anchor) { opacity: 0.6; }
+  }
+
+  /* --- Edge resets: MUST stay last ---------------------------------------------
+   * Every rule above has zero specificity, so source order decides. These
+   * resets beat the margins above only because they come after them. */
+
+  :where(.md > :first-child) {
+    margin-block-start: 0;
+  }
+
+  :where(.md > :last-child, .md li > :last-child, .md blockquote > :last-child, .md .markdown-alert > :last-child, .md .md-container > :last-child, .md dd > :last-child) {
+    margin-block-end: 0;
+  }
+}
+</style>
+<style>
+:root { color-scheme: light dark; --bg: #ffffff; --fg: #1f2328; --side: #f6f8fa; --line: #d1d9e0; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --fg: #e6edf3; --side: #151b23; --line: #3d444d; } }
+* { box-sizing: border-box; }
+html { scroll-padding-top: 16px; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 100vh; }
+nav.toc { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow: auto;
+  padding: 24px 16px; background: var(--side); border-right: 1px solid var(--line); font-size: 14px; }
+nav.toc a { color: inherit; text-decoration: none; display: block; padding: 3px 0; opacity: .85; }
+nav.toc a:hover { opacity: 1; text-decoration: underline; }
+nav.toc .d3 { padding-left: 14px; font-size: 13px; }
+main { padding: 32px 40px 64px; }
+main .md { max-width: 860px; }
+.md table { display: block; overflow-x: auto; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav.toc { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
+  main { padding: 20px 16px 48px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc"><a class="d2" href="#global-constraints">Global Constraints</a><a class="d2" href="#review-focus">Review Focus</a><a class="d3" href="#task-1-instradamento-nel-worker">Task 1: Instradamento nel Worker</a><a class="d3" href="#task-2-la-pagina-statica-e-la-build">Task 2: La pagina statica e la build</a><a class="d3" href="#task-3-autore-nei-metadati">Task 3: Autore nei metadati</a><a class="d3" href="#task-4-link-dal-sito-e-dallapp">Task 4: Link dal sito e dall'app</a><a class="d3" href="#task-5-novità-e-versione">Task 5: Novità e versione</a></nav>
+<main><article class="md">
+<h1 id="pagina-informazioni--piano-di-implementazione">Pagina Informazioni — piano di implementazione <a class="md-anchor" href="#pagina-informazioni--piano-di-implementazione" aria-label="Permalink: Pagina Informazioni — piano di implementazione">#</a></h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> una pagina pubblica statica <code>web.sbeggio.app/informazioni</code> (autore, licenza, contatti, privacy), leggibile senza JavaScript, con metadati di autore su tutte le pagine e link da sito e app.</p>
+<p><strong>Architecture:</strong> <code>informazioni.html</code> è un terzo ingresso HTML di Vite, testo già nel file e CSS collegati con <code>&lt;link&gt;</code> (nessuno script necessario). Il Worker la serve su <code>web.sbeggio.app/informazioni</code> e rimanda lì da <code>sbeggio.app/informazioni</code>. Esclusa dalla build Android e dal precache della PWA.</p>
+<p><strong>Tech Stack:</strong> Vite 8, TypeScript, Cloudflare Workers Assets, Vitest (ambiente node).</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-11-17-pagina-informazioni-design.md</code></p>
+<h2 id="global-constraints">Global Constraints <a class="md-anchor" href="#global-constraints" aria-label="Permalink: Global Constraints">#</a></h2>
+<ul>
+<li>Ramo: <code>feature/pagina-informazioni</code> da <code>develop</code>.</li>
+<li>Autore: <code>Riccardo Oliosi</code>, profilo <code>https://github.com/ricky79</code>. Contatto: <code>supporto@sbeggio.app</code> (mai la mail personale).</li>
+<li>Licenza: GPL-3.0-or-later, link <code>https://github.com/ricky79/sbeggio/blob/main/LICENSE</code>; codice <code>https://github.com/ricky79/sbeggio</code>. Nome e logo esclusi dalla licenza.</li>
+<li>Indirizzo pubblico: <code>https://web.sbeggio.app/informazioni</code>; <code>https://sbeggio.app/informazioni</code> → 302 lì.</li>
+<li>Testi in italiano; l'informativa dichiara solo ciò che il codice fa (vedi spec, sezione Privacy). Nessun testo legale generico.</li>
+<li>Nuovi file con intestazione <code>SPDX-License-Identifier: GPL-3.0-or-later</code> / <code>Copyright (C) 2026 Riccardo Oliosi</code>.</li>
+<li>Nessuna dipendenza nuova.</li>
+<li>Commit: messaggi in italiano come nel resto della storia, chiusi con <code>Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code>. Non toccare <code>.gitignore</code>, <code>DANONCONDIVIDERE.txt</code>, <code>logo.png</code>, <code>session.txt</code> (modifiche locali di Riccardo).</li>
+</ul>
+<h2 id="review-focus">Review Focus <a class="md-anchor" href="#review-focus" aria-label="Permalink: Review Focus">#</a></h2>
+<ul>
+<li><strong>Pagina aperta senza JavaScript</strong> (curl, crawler): nome, mail e privacy devono essere nel sorgente HTML servito → Task 2, test sul file e controllo su <code>dist/informazioni.html</code>.</li>
+<li><strong><code>/informazioni/</code> con la barra finale o <code>/informazioni.html</code></strong> su web.sbeggio.app: deve arrivare la stessa pagina, non il sito del QR → Task 1, <code>it.each</code> sui tre percorsi.</li>
+<li><strong>PWA installata e offline</strong>: la pagina non deve finire nel precache né far comparire il manifest → Task 2, controllo su <code>dist/sw.js</code> e su <code>dist/informazioni.html</code>.</li>
+<li><strong>App Android</strong>: <code>informazioni.html</code> non deve entrare nella build <code>--mode android</code> → Task 2, ingresso solo nella build web.</li>
+<li><strong>Tema scuro senza JavaScript</strong>: con lo script inline bloccato la pagina resta leggibile (variabili di <code>:root</code> del tema chiaro) → Task 2, verifica visiva con Chrome headless.</li>
+</ul>
+<hr />
+<h3 id="task-1-instradamento-nel-worker">Task 1: Instradamento nel Worker <a class="md-anchor" href="#task-1-instradamento-nel-worker" aria-label="Permalink: Task 1: Instradamento nel Worker">#</a></h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Modify: <code>src/worker.ts</code> (funzioni <code>richiestaSito</code> e <code>fetch</code>)</li>
+<li>Test: <code>tests/worker.test.ts</code></li>
+</ul>
+<p><strong>Interfaces:</strong></p>
+<ul>
+<li>
+<p>Produces: <code>web.sbeggio.app/informazioni</code> → <code>ASSETS.fetch</code> con URL <code>https://web.sbeggio.app/informazioni</code>; <code>sbeggio.app/informazioni</code> → 302.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 1: Ramo e spec</strong></p>
+</li>
+</ul>
+<pre><code class="language-bash">git switch -c feature/pagina-informazioni develop
+git add docs/superpowers/specs/2026-11-17-pagina-informazioni-design.md docs/superpowers/specs/2026-11-17-pagina-informazioni-design.html docs/superpowers/plans/2026-11-17-pagina-informazioni.md docs/superpowers/plans/2026-11-17-pagina-informazioni.html
+git commit -m &quot;Pagina Informazioni: progetto e piano&quot;
+</code></pre>
+<ul>
+<li><input type="checkbox" disabled="" /> <strong>Step 2: Test che falliscono</strong></li>
+</ul>
+<p>In <code>describe('worker di sbeggio.app')</code>:</p>
+<pre><code class="language-ts">it.each(['/informazioni', '/informazioni/'])('sbeggio.app%s rimanda alla pagina Informazioni del sito', async (percorso) =&gt; {
+  const { env, fetch } = envFinto();
+  const r = await worker.fetch(new Request(`https://sbeggio.app${percorso}`), env);
+  expect(r.status).toBe(302);
+  expect(r.headers.get('Location')).toBe('https://web.sbeggio.app/informazioni');
+  expect(fetch).not.toHaveBeenCalled();
+});
+</code></pre>
+<p>In <code>describe('worker di web.sbeggio.app')</code>:</p>
+<pre><code class="language-ts">it.each(['/informazioni', '/informazioni/', '/informazioni.html'])('%s serve la pagina statica Informazioni', async (percorso) =&gt; {
+  const { env, fetch } = envFinto();
+  await worker.fetch(new Request(`https://web.sbeggio.app${percorso}`), env);
+  // Workers Assets serve informazioni.html all'indirizzo /informazioni.
+  expect(fetch.mock.calls[0]![0].url).toBe('https://web.sbeggio.app/informazioni');
+});
+</code></pre>
+<ul>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 3:</strong> <code>npx vitest run tests/worker.test.ts</code> → i nuovi casi FALLISCONO (302 assente; URL <code>/web</code>).</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 4: Implementazione</strong></p>
+</li>
+<li>
+<p>Costante <code>const PERCORSO_INFORMAZIONI = /^\/informazioni(\.html|\/)?$/;</code></p>
+</li>
+<li>
+<p>In <code>fetch</code>, accanto al redirect di <code>/novita</code>: su <code>sbeggio.app</code> se il percorso corrisponde → <code>Response.redirect(\</code>https://${SITO}/informazioni`, 302)`.</p>
+</li>
+<li>
+<p>In <code>richiestaSito</code>: se il percorso corrisponde → <code>new Request(new URL('/informazioni', url), richiesta)</code>; aggiornare il commento della funzione.</p>
+</li>
+<li>
+<p>Aggiornare il commento in testa al Worker (elenco dei domini) con la pagina Informazioni.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 5:</strong> <code>npx vitest run tests/worker.test.ts</code> → PASS, compresi i test esistenti.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 6: Commit</strong> — <code>git commit -am &quot;Worker: pagina Informazioni su web.sbeggio.app, sbeggio.app/informazioni rimanda lì&quot;</code></p>
+</li>
+</ul>
+<hr />
+<h3 id="task-2-la-pagina-statica-e-la-build">Task 2: La pagina statica e la build <a class="md-anchor" href="#task-2-la-pagina-statica-e-la-build" aria-label="Permalink: Task 2: La pagina statica e la build">#</a></h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Create: <code>informazioni.html</code> (radice, accanto a <code>web.html</code>)</li>
+<li>Create: <code>src/sito/informazioni.css</code> (solo gli stili del testo della pagina)</li>
+<li>Modify: <code>vite.config.ts</code> (ingresso, plugin <code>sitoSenzaManifest</code>, <code>globIgnores</code>)</li>
+<li>Test: <code>tests/informazioni.test.ts</code></li>
+</ul>
+<p><strong>Interfaces:</strong></p>
+<ul>
+<li>
+<p>Consumes: instradamento del Task 1.</p>
+</li>
+<li>
+<p>Produces: <code>dist/informazioni.html</code> nella build web; ancore di sezione <code>#autore</code>, <code>#licenza</code>, <code>#contatti</code>, <code>#privacy</code> (usate dai link del Task 4).</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 1: Test che falliscono</strong> — <code>tests/informazioni.test.ts</code>, legge il file con <code>readFileSync('informazioni.html', 'utf8')</code> (ambiente node, niente DOM):</p>
+</li>
+</ul>
+<pre><code class="language-ts">it('il testo è già nell\'HTML, senza bisogno di JavaScript', () =&gt; {
+  expect(html).toContain('Riccardo Oliosi');
+  expect(html).toContain('https://github.com/ricky79');
+  expect(html).toContain('mailto:supporto@sbeggio.app');
+  expect(html).toContain('https://github.com/ricky79/sbeggio/blob/main/LICENSE');
+  for (const id of ['autore', 'licenza', 'contatti', 'privacy']) expect(html).toContain(`id=&quot;${id}&quot;`);
+  expect(html).not.toMatch(/&lt;script[^&gt;]*type=&quot;module&quot;/);
+});
+
+it('l\'informativa dice cosa parte dal telefono e cosa no', () =&gt; {
+  for (const frase of ['notifiche.sbeggio.app', 'Cloudflare', 'GitHub', 'posizione', 'cifrat']) expect(html).toContain(frase);
+});
+
+it('la mail personale non compare', () =&gt; {
+  expect(html).not.toMatch(/@gmail\.com/i);
+});
+</code></pre>
+<ul>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 2:</strong> <code>npx vitest run tests/informazioni.test.ts</code> → FAIL (file assente).</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 3: <code>informazioni.html</code></strong></p>
+</li>
+<li>
+<p>Struttura copiata da <code>web.html</code>: stesse intestazioni SPDX, <code>lang=&quot;it&quot;</code>, <code>color-scheme</code>, favicon, script inline del tema dal sistema, testata <code>.sito-testata</code> (menu: Novità, <strong>Informazioni</strong> con <code>aria-current=&quot;page&quot;</code>**, Apri l'app) e piè <code>.sito-piede</code>.</p>
+</li>
+<li>
+<p><code>&lt;title&gt;Informazioni · Sbeggio&lt;/title&gt;</code>, <code>&lt;meta name=&quot;description&quot; content=&quot;Chi ha fatto Sbeggio, licenza, contatti e informativa sulla privacy.&quot;&gt;</code>, <code>&lt;link rel=&quot;canonical&quot; href=&quot;https://web.sbeggio.app/informazioni&quot;&gt;</code>.</p>
+</li>
+<li>
+<p>CSS con <code>&lt;link rel=&quot;stylesheet&quot; href=&quot;/src/style.css&quot;&gt;</code>, <code>/src/sito/sito.css</code>, <code>/src/sito/informazioni.css</code> (Vite li elabora come per un ingresso HTML).</p>
+</li>
+<li>
+<p><code>&lt;main class=&quot;sito&quot;&gt;</code> con <code>&lt;h1&gt;Informazioni&lt;/h1&gt;</code> e quattro <code>&lt;section&gt;</code> con <code>id</code> <code>autore</code>, <code>licenza</code>, <code>contatti</code>, <code>privacy</code>. Testi:</p>
+<ul>
+<li><strong>Chi l'ha fatta</strong>: il paragrafo della spec, con &quot;Riccardo Oliosi&quot; che punta a <code>https://github.com/ricky79</code>.</li>
+<li><strong>Software libero</strong>: GPL 3.0 o successive, link a LICENSE e al codice; &quot;Il nome Sbeggio e il logo non sono coperti dalla licenza.&quot;</li>
+<li><strong>Contatti</strong>: <code>supporto@sbeggio.app</code> come <code>mailto:</code>; dall'app anche da Aiuto → Suggerimenti e problemi.</li>
+<li><strong>Privacy</strong>: le voci della spec, una per <code>&lt;li&gt;</code>, nell'ordine della spec, più &quot;Ultimo aggiornamento: 17 novembre 2026&quot;.</li>
+</ul>
+</li>
+<li>
+<p><code>src/sito/informazioni.css</code>: larghezza di lettura (<code>max-width</code> ~ 680px), spaziatura delle sezioni, link sottolineati; colori solo da variabili di <code>style.css</code>.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 4:</strong> <code>npx vitest run tests/informazioni.test.ts</code> → PASS.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 5: <code>vite.config.ts</code></strong></p>
+</li>
+<li>
+<p><code>input</code>: build web <code>{ index: 'index.html', sito: 'web.html', informazioni: 'informazioni.html' }</code>; android invariato.</p>
+</li>
+<li>
+<p><code>sitoSenzaManifest</code>: rimuove il manifest anche per <code>ctx.path === '/informazioni.html'</code> (aggiornare il commento).</p>
+</li>
+<li>
+<p><code>globIgnores</code>: aggiungere <code>'informazioni.html'</code> e <code>'assets/informazioni-*.css'</code>.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 6: Verifica della build</strong></p>
+</li>
+</ul>
+<p>Run: <code>npm run build</code>, poi
+<code>grep -c &quot;Riccardo Oliosi&quot; dist/informazioni.html</code> → ≥ 1;
+<code>grep -c 'rel=&quot;manifest&quot;' dist/informazioni.html</code> → 0;
+<code>grep -c &quot;informazioni&quot; dist/sw.js</code> → 0;
+<code>npx vite build --mode android --outDir &quot;$TMP/android-dist&quot;</code> e <code>ls &quot;$TMP/android-dist&quot;</code> → nessun <code>informazioni.html</code>.</p>
+<ul>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 7: Verifica visiva</strong> — <code>npx vite preview</code>, poi Chrome headless (vedi memoria &quot;Build Android in locale&quot;: UI verificata con Chrome headless) a 390px di larghezza, tema chiaro e scuro (<code>--force-dark-mode</code>), e una volta con JavaScript disattivato (<code>--blink-settings=scriptEnabled=false</code>). Atteso: testata, testo e piè leggibili, nessuno scorrimento orizzontale.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 8: Commit</strong> — <code>git add informazioni.html src/sito/informazioni.css vite.config.ts tests/informazioni.test.ts &amp;&amp; git commit -m &quot;Pagina Informazioni: autore, licenza, contatti e privacy, leggibile senza JavaScript&quot;</code></p>
+</li>
+</ul>
+<hr />
+<h3 id="task-3-autore-nei-metadati">Task 3: Autore nei metadati <a class="md-anchor" href="#task-3-autore-nei-metadati" aria-label="Permalink: Task 3: Autore nei metadati">#</a></h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Modify: <code>index.html</code>, <code>web.html</code>, <code>informazioni.html</code> (nel <code>&lt;head&gt;</code>)</li>
+<li>Test: <code>tests/informazioni.test.ts</code></li>
+</ul>
+<p><strong>Interfaces:</strong></p>
+<ul>
+<li>
+<p>Produces: in ogni pagina <code>&lt;meta name=&quot;author&quot; content=&quot;Riccardo Oliosi&quot;&gt;</code> e un <code>&lt;script type=&quot;application/ld+json&quot;&gt;</code>.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 1: Test che falliscono</strong></p>
+</li>
+</ul>
+<pre><code class="language-ts">it.each(['index.html', 'web.html', 'informazioni.html'])('%s dichiara autore e licenza', (file) =&gt; {
+  const sorgente = readFileSync(file, 'utf8');
+  expect(sorgente).toContain('&lt;meta name=&quot;author&quot; content=&quot;Riccardo Oliosi&quot;');
+  const json = /&lt;script type=&quot;application\/ld\+json&quot;&gt;([\s\S]*?)&lt;\/script&gt;/.exec(sorgente)?.[1];
+  const dati = JSON.parse(json!);
+  expect(dati['@type']).toBe('SoftwareApplication');
+  expect(dati.name).toBe('Sbeggio');
+  expect(dati.author).toEqual({ '@type': 'Person', name: 'Riccardo Oliosi', url: 'https://github.com/ricky79' });
+  expect(dati.license).toBe('https://www.gnu.org/licenses/gpl-3.0.html');
+});
+</code></pre>
+<ul>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 2:</strong> <code>npx vitest run tests/informazioni.test.ts</code> → FAIL.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 3:</strong> aggiungere a ciascun file il <code>meta</code> e il JSON-LD con, oltre ai campi del test: <code>&quot;@context&quot;: &quot;https://schema.org&quot;</code>, <code>&quot;url&quot;: &quot;https://sbeggio.app&quot;</code>, <code>&quot;description&quot;</code> uguale alla meta description di <code>index.html</code>, <code>&quot;applicationCategory&quot;: &quot;BusinessApplication&quot;</code>, <code>&quot;operatingSystem&quot;: &quot;Android, Web&quot;</code>, <code>&quot;inLanguage&quot;: &quot;it&quot;</code>, <code>&quot;isAccessibleForFree&quot;: true</code>, <code>&quot;sameAs&quot;: [&quot;https://github.com/ricky79/sbeggio&quot;, &quot;https://web.sbeggio.app/informazioni&quot;]</code>.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 4:</strong> <code>npx vitest run</code> → PASS (tutta la suite). <code>npm run build</code> → senza errori; il JSON-LD è presente in <code>dist/index.html</code>.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 5: Commit</strong> — <code>git commit -am &quot;Autore e licenza nei metadati delle pagine (meta author, JSON-LD)&quot;</code></p>
+</li>
+</ul>
+<hr />
+<h3 id="task-4-link-dal-sito-e-dallapp">Task 4: Link dal sito e dall'app <a class="md-anchor" href="#task-4-link-dal-sito-e-dallapp" aria-label="Permalink: Task 4: Link dal sito e dall'app">#</a></h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Modify: <code>src/core/segnalazione.ts</code> (nuova costante)</li>
+<li>Modify: <code>web.html</code> (menu e piè), <code>informazioni.html</code> (piè, stessa riga di <code>web.html</code>)</li>
+<li>Modify: <code>src/ui/aiuto.ts</code> (<code>schedaContatti</code>)</li>
+<li>Modify: <code>src/ui/impostazioni.ts:515</code> (riga sotto la versione)</li>
+<li>Modify: <code>src/style.css</code> (classe <code>.versione</code> e link sotto)</li>
+<li>Test: <code>tests/segnalazione.test.ts</code></li>
+</ul>
+<p><strong>Interfaces:</strong></p>
+<ul>
+<li>
+<p>Produces: <code>export const URL_INFORMAZIONI = 'https://web.sbeggio.app/informazioni';</code> in <code>src/core/segnalazione.ts</code>.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 1: Test che fallisce</strong> in <code>tests/segnalazione.test.ts</code>:</p>
+</li>
+</ul>
+<pre><code class="language-ts">it('la pagina Informazioni è sul sito pubblico', () =&gt; {
+  expect(URL_INFORMAZIONI).toBe('https://web.sbeggio.app/informazioni');
+});
+</code></pre>
+<ul>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 2:</strong> <code>npx vitest run tests/segnalazione.test.ts</code> → FAIL (export assente).</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 3: Implementazione</strong></p>
+</li>
+<li>
+<p><code>src/core/segnalazione.ts</code>: la costante, con commento &quot;pagina pubblica con autore, licenza e privacy&quot;.</p>
+</li>
+<li>
+<p><code>web.html</code>: nel menu <code>&lt;a href=&quot;/informazioni&quot;&gt;Informazioni&lt;/a&gt;</code> dopo Novità; nel piè, prima di &quot;Codice sorgente&quot;, &quot;Fatto da Riccardo Oliosi ·&quot; e il link <code>Informazioni e privacy</code> → <code>/informazioni</code>. Stesso piè in <code>informazioni.html</code>.</p>
+</li>
+<li>
+<p><code>schedaContatti</code> (<code>src/ui/aiuto.ts</code>): sotto i pulsanti, <code>&lt;p class=&quot;nota&quot;&gt;</code> con link <code>el('a', { href: URL_INFORMAZIONI }, 'Chi ha fatto Sbeggio e come tratta i tuoi dati')</code>. Link semplice come gli altri dell'aiuto (sull'APK Capacitor apre il browser di sistema).</p>
+</li>
+<li>
+<p><code>src/ui/impostazioni.ts:515</code>: la riga diventa <code>el('p', { class: 'versione' }, \</code>Sbeggio v${<strong>VERSIONE_APP</strong>} · di Riccardo Oliosi · `, el('a', { href: URL_INFORMAZIONI }, 'Informazioni e privacy'))<code>; in </code>src/style.css<code>il link in</code>.versione` eredita il colore ed è sottolineato.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 4:</strong> <code>npx vitest run</code> → PASS; <code>npm run typecheck</code> → nessun errore.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 5: Verifica visiva</strong> — <code>npm run dev</code>, Chrome headless a 390px: Impostazioni (riga sotto la versione su una o due righe, non tagliata) e Aiuto → Suggerimenti e problemi; <code>web.html</code> con il nuovo menu a 390px senza scorrimento orizzontale (il menu ha ora tre voci).</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 6: Commit</strong> — <code>git commit -am &quot;Link a Informazioni e privacy da sito, aiuto e impostazioni&quot;</code></p>
+</li>
+</ul>
+<hr />
+<h3 id="task-5-novità-e-versione">Task 5: Novità e versione <a class="md-anchor" href="#task-5-novità-e-versione" aria-label="Permalink: Task 5: Novità e versione">#</a></h3>
+<p>Segue la convenzione dei rilasci (commit &quot;Versione X.Y.Z: novità (…)&quot; su <code>develop</code> dopo il merge).</p>
+<p><strong>Files:</strong></p>
+<ul>
+<li>
+<p>Modify: <code>package.json</code> (<code>version</code> → <code>2.16.0</code>), <code>package-lock.json</code> (stesso campo, due occorrenze in testa)</p>
+</li>
+<li>
+<p>Modify: <code>src/core/novita.ts</code> (voce in cima)</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 1:</strong> voce <code>{ versione: '2.16.0', data: '&lt;giorno del rilascio&gt;', voci: ['Nuova pagina Informazioni: chi ha fatto Sbeggio, la licenza, i contatti e come vengono trattati i tuoi dati. La trovi in fondo alle impostazioni e su web.sbeggio.app/informazioni.'] }</code>.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 2:</strong> <code>npx vitest run tests/novita.test.ts</code> → PASS; <code>npm run versione:codice</code> stampa il nuovo versionCode.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 3: Commit</strong> — <code>git commit -am &quot;Versione 2.16.0: novità (pagina Informazioni e privacy)&quot;</code></p>
+</li>
+</ul>
+
+</article></main>
+</div>
+</body>
+</html>

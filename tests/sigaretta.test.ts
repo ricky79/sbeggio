@@ -3,6 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  scrittaAnello,
   aggiungiSigarettaNonConteggiata,
   annullaSigarettaNonConteggiata,
   countdown,
@@ -262,5 +263,13 @@ describe('sigarette non conteggiate tra le timbrature', () => {
     const prima = calcolaGiornata(g, impostazioni(), null);
     aggiungiSigarettaNonConteggiata(g, h('10:05'), 45);
     expect(calcolaGiornata(g, impostazioni(), null)).toEqual(prima);
+  });
+});
+
+describe('scritta sotto l\'anello dello stile base', () => {
+  it('durante la pausa dice entro quando rientrare, a tempo scaduto da quando', () => {
+    expect(scrittaAnello('accesa', '10:23')).toBe('entro le 10:23');
+    expect(scrittaAnello('ultimi', '10:23')).toBe('entro le 10:23');
+    expect(scrittaAnello('scaduta', '10:23')).toBe('oltre le 10:23');
   });
 });

@@ -1015,6 +1015,11 @@ button {
   color: var(--testo-2);
   font-size: 13px;
 }
+.versione a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 input[type='time'],
 input[type='number'],
@@ -1574,8 +1579,27 @@ input:disabled {
 .pranzo.finito .bacchette,
 .pranzo.finito .ramen-vapore,
 .pranzo.finito .ramen-alga,
-.pranzo.finito .mela-buccia {
+.pranzo.finito .mela-buccia,
+.pranzo.finito .forchetta,
+.pranzo.finito .cucchiaino,
+.pranzo.finito .sushi-bacchette,
+.pranzo.finito .gelato-pallina {
   display: none;
+}
+/* La forchetta arrotola gli spaghetti. */
+.forchetta {
+  transform-box: fill-box;
+  transform-origin: 100% 0;
+  animation: forchetta 2.8s ease-in-out infinite;
+}
+@keyframes forchetta {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
 }
 /* Le bacchette pescano i noodles, il ramen fuma (senza animazione il vapore resta invisibile). */
 .bacchette {
@@ -1750,6 +1774,82 @@ input:disabled {
 .sigaretta.spegnimento .posacenere-fumo path {
   animation: sbuffo 1.5s ease-out both;
 }
+/* Pausa breve, stile base: un anello che si chiude, il tempo al centro in numeri sottili. */
+.pausa-base .sigaretta-scena {
+  position: relative;
+  width: min(72vw, 280px);
+}
+.anello-disegno {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: rotate(-90deg);
+}
+.anello-arco {
+  stroke: #2dd4bf;
+  transition: stroke 0.3s;
+}
+.sigaretta.ultimi .anello-arco {
+  stroke: #fbbf24;
+}
+.sigaretta.scaduta .anello-arco {
+  stroke: #f87171;
+}
+.anello-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.pausa-base .sigaretta-timer {
+  font-size: clamp(40px, 14vw, 58px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+.anello-sotto {
+  color: #a8a29e;
+  font-size: 14px;
+}
+
+/* Pausa breve, stile birretta: le bollicine salgono; a pinta finita restano i segni della schiuma. */
+.birra-disegno {
+  max-width: 200px;
+  margin: 0 auto;
+}
+.birra-bolle circle {
+  transform-box: fill-box;
+  animation: bolla 2.4s ease-in infinite;
+}
+.birra-bolle circle:nth-child(2n) {
+  animation-delay: 0.8s;
+}
+.birra-bolle circle:nth-child(3n) {
+  animation-delay: 1.6s;
+}
+@keyframes bolla {
+  from {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(-60px);
+    opacity: 0;
+  }
+}
+.birra-segni {
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.sigaretta.consumata .birra-segni {
+  opacity: 0.6;
+}
+.sigaretta.consumata .birra-schiuma,
+.sigaretta.consumata .birra-bolle {
+  display: none;
+}
+
 /* Sigaretta elettronica: il LED pulsa come la brace, il vapore esce dal bocchino. */
 .svapo-alone {
   animation: brace 1.6s ease-in-out infinite;
@@ -1908,16 +2008,25 @@ input:disabled {
   flex: none;
   font-weight: 600;
 }
-.selettore-ora select {
-  width: auto;
-  min-width: 60px;
+/* Caselle ore e minuti col tastierino (src/ui/campi.ts): stesso aspetto degli altri campi. */
+.selettore-ora input {
+  box-sizing: border-box;
+  width: 60px;
+  min-height: 44px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--bordo);
+  background: var(--superficie-2);
+  color: inherit;
+  font: inherit;
+  /* ≥ 16px evita lo zoom automatico di Safari sul focus */
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
   text-align: center;
-  text-align-last: center;
-  appearance: none;
-  -webkit-appearance: none;
 }
-.selettore-ora select:disabled {
-  opacity: 0.4;
+.selettore-ora input:focus {
+  outline: 2px solid var(--accento);
+  outline-offset: 1px;
 }
 .azioni-secondarie .btn {
   font-size: 15px;
@@ -2013,9 +2122,14 @@ input:disabled {
 .risposta li + li {
   margin-top: 4px;
 }
-.risposta a {
+.risposta a,
+.link-informazioni a {
   color: var(--accento);
   font-weight: 500;
+}
+.nota.link-informazioni {
+  margin-top: 12px;
+  text-align: center;
 }
 .vista [id^='aiuto-'] {
   scroll-margin-top: calc(var(--sicuro-alto) + 12px);

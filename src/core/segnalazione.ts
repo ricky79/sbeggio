@@ -7,6 +7,9 @@ import type { Impostazioni } from './tipi';
 /** Indirizzo a cui arrivano suggerimenti e segnalazioni. */
 export const EMAIL_CONTATTO = 'supporto@sbeggio.app';
 
+/** Pagina pubblica con autore, licenza, contatti e privacy (informazioni.html). */
+export const URL_INFORMAZIONI = 'https://web.sbeggio.app/informazioni';
+
 export type TipoSegnalazione = 'suggerimento' | 'problema';
 
 export type Piattaforma = 'app Android' | 'app installata' | 'browser';
@@ -44,8 +47,8 @@ function righeImpostazioni(imp: Impostazioni): string[] {
     `Pausa da scalare: ${formattaDurata(imp.pausaDaScalare)}`,
     `Pausa minima: ${formattaDurata(imp.pausaMinima)}`,
     `Inizio conteggio: ${formattaOra(imp.orarioMinimoConteggio)}`,
-    `Pausa sigaretta: tolleranza ${formattaDurata(imp.tolleranzaSigaretta)}, ${imp.tipoSigaretta}`,
-    `Avvisi: uscita ${siNo(a.uscita)}, sigaretta ${siNo(a.sigaretta)} (${formattaDurata(a.sigarettaAnticipo)} prima), pranzo ${siNo(a.pranzo)} (dopo ${formattaDurata(a.pranzoMinuti)})`,
+    `Pausa breve: stile ${imp.pausaBreve}${imp.pausaBreve === 'sigaretta' ? ` (${imp.tipoSigaretta})` : ''}, tolleranza ${formattaDurata(imp.tolleranzaSigaretta)}`,
+    `Avvisi: uscita ${siNo(a.uscita)}, pausa breve ${siNo(a.sigaretta)} (${formattaDurata(a.sigarettaAnticipo)} prima), pranzo ${siNo(a.pranzo)} (dopo ${formattaDurata(a.pranzoMinuti)})`,
   ];
 }
 

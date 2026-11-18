@@ -2,9 +2,11 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { NOMI_GIORNI } from '../core/tempo';
+import { nomePausaMinuscolo } from '../core/pausaBreve';
+import { URL_INFORMAZIONI } from '../core/segnalazione';
 import { selettoreOra } from './campi';
-import { IMPOSTAZIONI_PREDEFINITE, type TipoSigaretta } from '../core/tipi';
-import { clonaImpostazioni } from '../storage/migrazioni';
+import type { Impostazioni, StilePausaBreve, TipoSigaretta } from '../core/tipi';
+import { impostazioniRipristinate } from '../storage/migrazioni';
 import { store } from '../storage/store';
 import { conferma, toast } from './dialoghi';
 import { el } from './dom';
@@ -116,6 +118,7 @@ function sezioneAvvisi(): HTMLElement {
     pulsante.disabled = true; // niente richieste doppie mentre il browser chiede il permesso e si iscrive
     void piattaforma.richiediPermessi().then(mostra);
   });
+  const pausa = nomePausaMinuscolo(store.impostazioni.pausaBreve);
   const cambia = (modifica: (a: typeof avvisi) => void) => {
     store.modificaImpostazioni((i) => modifica(i.avvisi));
     salvato();
@@ -128,8 +131,8 @@ function sezioneAvvisi(): HTMLElement {
     riga('Uscita prevista', interruttore(avvisi.uscita, (v) => cambia((a) => void (a.uscita = v)), 'Avviso di uscita prevista'), 'quando puoi andare via', 'avviso-uscita'),
     riga('Rientro dal pranzo', interruttore(avvisi.pranzo, (v) => cambia((a) => void (a.pranzo = v)), 'Avviso di rientro dalla pausa pranzo'), 'dopo la durata qui sotto', 'avviso-pranzo'),
     riga('Durata del pranzo (min)', inputMinuti(avvisi.pranzoMinuti, (v) => cambia((a) => void (a.pranzoMinuti = v)), 'Durata della pausa pranzo in minuti', 240, 5, 1), 'di quanto avvisare dopo l\'inizio della pausa', 'durata-pranzo'),
-    riga('Rientro dalla sigaretta', interruttore(avvisi.sigaretta, (v) => cambia((a) => void (a.sigaretta = v)), 'Avviso di rientro dalla pausa sigaretta'), 'prima della fine della tolleranza, vedi sotto', 'avviso-sigaretta'),
-    riga('Anticipo sigaretta (min)', inputMinuti(avvisi.sigarettaAnticipo, (v) => cambia((a) => void (a.sigarettaAnticipo = v)), 'Anticipo dell\'avviso della pausa sigaretta in minuti', 30, 1), '0 = allo scadere della tolleranza', 'anticipo-sigaretta'),
+    riga(`Rientro dalla ${pausa}`, interruttore(avvisi.sigaretta, (v) => cambia((a) => void (a.sigaretta = v)), `Avviso di rientro dalla ${pausa}`), 'prima della fine della tolleranza, vedi sotto', 'avviso-sigaretta'),
+    riga(`Anticipo ${pausa} (min)`, inputMinuti(avvisi.sigarettaAnticipo, (v) => cambia((a) => void (a.sigarettaAnticipo = v)), `Anticipo dell'avviso della ${pausa} in minuti`, 30, 1), '0 = allo scadere della tolleranza', 'anticipo-sigaretta'),
     linkAiuto('Come funzionano gli avvisi?', 'avvisi'),
   );
 }
@@ -274,12 +277,23 @@ const OPZIONI_SIGARETTA: [TipoSigaretta, string][] = [
   ['elettronica', 'Elettronica'],
 ];
 
-/** Pulsanti Normale / Elettronica: cambiano solo il disegno della schermata della pausa. */
-function selettoreSigaretta(attuale: TipoSigaretta): HTMLElement {
+const OPZIONI_STILE: [StilePausaBreve, string][] = [
+  ['base', 'Base'],
+  ['sigaretta', 'Sigaretta'],
+  ['birretta', 'Birretta'],
+];
+
+/** Pulsanti a scelta singola (chip): il salvataggio ridisegna la vista, quindi si aggiornano da soli. */
+function selettoreChip<T extends string>(
+  opzioni: [T, string][],
+  attuale: T,
+  aria: string,
+  scegli: (i: Impostazioni, v: T) => void,
+): HTMLElement {
   return el(
     'div',
-    { class: 'preset', role: 'group', 'aria-label': 'Tipo di sigaretta' },
-    OPZIONI_SIGARETTA.map(([valore, testo]) =>
+    { class: 'preset', role: 'group', 'aria-label': aria },
+    opzioni.map(([valore, testo]) =>
       el(
         'button',
         {
@@ -287,8 +301,7 @@ function selettoreSigaretta(attuale: TipoSigaretta): HTMLElement {
           class: 'chip',
           'aria-pressed': String(attuale === valore),
           onclick: () => {
-            // Il salvataggio ridisegna la vista: i pulsanti si aggiornano da soli.
-            store.modificaImpostazioni((i) => void (i.tipoSigaretta = valore));
+            store.modificaImpostazioni((i) => scegli(i, valore));
             salvato();
           },
         },
@@ -296,6 +309,16 @@ function selettoreSigaretta(attuale: TipoSigaretta): HTMLElement {
       ),
     ),
   );
+}
+
+/** Pulsanti Normale / Elettronica: cambiano solo il disegno della schermata della pausa sigaretta. */
+function selettoreSigaretta(attuale: TipoSigaretta): HTMLElement {
+  return selettoreChip(OPZIONI_SIGARETTA, attuale, 'Tipo di sigaretta', (i, v) => void (i.tipoSigaretta = v));
+}
+
+/** Pulsanti Base / Sigaretta / Birretta: nome, emoji e disegno della pausa breve in tutta l'app. */
+function selettoreStile(attuale: StilePausaBreve): HTMLElement {
+  return selettoreChip(OPZIONI_STILE, attuale, 'Stile della pausa breve', (i, v) => void (i.pausaBreve = v));
 }
 
 /** Navigazione tra l'elenco e le pagine, gestita da main.ts (che la ricorda tra un ridisegno e l'altro). */
@@ -404,13 +427,15 @@ export function vistaImpostazioni(adesso: Adesso, nav: NavImpostazioni): HTMLEle
         }, 'Pausa minima in minuti'), 'una pausa più breve conta come questa durata', 'pausa-minima'),
       ),
       scheda(
-        'Pausa sigaretta',
-        riga('Tipo', selettoreSigaretta(imp.tipoSigaretta), undefined, 'tipo-sigaretta'),
+        'Pausa breve',
+        riga('Stile', selettoreStile(imp.pausaBreve), undefined, 'stile-pausa'),
+        // Normale / Elettronica conta solo per lo stile sigaretta.
+        imp.pausaBreve !== 'sigaretta' ? null : riga('Tipo', selettoreSigaretta(imp.tipoSigaretta), undefined, 'tipo-sigaretta'),
         riga('Tolleranza (min)', inputMinuti(imp.tolleranzaSigaretta, (v) => {
           store.modificaImpostazioni((i) => void (i.tolleranzaSigaretta = v));
           salvato();
-        }, 'Tolleranza della pausa sigaretta in minuti', 60, 1), 'entro questo tempo la pausa non viene conteggiata', 'tolleranza-sigaretta'),
-        linkAiuto('Come funziona la pausa sigaretta?', 'pausa-sigaretta'),
+        }, 'Tolleranza della pausa breve in minuti', 60, 1), 'entro questo tempo la pausa non viene conteggiata', 'tolleranza-sigaretta'),
+        linkAiuto(`Come funziona la ${nomePausaMinuscolo(imp.pausaBreve)}?`, 'pausa-sigaretta'),
       ),
     ],
     sede: () => [sezioneSede()],
@@ -447,8 +472,8 @@ export function vistaImpostazioni(adesso: Adesso, nav: NavImpostazioni): HTMLEle
             class: 'btn btn-secondario',
             id: 'imp-ripristina',
             onclick: async () => {
-              if (await conferma('Ripristinare le impostazioni?', 'Tornano i valori predefiniti (8h lun–ven, pranzo 12:15–14:30, 30 min da scalare, tolleranza sigaretta 11 min, sigaretta normale, avvisi attivi con pranzo da 30 min e sigaretta 2 min prima). Le timbrature non vengono toccate.', 'Ripristina', true)) {
-                store.modificaImpostazioni((i) => Object.assign(i, clonaImpostazioni(IMPOSTAZIONI_PREDEFINITE)));
+              if (await conferma('Ripristinare le impostazioni?', 'Tornano i valori predefiniti (8h lun–ven, pranzo 12:15–14:30, 30 min da scalare, tolleranza della pausa breve 11 min, avvisi attivi con pranzo da 30 min e pausa breve 2 min prima). Lo stile della pausa breve e le timbrature non vengono toccati.', 'Ripristina', true)) {
+                store.modificaImpostazioni((i) => Object.assign(i, impostazioniRipristinate(i)));
                 salvato();
               }
             },
@@ -512,7 +537,17 @@ function elencoImpostazioni(nav: NavImpostazioni): HTMLElement {
         ),
     ),
   );
-  const menu = el('div', { class: 'menu-impostazioni' }, gruppi, el('p', { class: 'versione' }, `Sbeggio v${__VERSIONE_APP__}`));
+  const menu = el(
+    'div',
+    { class: 'menu-impostazioni' },
+    gruppi,
+    el(
+      'p',
+      { class: 'versione' },
+      `Sbeggio v${__VERSIONE_APP__} · di Riccardo Oliosi · `,
+      el('a', { href: URL_INFORMAZIONI }, 'Informazioni e privacy'),
+    ),
+  );
 
   // Ricerca unica, come sull'iPhone: mentre scrivi, al posto dell'elenco compaiono le impostazioni e
   // le domande dell'Aiuto che corrispondono.

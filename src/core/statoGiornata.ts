@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
+import { etichettaPausa } from './pausaBreve';
 import { formattaOra, MINUTI_GIORNO } from './tempo';
-import { ETICHETTE_EVENTO, type Evento, type Giornata, type StatoGiornata, type TipoEvento } from './tipi';
+import { ETICHETTE_EVENTO, type Evento, type Giornata, type StatoGiornata, type StilePausaBreve, type TipoEvento } from './tipi';
 
 export const ETICHETTE_STATO: Record<StatoGiornata, string> = {
   NON_INIZIATA: 'Non iniziata',
@@ -115,11 +116,17 @@ export const ETICHETTE_AZIONE: Record<Azione, string> = {
   RIENTRO_PERMESSO: 'Rientro da permesso',
   USCITA: 'Uscita',
   USCITA_ANTICIPATA: 'Uscita anticipata',
-  PAUSA_SIGARETTA: 'Pausa sigaretta',
+  // Valore di riserva: nell'app si usa etichettaAzione, che segue lo stile della pausa breve.
+  PAUSA_SIGARETTA: 'Pausa breve',
   PERMESSO_INIZIO_GIORNATA: 'Entro dopo (permesso a inizio giornata)',
   NON_RIENTRO: 'Non rientro (chiudi in permesso)',
   RIAPRI: 'Riapri giornata',
 };
+
+/** Etichetta di un'azione; la pausa breve prende emoji e nome dallo stile scelto. */
+export function etichettaAzione(azione: Azione, stile: StilePausaBreve): string {
+  return azione === 'PAUSA_SIGARETTA' ? etichettaPausa(stile) : ETICHETTE_AZIONE[azione];
+}
 
 export interface AzioniDisponibili {
   /** Pulsanti grandi: di solito uno, due affiancati prima della fascia pranzo, nessuno a giornata chiusa. */

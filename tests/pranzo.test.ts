@@ -3,16 +3,45 @@
 
 import { describe, expect, it } from 'vitest';
 import { avanzamentoPranzo, CIBI, ciboDellaPausa, pranzoDaRiprendere, pranzoInCorso, testoCronometro } from '../src/core/pranzo';
-import { bordiMela, bordoPanino, ingredientiRamen, livelloRamen, spicchiRimasti } from '../src/ui/pranzoDisegni';
+import {
+  bordiMela,
+  bordoPanino,
+  ingredientiInsalata,
+  ingredientiRamen,
+  livelloRamen,
+  pezziSushi,
+  scalaSpaghetti,
+  spicchiRimasti,
+  statoGelato,
+} from '../src/ui/pranzoDisegni';
 import { giornata } from './helpers';
 
 const MIN = 60_000;
 
 describe('cibo a sorpresa', () => {
-  it('a turno tutti i cibi, uno per ogni minuto di inizio', () => {
+  it('tutti i cibi escono, e con frequenze simili', () => {
     const base = Date.UTC(2026, 9, 16, 10, 0, 0);
-    const visti = new Set(Array.from({ length: CIBI.length }, (_, i) => ciboDellaPausa(base + i * MIN)));
-    expect(visti.size).toBe(CIBI.length);
+    const conta = new Map<string, number>();
+    for (let i = 0; i < 8000; i++) {
+      const c = ciboDellaPausa(base + i * MIN);
+      conta.set(c, (conta.get(c) ?? 0) + 1);
+    }
+    expect(conta.size).toBe(CIBI.length);
+    for (const n of conta.values()) expect(n).toBeGreaterThan(700); // 1000 di media
+  });
+
+  it('pausa alla stessa ora tutti i giorni: il cibo cambia', () => {
+    // Con il resto della divisione 1440 minuti al giorno davano sempre lo stesso cibo.
+    const base = Date.UTC(2026, 9, 1, 11, 31, 0);
+    const visti = new Set(Array.from({ length: 30 }, (_, g) => ciboDellaPausa(base + g * 1440 * MIN)));
+    expect(visti.size).toBeGreaterThanOrEqual(6);
+  });
+
+  it('inizi a pochi minuti di distanza non danno lo stesso cibo in fila', () => {
+    // Prima ogni 4 (poi 8) minuti tornava lo stesso cibo.
+    const base = Date.UTC(2026, 9, 16, 11, 31, 0);
+    const visti = new Set(Array.from({ length: 6 }, (_, i) => ciboDellaPausa(base + i * 8 * MIN)));
+    expect(visti.size).toBeGreaterThan(1);
   });
 
   it('stesso cibo per tutta la pausa: conta il minuto, non i secondi', () => {
@@ -95,5 +124,36 @@ describe('disegni', () => {
     expect(ingredientiRamen(0)).toEqual(['alga', 'uovo', 'naruto', 'carne']);
     expect(ingredientiRamen(0.5)).toEqual(['naruto', 'carne']);
     expect(ingredientiRamen(1)).toEqual([]);
+  });
+
+  it('spaghetti: il nido si rimpicciolisce', () => {
+    expect(scalaSpaghetti(0)).toBe(1);
+    expect(scalaSpaghetti(1)).toBe(0.35);
+    expect(scalaSpaghetti(-1)).toBe(1);
+    expect(scalaSpaghetti(2)).toBe(0.35);
+  });
+
+  it('gelato: una cucchiata alla volta, dalla pallina in cima', () => {
+    expect(statoGelato(0)).toEqual({ palline: 3, cucchiate: 0 });
+    expect(statoGelato(1 / 12)).toEqual({ palline: 3, cucchiate: 1 });
+    expect(statoGelato(3 / 12)).toEqual({ palline: 3, cucchiate: 3 });
+    expect(statoGelato(4 / 12)).toEqual({ palline: 2, cucchiate: 0 }); // all'ultima cucchiata la pallina sparisce
+    expect(statoGelato(0.5)).toEqual({ palline: 2, cucchiate: 2 });
+    expect(statoGelato(1)).toEqual({ palline: 0, cucchiate: 0 });
+    expect(statoGelato(2)).toEqual({ palline: 0, cucchiate: 0 });
+  });
+
+  it('insalata: gli ingredienti spariscono uno alla volta, le foglie per ultime', () => {
+    expect(ingredientiInsalata(0)).toEqual(['mais', 'carote', 'pomodorini', 'foglie']);
+    expect(ingredientiInsalata(0.5)).toEqual(['pomodorini', 'foglie']);
+    expect(ingredientiInsalata(0.9)).toEqual(['foglie']);
+    expect(ingredientiInsalata(1)).toEqual([]);
+  });
+
+  it('sushi: sei pezzi che spariscono uno alla volta', () => {
+    expect(pezziSushi(0)).toBe(6);
+    expect(pezziSushi(0.5)).toBe(3);
+    expect(pezziSushi(1)).toBe(0);
+    expect(pezziSushi(-1)).toBe(6);
   });
 });

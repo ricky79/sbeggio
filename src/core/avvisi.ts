@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { calcolaGiornata } from './calcolo';
+import { nomePausa } from './pausaBreve';
 import { sigarettaInCorso } from './sigaretta';
 import { analizzaGiornata } from './statoGiornata';
 import { formattaDurata, formattaOra, MINUTI_GIORNO } from './tempo';
@@ -107,7 +108,7 @@ export function pianificaAvvisi(
       const avviso: Avviso = {
         tipo: 'sigaretta',
         minuti: uscita.minuti + dopo,
-        titolo: anticipo > 0 ? 'Pausa sigaretta quasi finita' : 'Pausa sigaretta finita',
+        titolo: `${nomePausa(imp.pausaBreve)} ${anticipo > 0 ? 'quasi finita' : 'finita'}`,
         testo:
           anticipo > 0
             ? `Mancano ${formattaDurata(anticipo)}: oltre la tolleranza la pausa diventa permesso.`

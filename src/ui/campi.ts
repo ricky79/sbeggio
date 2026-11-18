@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riccardo Oliosi
 
+import { chiudi, normalizza, testoDaNormalizzare } from '../core/inputOra';
 import { formattaDurata } from '../core/tempo';
 import { el } from './dom';
 
@@ -10,8 +11,9 @@ export interface Campo<T> {
 }
 
 /**
- * Selettore ore:minuti sempre in formato 24h (due <select>: su iPhone aprono la ruota).
- * Non dipende dalle impostazioni regionali del telefono come <input type=time>.
+ * Selettore ore:minuti sempre in formato 24h: due caselle che si scrivono col tastierino numerico, il
+ * cursore passa da solo dalle ore ai minuti (regole delle cifre in src/core/inputOra.ts).
+ * Non è un <input type=time>: quello dipende dalle impostazioni regionali del telefono (AM/PM).
  */
 export function selettoreOra(
   minuti: number,
@@ -19,17 +21,83 @@ export function selettoreOra(
 ): { elemento: HTMLElement; leggi(): number; imposta(v: number): void; abilita(si: boolean): void } {
   const maxOre = opz.maxOre ?? 23;
   const due = (n: number) => String(n).padStart(2, '0');
-  const ore = el('select', { 'aria-label': `${opz.aria ?? 'Orario'}: ore` },
-    Array.from({ length: maxOre + 1 }, (_, i) => el('option', { value: String(i) }, due(i))));
-  const min = el('select', { 'aria-label': `${opz.aria ?? 'Orario'}: minuti` },
-    Array.from({ length: 60 }, (_, i) => el('option', { value: String(i) }, due(i))));
+  // Niente maxlength: troncherebbe "08:47" incollato nelle ore, prima che i minuti ricevano il resto.
+  const casella = (parte: string) =>
+    el('input', {
+      type: 'text',
+      inputmode: 'numeric',
+      pattern: '[0-9]*',
+      autocomplete: 'off',
+      'aria-label': `${opz.aria ?? 'Orario'}: ${parte}`,
+    });
+  const ore = casella('ore');
+  const min = casella('minuti');
+  /** Ultimi valori confermati: ci si torna se una casella resta vuota. */
+  const stato = { ore: 0, min: 0 };
+  let notificato = -1;
+
+  const leggi = () => chiudi(ore.value, stato.ore) * 60 + chiudi(min.value, stato.min);
+  const notifica = () => {
+    const v = leggi();
+    if (v === notificato) return;
+    notificato = v;
+    opz.onChange?.(v);
+  };
+  /** Testo di ogni casella dopo l'ultimo evento: serve a capire se era già piena (testoDaNormalizzare). */
+  const testo = { ore: '', min: '' };
+  const metti = (c: HTMLInputElement, parte: 'ore' | 'min', t: string) => {
+    c.value = t;
+    testo[parte] = t;
+  };
   const imposta = (v: number) => {
     const c = Math.max(0, Math.min(maxOre * 60 + 59, Math.round(v)));
-    ore.value = String(Math.floor(c / 60));
-    min.value = String(c % 60);
+    stato.ore = Math.floor(c / 60);
+    stato.min = c % 60;
+    metti(ore, 'ore', due(stato.ore));
+    metti(min, 'min', due(stato.min));
+    notificato = c;
   };
-  const leggi = () => Number(ore.value) * 60 + Number(min.value);
-  for (const s of [ore, min]) s.addEventListener('change', () => opz.onChange?.(leggi()));
+
+  const scriviMinuti = (scritto: string) => {
+    const c = normalizza(scritto, 59);
+    metti(min, 'min', c.testo);
+    if (!c.completa) return;
+    stato.min = Number(c.testo);
+    notifica();
+    min.blur(); // orario completo: si chiude il tastierino
+  };
+  const scriviOre = (scritto: string) => {
+    const c = normalizza(scritto, maxOre);
+    metti(ore, 'ore', c.testo);
+    if (!c.completa) return;
+    // Niente onChange qui: nelle impostazioni salverebbe e ridisegnerebbe la pagina, e il cursore non
+    // arriverebbe ai minuti. Si avvisa a orario finito (minuti completi o uscita dalle caselle).
+    stato.ore = Number(c.testo);
+    min.focus();
+    if (c.resto) scriviMinuti(c.resto); // "0847" scritto di fila o "08:47" incollato
+  };
+  const daScrivere = (c: HTMLInputElement, parte: 'ore' | 'min', e: Event) => {
+    const ie = e as InputEvent;
+    return testoDaNormalizzare(testo[parte], c.value, ie.inputType, ie.data ?? null);
+  };
+  ore.addEventListener('input', (e) => scriviOre(daScrivere(ore, 'ore', e)));
+  min.addEventListener('input', (e) => scriviMinuti(daScrivere(min, 'min', e)));
+
+  for (const [c, parte, altra] of [[ore, 'ore', min], [min, 'min', ore]] as const) {
+    // Tutto selezionato al tocco: la prima cifra sostituisce il valore (setTimeout: su iPhone select()
+    // durante il focus non sempre tiene).
+    c.addEventListener('focus', () => setTimeout(() => c.select(), 0));
+    c.addEventListener('blur', (e) => {
+      stato[parte] = chiudi(c.value, stato[parte]);
+      metti(c, parte, due(stato[parte]));
+      // Da una casella all'altra l'orario non è ancora finito.
+      if (e.relatedTarget !== altra) notifica();
+    });
+  }
+  // Cancella sui minuti vuoti: si torna alle ore.
+  min.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && min.value === '') ore.focus();
+  });
   imposta(minuti);
   return {
     elemento: el('span', { class: 'selettore-ora' }, ore, el('span', { 'aria-hidden': 'true' }, ':'), min),

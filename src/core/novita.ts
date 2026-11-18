@@ -19,6 +19,22 @@ export interface Novita {
 
 export const NOVITA: readonly Novita[] = [
   {
+    versione: '2.17.0',
+    data: '2026-11-18',
+    voci: [
+      'La pausa breve ora ha uno stile a scelta: base con l\'anello, sigaretta o birretta con la pinta che cala. Lo scegli in Impostazioni → Pause → Pausa breve, e tutta l\'app usa il nome che hai scelto.',
+    ],
+  },
+  {
+    versione: '2.16.0',
+    data: '2026-11-18',
+    voci: [
+      'Nuova pagina Informazioni: chi ha fatto Sbeggio, la licenza, i contatti e come vengono trattati i tuoi dati. La trovi in fondo alle impostazioni e su web.sbeggio.app/informazioni.',
+      'Gli orari si scrivono con il tastierino numerico: tocca le ore o i minuti e digita, il cursore passa da solo ai minuti.',
+      'Nella pausa pranzo arrivano spaghetti, gelato (una cucchiata alla volta), insalata e sushi, e il cibo cambia davvero da un giorno all\'altro anche se vai in pausa sempre alla stessa ora.',
+    ],
+  },
+  {
     versione: '2.15.1',
     data: '2026-11-13',
     voci: [

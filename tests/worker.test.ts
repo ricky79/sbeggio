@@ -24,6 +24,14 @@ describe('worker di sbeggio.app', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it.each(['/informazioni', '/informazioni/'])('sbeggio.app%s rimanda alla pagina Informazioni del sito', async (percorso) => {
+    const { env, fetch } = envFinto();
+    const r = await worker.fetch(new Request(`https://sbeggio.app${percorso}`), env);
+    expect(r.status).toBe(302);
+    expect(r.headers.get('Location')).toBe('https://web.sbeggio.app/informazioni');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('www.sbeggio.app rimanda a sbeggio.app con 301, tenendo percorso e query', async () => {
     const { env, fetch } = envFinto();
     const r = await worker.fetch(new Request('http://www.sbeggio.app/prova?x=1'), env);
@@ -51,6 +59,13 @@ describe('worker di web.sbeggio.app', () => {
     await worker.fetch(new Request(`https://web.sbeggio.app${percorso}`), env);
     // Workers Assets serve web.html all'indirizzo /web (/web.html farebbe un redirect).
     expect(fetch.mock.calls[0]![0].url).toBe('https://web.sbeggio.app/web');
+  });
+
+  it.each(['/informazioni', '/informazioni/', '/informazioni.html'])('%s serve la pagina statica Informazioni', async (percorso) => {
+    const { env, fetch } = envFinto();
+    await worker.fetch(new Request(`https://web.sbeggio.app${percorso}`), env);
+    // Workers Assets serve informazioni.html all'indirizzo /informazioni.
+    expect(fetch.mock.calls[0]![0].url).toBe('https://web.sbeggio.app/informazioni');
   });
 
   it.each(['/assets/web-abc.js', '/favicon.svg', '/logo.svg'])('%s resta quello richiesto', async (percorso) => {

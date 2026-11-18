@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { calcolaGiornata } from '../core/calcolo';
+import { etichettaPausa } from '../core/pausaBreve';
 import { sigarettaInCorso } from '../core/sigaretta';
 import { azioneTag, esitoLettura } from '../core/tagNfc';
 import { adessoRoma } from '../core/tempo';
@@ -69,11 +70,11 @@ export async function gestisciTag(mostraOggi: () => void): Promise<void> {
   }
 }
 
-/** Prima della fascia pranzo si esce solo in sigaretta o in permesso: il tag chiede quale. */
+/** Prima della fascia pranzo si esce solo in pausa breve o in permesso: il tag chiede quale. */
 async function sceltaSigarettaOPermesso(): Promise<'PAUSA_SIGARETTA' | 'USCITA_PERMESSO' | null> {
   let scelta: 'PAUSA_SIGARETTA' | 'USCITA_PERMESSO' | null = null;
   await apriFoglio('Cosa timbri?', el('p', { class: 'testo-foglio' }, 'La fascia pranzo non è ancora iniziata.'), [
-    { etichetta: '🚬 Pausa sigaretta', stile: 'primario', azione: () => void (scelta = 'PAUSA_SIGARETTA') },
+    { etichetta: etichettaPausa(store.impostazioni.pausaBreve), stile: 'primario', azione: () => void (scelta = 'PAUSA_SIGARETTA') },
     { etichetta: 'Esco in permesso', stile: 'primario', azione: () => void (scelta = 'USCITA_PERMESSO') },
     { etichetta: 'Annulla' },
   ]);
