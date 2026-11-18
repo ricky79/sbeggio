@@ -67,13 +67,19 @@ function apriSchermata(data: string, uscita: Evento): void {
   const tolleranza = store.impostazioni.tolleranzaSigaretta;
   const entro = formattaOra(adessoRoma(new Date(inizio + tolleranza * 60_000)).minuti);
 
-  // Il tipo si legge all'apertura: con la schermata aperta le impostazioni non sono raggiungibili.
+  // Stile e tipo si leggono all'apertura: con la schermata aperta le impostazioni non sono raggiungibili.
+  const stile = store.impostazioni.pausaBreve;
   const tipo = store.impostazioni.tipoSigaretta;
-  const nome = nomePausa(store.impostazioni.pausaBreve);
-  const disegno = creaDisegno(tipo, inizio);
-  const scena = el('div', { class: 'sigaretta-scena' }, disegno.elemento);
+  const nome = nomePausa(stile);
+  const disegno = creaDisegno(stile, tipo, inizio);
   const timer = el('p', { class: 'sigaretta-timer', role: 'timer' });
   const nota = el('p', { class: 'sigaretta-nota' });
+  // Stile base: il tempo sta al centro dell'anello, con sotto l'ora entro cui rientrare.
+  const anello = stile === 'base';
+  const scena = anello
+    ? el('div', { class: 'sigaretta-scena' }, disegno.elemento, el('div', { class: 'anello-centro' }, timer, el('span', { class: 'anello-sotto' }, `entro le ${entro}`)))
+    : el('div', { class: 'sigaretta-scena' }, disegno.elemento);
+  const classe = stile === 'base' ? 'sigaretta pausa-base' : stile === 'birretta' ? 'sigaretta birretta' : tipo === 'elettronica' ? 'sigaretta elettronica' : 'sigaretta';
 
   let chiusaDaNoi = false;
   const termina = () => {
@@ -101,10 +107,10 @@ function apriSchermata(data: string, uscita: Evento): void {
 
   const dlg = el(
     'dialog',
-    { class: tipo === 'elettronica' ? 'sigaretta elettronica' : 'sigaretta', 'aria-label': nome },
+    { class: classe, 'aria-label': nome },
     el('header', {}, el('h2', {}, nome), el('p', { class: 'sigaretta-uscita' }, `uscita alle ${formattaOra(uscita.minuti)}`)),
     scena,
-    timer,
+    anello ? null : timer,
     nota,
     el(
       'div',

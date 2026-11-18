@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { describe, expect, it } from 'vitest';
-import { COLORI_LIQUIDO, coloreLiquido, misureElettronica, misureNormale } from '../src/ui/sigarettaDisegni';
+import { arcoAnello, COLORI_LIQUIDO, coloreLiquido, misureBirretta, misureElettronica, misureNormale } from '../src/ui/sigarettaDisegni';
 
 describe('misure del disegno', () => {
   it('sigaretta normale: la cartina si accorcia e la punta la segue', () => {
@@ -44,5 +44,30 @@ describe('misure del disegno', () => {
     expect(misureNormale(1.5).spostamentoPunta).toBeCloseTo(-200);
     expect(misureElettronica(-1).altezzaLiquido).toBeCloseTo(20);
     expect(misureElettronica(1.5).altezzaLiquido).toBeCloseTo(0);
+  });
+});
+
+describe('stile base: anello che si chiude', () => {
+  const giro = 2 * Math.PI * 88;
+  it('aperto a inizio pausa, chiuso alla fine della tolleranza, limitato tra 0 e 1', () => {
+    expect(arcoAnello(0)).toBeCloseTo(giro);
+    expect(arcoAnello(0.5)).toBeCloseTo(giro / 2);
+    expect(arcoAnello(1)).toBe(0);
+    expect(arcoAnello(2)).toBe(0);
+    expect(arcoAnello(-1)).toBeCloseTo(giro);
+  });
+});
+
+describe('stile birretta: la birra cala', () => {
+  it('piena a inizio pausa, vuota alla fine, il fondo non si muove', () => {
+    const piena = misureBirretta(0);
+    const meta = misureBirretta(0.5);
+    const vuota = misureBirretta(1);
+    expect(piena.altezzaBirra).toBeGreaterThan(0);
+    expect(meta.altezzaBirra).toBeCloseTo(piena.altezzaBirra / 2, 0);
+    expect(vuota.altezzaBirra).toBe(0);
+    expect(misureBirretta(2).altezzaBirra).toBe(0);
+    expect(misureBirretta(-1)).toEqual(piena);
+    for (const m of [piena, meta, vuota]) expect(m.yBirra + m.altezzaBirra).toBeCloseTo(piena.yBirra + piena.altezzaBirra);
   });
 });

@@ -1774,6 +1774,82 @@ input:disabled {
 .sigaretta.spegnimento .posacenere-fumo path {
   animation: sbuffo 1.5s ease-out both;
 }
+/* Pausa breve, stile base: un anello che si chiude, il tempo al centro in numeri sottili. */
+.pausa-base .sigaretta-scena {
+  position: relative;
+  width: min(72vw, 280px);
+}
+.anello-disegno {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: rotate(-90deg);
+}
+.anello-arco {
+  stroke: #2dd4bf;
+  transition: stroke 0.3s;
+}
+.sigaretta.ultimi .anello-arco {
+  stroke: #fbbf24;
+}
+.sigaretta.scaduta .anello-arco {
+  stroke: #f87171;
+}
+.anello-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.pausa-base .sigaretta-timer {
+  font-size: clamp(40px, 14vw, 58px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+.anello-sotto {
+  color: #a8a29e;
+  font-size: 14px;
+}
+
+/* Pausa breve, stile birretta: le bollicine salgono; a pinta finita restano i segni della schiuma. */
+.birra-disegno {
+  max-width: 200px;
+  margin: 0 auto;
+}
+.birra-bolle circle {
+  transform-box: fill-box;
+  animation: bolla 2.4s ease-in infinite;
+}
+.birra-bolle circle:nth-child(2n) {
+  animation-delay: 0.8s;
+}
+.birra-bolle circle:nth-child(3n) {
+  animation-delay: 1.6s;
+}
+@keyframes bolla {
+  from {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(-60px);
+    opacity: 0;
+  }
+}
+.birra-segni {
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.sigaretta.consumata .birra-segni {
+  opacity: 0.6;
+}
+.sigaretta.consumata .birra-schiuma,
+.sigaretta.consumata .birra-bolle {
+  display: none;
+}
+
 /* Sigaretta elettronica: il LED pulsa come la brace, il vapore esce dal bocchino. */
 .svapo-alone {
   animation: brace 1.6s ease-in-out infinite;
