@@ -23,6 +23,7 @@ export const NOVITA: readonly Novita[] = [
     data: '2026-11-17',
     voci: [
       'Nuova pagina Informazioni: chi ha fatto Sbeggio, la licenza, i contatti e come vengono trattati i tuoi dati. La trovi in fondo alle impostazioni e su web.sbeggio.app/informazioni.',
+      'Gli orari si scrivono con il tastierino numerico: tocca le ore o i minuti e digita, il cursore passa da solo ai minuti.',
     ],
   },
   {
