@@ -1913,16 +1913,25 @@ input:disabled {
   flex: none;
   font-weight: 600;
 }
-.selettore-ora select {
-  width: auto;
-  min-width: 60px;
+/* Caselle ore e minuti col tastierino (src/ui/campi.ts): stesso aspetto degli altri campi. */
+.selettore-ora input {
+  box-sizing: border-box;
+  width: 60px;
+  min-height: 44px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--bordo);
+  background: var(--superficie-2);
+  color: inherit;
+  font: inherit;
+  /* ≥ 16px evita lo zoom automatico di Safari sul focus */
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
   text-align: center;
-  text-align-last: center;
-  appearance: none;
-  -webkit-appearance: none;
 }
-.selettore-ora select:disabled {
-  opacity: 0.4;
+.selettore-ora input:focus {
+  outline: 2px solid var(--accento);
+  outline-offset: 1px;
 }
 .azioni-secondarie .btn {
   font-size: 15px;

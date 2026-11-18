@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ora da tastierino — piano di implementazione</title>
+<style>/*
+ * mdlib-pure — default theme for rendered Markdown.
+ *
+ * Usage: put class="md" on the element that holds the rendered HTML.
+ *
+ * - Every rule is in `@layer mdlib` and inside `:where()`: zero specificity,
+ *   so any class, utility or unlayered rule overrides it.
+ * - Customize through the --md-* tokens, on :root, on .md or on any ancestor.
+ * - Neutral colors derive from `currentColor`, so they fit any background.
+ *   Hued colors use light-dark(): they follow `color-scheme` (set
+ *   `color-scheme: light dark` on :root, or `color-scheme: dark` on `.dark`
+ *   with Tailwind's class-based dark mode).
+ * - Tokens marked "unset" are not defined: the page's value is inherited.
+ *
+ * Browser support: Baseline 2024 (light-dark, color-mix, :has, text-wrap).
+ */
+@layer mdlib {
+  :where(:root, :host) {
+    /* --- Color ------------------------------------------------------------ */
+    /* --md-color-text:     unset → inherits the page color                  */
+    /* --md-color-heading:  unset → inherits                                  */
+    --md-color-muted: color-mix(in oklab, currentColor 68%, transparent);
+    --md-color-link: light-dark(#0969da, #4493f8);
+    --md-color-link-hover: light-dark(#0550ae, #79c0ff);
+    --md-color-accent: var(--md-color-link);
+    --md-color-border: color-mix(in oklab, currentColor 18%, transparent);
+    --md-color-surface: color-mix(in oklab, currentColor 5%, transparent);
+    --md-color-code-bg: color-mix(in oklab, currentColor 9%, transparent);
+    --md-color-quote: var(--md-color-muted);
+    --md-color-quote-border: var(--md-color-border);
+    --md-color-mark: light-dark(#fff3a3, #6b5a0f);
+
+    /* Alerts (> [!NOTE] …) */
+    --md-color-note: light-dark(#0969da, #4493f8);
+    --md-color-tip: light-dark(#1a7f37, #3fb950);
+    --md-color-important: light-dark(#8250df, #ab7df8);
+    --md-color-warning: light-dark(#9a6700, #d29922);
+    --md-color-caution: light-dark(#d1242f, #f85149);
+
+    /* --- Typography ------------------------------------------------------- */
+    /* --md-font-body:     unset → inherits                                   */
+    /* --md-font-heading:  unset → inherits                                   */
+    --md-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --md-leading: 1.6;
+    --md-leading-heading: 1.25;
+    --md-weight-heading: 600;
+    --md-size-h1: 2em;
+    --md-size-h2: 1.5em;
+    --md-size-h3: 1.25em;
+    --md-size-h4: 1.125em;
+    --md-size-h5: 1em;
+    --md-size-h6: 0.875em;
+    --md-size-code: 0.875em;
+    --md-size-small: 0.875em;
+
+    /* --- Space & shape ---------------------------------------------------- */
+    --md-space-block: 1em;
+    --md-space-heading: 1.5em;
+    --md-space-indent: 1.75em;
+    --md-space-item: 0.25em;
+    --md-pad-code: 0.875em 1em;
+    --md-radius: 0.375rem;
+    --md-border-width: 1px;
+  }
+
+  /* --- Container & flow ---------------------------------------------------- */
+
+  :where(.md) {
+    color: var(--md-color-text);
+    font-family: var(--md-font-body);
+    line-height: var(--md-leading);
+    overflow-wrap: break-word;
+  }
+
+  :where(.md) :where(p, ul, ol, dl, blockquote, pre, table, figure, details, hr, .markdown-alert) {
+    margin-block: 0 var(--md-space-block);
+  }
+
+  /* --- Headings ---------------------------------------------------------------- */
+
+  :where(.md) :where(h1, h2, h3, h4, h5, h6) {
+    margin-block: var(--md-space-heading) calc(var(--md-space-block) * 0.5);
+    color: var(--md-color-heading);
+    font-family: var(--md-font-heading);
+    font-weight: var(--md-weight-heading);
+    line-height: var(--md-leading-heading);
+    text-wrap: balance;
+  }
+
+  :where(.md) :where(h1) { font-size: var(--md-size-h1); }
+  :where(.md) :where(h2) { font-size: var(--md-size-h2); }
+  :where(.md) :where(h3) { font-size: var(--md-size-h3); }
+  :where(.md) :where(h4) { font-size: var(--md-size-h4); }
+  :where(.md) :where(h5) { font-size: var(--md-size-h5); }
+  :where(.md) :where(h6) { font-size: var(--md-size-h6); color: var(--md-color-muted); }
+
+  /* --- Inline ------------------------------------------------------------------ */
+
+  /* Underlined as by the browser, also under resets (Tailwind's preflight). */
+  :where(.md) :where(a) {
+    color: var(--md-color-link);
+    text-decoration-line: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  :where(.md) :where(a:hover) {
+    color: var(--md-color-link-hover);
+  }
+
+  :where(.md) :where(a:focus-visible) {
+    outline: 2px solid var(--md-color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  :where(.md) :where(code, kbd, samp) {
+    font-family: var(--md-font-mono);
+    font-size: var(--md-size-code);
+  }
+
+  :where(.md) :where(:not(pre) > code) {
+    padding: 0.15em 0.35em;
+    border-radius: calc(var(--md-radius) * 0.75);
+    background: var(--md-color-code-bg);
+  }
+
+  /* Raised without growing the line box (footnote references). */
+  :where(.md) :where(sub, sup) {
+    position: relative;
+    font-size: 75%;
+    line-height: 0;
+    vertical-align: baseline;
+  }
+
+  :where(.md) :where(sub) { inset-block-end: -0.25em; }
+  :where(.md) :where(sup) { inset-block-start: -0.5em; }
+
+  :where(.md) :where(mark) {
+    padding: 0.05em 0.2em;
+    border-radius: calc(var(--md-radius) * 0.5);
+    background: var(--md-color-mark);
+    color: inherit;
+  }
+
+  /* Inline, as by the browser (Tailwind's preflight makes images blocks). */
+  :where(.md) :where(img) {
+    display: inline;
+    max-inline-size: 100%;
+    block-size: auto;
+    vertical-align: baseline;
+  }
+
+  /* --- Blocks --------------------------------------------------------------------- */
+
+  /* The family is set here, not only on <code>: with the browser's bare
+     `monospace`, Chromium computes 0.875em from 13px (11.4px, not 14px). */
+  :where(.md) :where(pre) {
+    font-family: var(--md-font-mono);
+    padding: var(--md-pad-code);
+    border-radius: var(--md-radius);
+    background: var(--md-color-surface);
+    font-size: var(--md-size-code);
+    line-height: 1.45;
+    overflow-x: auto;
+  }
+
+  :where(.md) :where(pre code) {
+    font-size: inherit;
+  }
+
+  :where(.md) :where(blockquote) {
+    margin-inline: 0;
+    padding-inline-start: 1em;
+    border-inline-start: 0.25em solid var(--md-color-quote-border);
+    color: var(--md-color-quote);
+  }
+
+  :where(.md) :where(hr) {
+    block-size: 0;
+    margin-block: calc(var(--md-space-block) * 1.5);
+    border: 0;
+    border-block-start: var(--md-border-width) solid var(--md-color-border);
+  }
+
+  /* Markers as by the browser, also under resets (Tailwind's preflight sets
+     `list-style: none`); nested lists keep circle, then square. */
+  :where(.md) :where(ul, ol) {
+    padding-inline-start: var(--md-space-indent);
+  }
+
+  :where(.md) :where(ul) { list-style-type: disc; }
+  :where(.md) :where(ol) { list-style-type: decimal; }
+  :where(.md) :where(ul, ol) :where(ul) { list-style-type: circle; }
+  :where(.md) :where(ul, ol) :where(ul, ol) :where(ul) { list-style-type: square; }
+
+  :where(.md) :where(li + li, li > ul, li > ol) {
+    margin-block-start: var(--md-space-item);
+  }
+
+  :where(.md) :where(li > ul, li > ol) {
+    margin-block-end: 0;
+  }
+
+  /* Task lists: <li><input type="checkbox" disabled> … */
+  :where(.md) :where(li:has(> input[type='checkbox']:first-child)) {
+    list-style: none;
+  }
+
+  /* `font: inherit` so that the em margin matches the list indent. */
+  :where(.md) :where(li > input[type='checkbox']:first-child) {
+    margin-block: 0;
+    margin-inline: calc(var(--md-space-indent) * -1) 0.4em;
+    font: inherit;
+    accent-color: var(--md-color-accent);
+    vertical-align: -0.1em;
+  }
+
+  :where(.md) :where(table) {
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :where(.md) :where(th, td) {
+    padding: 0.4em 0.8em;
+    border: var(--md-border-width) solid var(--md-color-border);
+  }
+
+  :where(.md) :where(th) {
+    background: var(--md-color-surface);
+    font-weight: var(--md-weight-heading);
+  }
+
+  /* --- GFM extras: footnotes and alerts ------------------------------------------- */
+
+  :where(.md) :where(.footnotes) {
+    margin-block-start: calc(var(--md-space-block) * 2);
+    padding-block-start: var(--md-space-block);
+    border-block-start: var(--md-border-width) solid var(--md-color-border);
+    color: var(--md-color-muted);
+    font-size: var(--md-size-small);
+  }
+
+  :where(.md) :where(.markdown-alert) {
+    --md-alert: var(--md-color-note);
+    padding: 0.5em 1em;
+    border-inline-start: 0.25em solid var(--md-alert);
+  }
+
+  :where(.md) :where(.markdown-alert-tip) { --md-alert: var(--md-color-tip); }
+  :where(.md) :where(.markdown-alert-important) { --md-alert: var(--md-color-important); }
+  :where(.md) :where(.markdown-alert-warning) { --md-alert: var(--md-color-warning); }
+  :where(.md) :where(.markdown-alert-caution) { --md-alert: var(--md-color-caution); }
+
+  :where(.md) :where(.markdown-alert-title) {
+    margin-block-end: 0.25em;
+    color: var(--md-alert);
+    font-weight: var(--md-weight-heading);
+  }
+
+  /* --- Containers (container plugin) ---------------------------------------------- */
+
+  :where(.md) :where(.md-container) {
+    --md-container: var(--md-color-border);
+    margin-block: 0 var(--md-space-block);
+    padding: 0.5em 1em;
+    border-inline-start: 0.25em solid var(--md-container);
+    background: var(--md-color-surface);
+  }
+
+  /* Common kinds reuse the alert hues. */
+  :where(.md) :where(.md-container-note, .md-container-info) { --md-container: var(--md-color-note); }
+  :where(.md) :where(.md-container-tip) { --md-container: var(--md-color-tip); }
+  :where(.md) :where(.md-container-important) { --md-container: var(--md-color-important); }
+  :where(.md) :where(.md-container-warning) { --md-container: var(--md-color-warning); }
+  :where(.md) :where(.md-container-caution, .md-container-danger) { --md-container: var(--md-color-caution); }
+
+  :where(.md) :where(.md-container-title) {
+    margin-block-end: 0.25em;
+    font-weight: var(--md-weight-heading);
+  }
+
+  /* --- Definition lists (deflist plugin) ----------------------------------------- */
+
+  :where(.md) :where(dt) {
+    font-weight: var(--md-weight-heading);
+  }
+
+  :where(.md) :where(dd) {
+    margin-inline-start: var(--md-space-indent);
+  }
+
+  :where(.md) :where(dd + dt) {
+    margin-block-start: calc(var(--md-space-block) * 0.5);
+  }
+
+  /* --- Diagrams (mermaid plugin) ------------------------------------------------ */
+
+  /* Before Mermaid runs (or without JS) the source looks like a code block;
+     once rendered, the SVG sits on the page background, centered. */
+  :where(.md) :where(pre.mermaid[data-processed]) {
+    padding: 0;
+    background: none;
+    text-align: center;
+  }
+
+  :where(.md) :where(pre.mermaid-error) {
+    border-inline-start: 0.25em solid var(--md-color-caution);
+  }
+
+  /* --- Math (math plugin) ------------------------------------------------------- */
+
+  :where(.md) :where(.math-display) {
+    overflow-x: auto;
+  }
+
+  :where(.md) :where(div.math-display) {
+    margin-block: 0 var(--md-space-block);
+  }
+
+  /* --- Heading permalinks (headings plugin) ------------------------------------ */
+
+  :where(.md) :where(.md-anchor) {
+    color: var(--md-color-muted);
+    text-decoration: none;
+    opacity: 0;
+  }
+
+  :where(.md) :where(:is(h1, h2, h3, h4, h5, h6):hover > .md-anchor, .md-anchor:focus-visible) {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    :where(.md) :where(.md-anchor) { opacity: 0.6; }
+  }
+
+  /* --- Edge resets: MUST stay last ---------------------------------------------
+   * Every rule above has zero specificity, so source order decides. These
+   * resets beat the margins above only because they come after them. */
+
+  :where(.md > :first-child) {
+    margin-block-start: 0;
+  }
+
+  :where(.md > :last-child, .md li > :last-child, .md blockquote > :last-child, .md .markdown-alert > :last-child, .md .md-container > :last-child, .md dd > :last-child) {
+    margin-block-end: 0;
+  }
+}
+</style>
+<style>
+:root { color-scheme: light dark; --bg: #ffffff; --fg: #1f2328; --side: #f6f8fa; --line: #d1d9e0; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --fg: #e6edf3; --side: #151b23; --line: #3d444d; } }
+* { box-sizing: border-box; }
+html { scroll-padding-top: 16px; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 100vh; }
+nav.toc { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow: auto;
+  padding: 24px 16px; background: var(--side); border-right: 1px solid var(--line); font-size: 14px; }
+nav.toc a { color: inherit; text-decoration: none; display: block; padding: 3px 0; opacity: .85; }
+nav.toc a:hover { opacity: 1; text-decoration: underline; }
+nav.toc .d3 { padding-left: 14px; font-size: 13px; }
+main { padding: 32px 40px 64px; }
+main .md { max-width: 860px; }
+.md table { display: block; overflow-x: auto; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  nav.toc { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
+  main { padding: 20px 16px 48px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc"><a class="d2" href="#global-constraints">Global Constraints</a><a class="d2" href="#review-focus">Review Focus</a><a class="d3" href="#task-1-logica-delle-cifre">Task 1: Logica delle cifre</a><a class="d3" href="#task-2-le-caselle-in-selettoreora">Task 2: Le caselle in selettoreOra</a></nav>
+<main><article class="md">
+<h1 id="ora-da-tastierino--piano-di-implementazione">Ora da tastierino — piano di implementazione <a class="md-anchor" href="#ora-da-tastierino--piano-di-implementazione" aria-label="Permalink: Ora da tastierino — piano di implementazione">#</a></h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> in <code>selettoreOra</code> le due tendine diventano due caselle ore/minuti che si scrivono col tastierino numerico, sempre 24 ore, con passaggio automatico ai minuti.</p>
+<p><strong>Architecture:</strong> la logica delle cifre è una funzione pura in <code>src/core/inputOra.ts</code> (testabile in node); <code>src/ui/campi.ts</code> la applica all'evento <code>input</code> di due <code>&lt;input inputmode=&quot;numeric&quot;&gt;</code>, normalizzando quello che il tastierino ha scritto (robusto anche con tastiere che non mandano <code>beforeinput</code>). L'interfaccia di <code>selettoreOra</code> non cambia.</p>
+<p><strong>Tech Stack:</strong> TypeScript, Vite, Vitest (ambiente node, niente DOM: il cablaggio si verifica in Chrome headless).</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-11-17-ora-da-tastierino-design.md</code></p>
+<h2 id="global-constraints">Global Constraints <a class="md-anchor" href="#global-constraints" aria-label="Permalink: Global Constraints">#</a></h2>
+<ul>
+<li>Ramo <code>feature/ora-da-tastierino</code> da <code>develop</code>.</li>
+<li>Sempre 24 ore; nessun <code>&lt;input type=&quot;time&quot;&gt;</code>, nessuna dipendenza nuova.</li>
+<li><code>selettoreOra(minuti, { maxOre?, aria?, onChange? })</code> → <code>{ elemento, leggi(), imposta(v), abilita(si) }</code> invariato; <code>aria-label</code> invariati (<code>&lt;aria&gt;: ore</code>, <code>&lt;aria&gt;: minuti</code>).</li>
+<li>Novità: voce aggiunta alla 2.16.0 (non rilasciata), nessun cambio di versione.</li>
+<li>Intestazioni SPDX nei file nuovi; commit in italiano con <code>Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code>; non toccare <code>.gitignore</code>, <code>DANONCONDIVIDERE.txt</code>, <code>logo.png</code>, <code>session.txt</code>.</li>
+</ul>
+<h2 id="review-focus">Review Focus <a class="md-anchor" href="#review-focus" aria-label="Permalink: Review Focus">#</a></h2>
+<ul>
+<li><strong>Incollare <code>08:47</code> o scrivere <code>0847</code> di fila nella casella delle ore</strong>: le cifre oltre le ore vanno nei minuti → Task 1, <code>resto</code>.</li>
+<li><strong>Tastiere che compongono il testo (Gboard) o scrivono più caratteri per evento</strong>: si normalizza il valore intero a ogni <code>input</code> → Task 1 (<code>normalizza</code> su stringhe con caratteri non numerici) e Task 2 (verifica nel browser).</li>
+<li><strong>Uscire dalla casella con una cifra sola o vuota</strong>: <code>0d</code> o valore di prima → Task 1, <code>chiudi</code>.</li>
+<li><strong><code>imposta()</code> chiamato dall'esterno e <code>abilita(false)</code></strong> (ore dovute per giorno nelle impostazioni): caselle aggiornate e disabilitate → Task 2, verifica nel browser.</li>
+<li><strong><code>maxOre</code> diverso da 23</strong>: il limite delle ore segue <code>maxOre</code> → Task 1, test con massimo 12.</li>
+</ul>
+<hr />
+<h3 id="task-1-logica-delle-cifre">Task 1: Logica delle cifre <a class="md-anchor" href="#task-1-logica-delle-cifre" aria-label="Permalink: Task 1: Logica delle cifre">#</a></h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Create: <code>src/core/inputOra.ts</code></li>
+<li>Test: <code>tests/inputOra.test.ts</code></li>
+</ul>
+<p><strong>Interfaces:</strong></p>
+<ul>
+<li>
+<p>Produces:</p>
+<ul>
+<li><code>export interface Casella { testo: string; completa: boolean; resto: string }</code></li>
+<li><code>export function normalizza(scritto: string, massimo: number): Casella</code> — tiene solo le cifre di <code>scritto</code> e le aggiunge una alla volta da vuoto: una cifra che renderebbe il valore &gt; <code>massimo</code> è scartata; una prima cifra <code>d</code> con <code>d*10 &gt; massimo</code> chiude subito come <code>0d</code>; due cifre valide chiudono. Le cifre dopo la chiusura finiscono in <code>resto</code>.</li>
+<li><code>export function chiudi(testo: string, precedente: number): number</code> — <code>''</code> → <code>precedente</code>; altrimenti il numero.</li>
+</ul>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 1: Ramo, spec e piano</strong> — <code>git switch -c feature/ora-da-tastierino develop</code>; commit di spec e piano (<code>.md</code> e <code>.html</code>): &quot;Ora da tastierino: progetto e piano&quot;.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 2: Test che falliscono</strong> (<code>tests/inputOra.test.ts</code>):</p>
+</li>
+</ul>
+<pre><code class="language-ts">describe('normalizza: ore (massimo 23)', () =&gt; {
+  it.each([
+    ['', { testo: '', completa: false, resto: '' }],
+    ['1', { testo: '1', completa: false, resto: '' }],
+    ['2', { testo: '2', completa: false, resto: '' }],
+    ['8', { testo: '08', completa: true, resto: '' }],
+    ['23', { testo: '23', completa: true, resto: '' }],
+    ['24', { testo: '2', completa: false, resto: '' }],
+    ['0847', { testo: '08', completa: true, resto: '47' }],
+    ['08:47', { testo: '08', completa: true, resto: '47' }],
+    ['847', { testo: '08', completa: true, resto: '47' }],
+  ])('%s', (scritto, atteso) =&gt; expect(normalizza(scritto, 23)).toEqual(atteso));
+});
+
+describe('normalizza: minuti (massimo 59)', () =&gt; {
+  it.each([
+    ['5', { testo: '5', completa: false, resto: '' }],
+    ['7', { testo: '07', completa: true, resto: '' }],
+    ['59', { testo: '59', completa: true, resto: '' }],
+    ['a4', { testo: '4', completa: false, resto: '' }],
+  ])('%s', (scritto, atteso) =&gt; expect(normalizza(scritto, 59)).toEqual(atteso));
+});
+
+it('il limite delle ore segue il massimo', () =&gt; {
+  expect(normalizza('2', 12)).toEqual({ testo: '02', completa: true, resto: '' });
+  expect(normalizza('13', 12)).toEqual({ testo: '1', completa: false, resto: '' });
+});
+
+it('chiudi: vuota torna al valore di prima, una cifra vale da sola', () =&gt; {
+  expect(chiudi('', 8)).toBe(8);
+  expect(chiudi('5', 8)).toBe(5);
+  expect(chiudi('47', 8)).toBe(47);
+});
+</code></pre>
+<ul>
+<li><input type="checkbox" disabled="" /> <strong>Step 3:</strong> <code>npx vitest run tests/inputOra.test.ts</code> → FAIL (modulo assente).</li>
+<li><input type="checkbox" disabled="" /> <strong>Step 4:</strong> implementare <code>normalizza</code> e <code>chiudi</code> in <code>src/core/inputOra.ts</code> (commento in testa: perché si normalizza tutto il valore a ogni <code>input</code>).</li>
+<li><input type="checkbox" disabled="" /> <strong>Step 5:</strong> <code>npx vitest run tests/inputOra.test.ts</code> → PASS.</li>
+<li><input type="checkbox" disabled="" /> <strong>Step 6: Commit</strong> — &quot;Ora da tastierino: logica delle cifre di ore e minuti&quot;.</li>
+</ul>
+<hr />
+<h3 id="task-2-le-caselle-in-selettoreora">Task 2: Le caselle in <code>selettoreOra</code> <a class="md-anchor" href="#task-2-le-caselle-in-selettoreora" aria-label="Permalink: Task 2: Le caselle in selettoreOra">#</a></h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li>Modify: <code>src/ui/campi.ts:12-43</code> (<code>selettoreOra</code>)</li>
+<li>Modify: <code>src/style.css:1909-1933</code> (<code>.selettore-ora</code>)</li>
+<li>Modify: <code>src/core/novita.ts</code> (voce 2.16.0)</li>
+</ul>
+<p><strong>Interfaces:</strong></p>
+<ul>
+<li>
+<p>Consumes: <code>normalizza</code>, <code>chiudi</code> dal Task 1.</p>
+</li>
+<li>
+<p>Produces: <code>selettoreOra</code> con interfaccia invariata.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 1: <code>selettoreOra</code></strong></p>
+<ul>
+<li>Due <code>el('input', { type: 'text', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '2', autocomplete: 'off', 'aria-label': … })</code>; stato interno <code>ore</code>, <code>minuti</code> (numeri) da cui <code>leggi()</code>; <code>imposta(v)</code> aggiorna stato e testo (<code>due(n)</code>); <code>abilita</code> imposta <code>disabled</code>.</li>
+<li><code>focus</code> (e <code>click</code>): <code>select()</code> di tutto il contenuto.</li>
+<li><code>input</code> sulle ore: <code>normalizza(valore, maxOre)</code>; scrive <code>testo</code>; se <code>completa</code>: aggiorna lo stato, focus ai minuti e, se c'è <code>resto</code>, lo applica ai minuti come un loro <code>input</code>.</li>
+<li><code>input</code> sui minuti: <code>normalizza(valore, 59)</code>; se <code>completa</code>: aggiorna lo stato e <code>blur()</code>.</li>
+<li><code>blur</code> di ciascuna: <code>chiudi(testo, valore di prima)</code>, riscrive <code>due(n)</code>; <code>onChange(leggi())</code> solo se il totale è cambiato rispetto all'ultimo notificato.</li>
+<li>Facoltativo (spec, &quot;lasciato a chi costruisce&quot;): <code>Backspace</code> con minuti vuoti → focus alle ore.</li>
+<li>Aggiornare il commento della funzione (tastierino invece della ruota; perché non <code>type=&quot;time&quot;</code>).</li>
+</ul>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 2: CSS</strong> — <code>.selettore-ora input</code> con lo stesso aspetto dei <code>select</code> di oggi (larghezza ~ 2 cifre + padding, <code>text-align: center</code>, grassetto ereditato, <code>min-height</code> come gli altri campi); <code>:disabled</code> con <code>opacity: 0.4</code>; rimuovere le regole <code>select</code> non più usate.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 3: Novità</strong> — nella voce 2.16.0 di <code>src/core/novita.ts</code>, aggiungere: &quot;Gli orari si scrivono con il tastierino numerico: tocca le ore o i minuti e digita, il cursore passa da solo ai minuti.&quot;</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 4:</strong> <code>npx vitest run</code> → tutta la suite PASS; <code>npm run typecheck</code> → nessun errore; <code>npm run build</code> → senza errori.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 5: Verifica nel browser</strong> — <code>npx vite preview</code>, pagina temporanea nello stesso origin con l'app in un iframe da 390 px (<code>--force-prefers-reduced-motion</code>), via script: aprire &quot;Aggiungi timbratura&quot;, scrivere nelle caselle simulando <code>input</code> (<code>'8'</code> → minuti a fuoco con <code>08</code>; <code>'47'</code> → <code>08:47</code> e blur; incollare <code>0847</code> nelle ore → <code>08:47</code>; svuotare e uscire → valore di prima); leggere i valori e fare uno screenshot del foglio. Nelle impostazioni: ore dovute di un giorno con &quot;usa predefinite&quot; attivo → caselle disabilitate. Togliere la pagina temporanea da <code>dist/</code>.</p>
+</li>
+<li>
+<p><input type="checkbox" disabled="" /> <strong>Step 6: Commit</strong> — &quot;Orari col tastierino numerico: due caselle ore e minuti al posto delle tendine&quot;.</p>
+</li>
+</ul>
+
+</article></main>
+</div>
+</body>
+</html>
