@@ -11,6 +11,7 @@ import {
   esitoRientroSigaretta,
   type FaseSigaretta,
   istanteDaMinuti,
+  scrittaAnello,
   sigarettaDaRiprendere,
   sigarettaInCorso,
   spegnimentoDaAnimare,
@@ -74,10 +75,11 @@ function apriSchermata(data: string, uscita: Evento): void {
   const disegno = creaDisegno(stile, tipo, inizio);
   const timer = el('p', { class: 'sigaretta-timer', role: 'timer' });
   const nota = el('p', { class: 'sigaretta-nota' });
-  // Stile base: il tempo sta al centro dell'anello, con sotto l'ora entro cui rientrare.
+  // Stile base: il tempo sta al centro dell'anello, con sotto l'ora entro cui rientrare (aggiornata in aggiorna()).
   const anello = stile === 'base';
+  const sottoAnello = el('span', { class: 'anello-sotto' });
   const scena = anello
-    ? el('div', { class: 'sigaretta-scena' }, disegno.elemento, el('div', { class: 'anello-centro' }, timer, el('span', { class: 'anello-sotto' }, `entro le ${entro}`)))
+    ? el('div', { class: 'sigaretta-scena' }, disegno.elemento, el('div', { class: 'anello-centro' }, timer, sottoAnello))
     : el('div', { class: 'sigaretta-scena' }, disegno.elemento);
   const classe = stile === 'base' ? 'sigaretta pausa-base' : stile === 'birretta' ? 'sigaretta birretta' : tipo === 'elettronica' ? 'sigaretta elettronica' : 'sigaretta';
 
@@ -164,6 +166,7 @@ function apriSchermata(data: string, uscita: Evento): void {
     }
     fasePrecedente = c.fase;
     timer.textContent = testoTimer(c);
+    sottoAnello.textContent = scrittaAnello(c.fase, entro);
     if (c.fase === 'scaduta') {
       const p = anteprimaSigaretta(store.giornata(data), store.impostazioni, adessoRoma().minuti);
       nota.textContent = `Al rientro: ${formattaDurata(p?.permesso ?? BLOCCO_PERMESSO_SIGARETTA)} di permesso`;
