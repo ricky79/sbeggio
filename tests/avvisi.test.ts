@@ -91,7 +91,7 @@ describe('avviso di rientro dalla pausa sigaretta', () => {
 
   it('anticipo 0: allo scadere della tolleranza', () => {
     const [a] = pianificaAvvisi(sigaretta(), conAvvisi({ sigarettaAnticipo: 0 }), { data: GIOVEDI, minuti: h('10:00') });
-    expect(a).toMatchObject({ minuti: h('10:11'), titolo: 'Pausa sigaretta finita' });
+    expect(a).toMatchObject({ minuti: h('10:11'), titolo: 'Pausa breve finita' });
   });
 
   it('anticipo pari o superiore alla tolleranza: niente avviso', () => {
@@ -195,5 +195,16 @@ describe('notifica tolta quando coincide col suono dell\'app', () => {
   it('senza schermateAperte tutto come prima', () => {
     expect(al(inPausa, pausa30(30), '12:30')).toHaveLength(1);
     expect(al(sigaretta(), conAvvisi({ sigarettaAnticipo: 0 }), '10:00')).toHaveLength(1);
+  });
+});
+
+describe('avviso di rientro: il titolo segue lo stile della pausa breve', () => {
+  it.each([
+    ['base', 'Pausa breve quasi finita'],
+    ['sigaretta', 'Pausa sigaretta quasi finita'],
+    ['birretta', 'Pausa birretta quasi finita'],
+  ] as const)('%s', (pausaBreve, titolo) => {
+    const [a] = pianificaAvvisi(sigaretta(), impostazioni({ pausaBreve }), { data: GIOVEDI, minuti: h('10:00') });
+    expect(a?.titolo).toBe(titolo);
   });
 });

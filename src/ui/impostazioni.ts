@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Riccardo Oliosi
 
 import { NOMI_GIORNI } from '../core/tempo';
+import { nomePausaMinuscolo } from '../core/pausaBreve';
 import { URL_INFORMAZIONI } from '../core/segnalazione';
 import { selettoreOra } from './campi';
 import { IMPOSTAZIONI_PREDEFINITE, type TipoSigaretta } from '../core/tipi';
@@ -117,6 +118,7 @@ function sezioneAvvisi(): HTMLElement {
     pulsante.disabled = true; // niente richieste doppie mentre il browser chiede il permesso e si iscrive
     void piattaforma.richiediPermessi().then(mostra);
   });
+  const pausa = nomePausaMinuscolo(store.impostazioni.pausaBreve);
   const cambia = (modifica: (a: typeof avvisi) => void) => {
     store.modificaImpostazioni((i) => modifica(i.avvisi));
     salvato();
@@ -129,8 +131,8 @@ function sezioneAvvisi(): HTMLElement {
     riga('Uscita prevista', interruttore(avvisi.uscita, (v) => cambia((a) => void (a.uscita = v)), 'Avviso di uscita prevista'), 'quando puoi andare via', 'avviso-uscita'),
     riga('Rientro dal pranzo', interruttore(avvisi.pranzo, (v) => cambia((a) => void (a.pranzo = v)), 'Avviso di rientro dalla pausa pranzo'), 'dopo la durata qui sotto', 'avviso-pranzo'),
     riga('Durata del pranzo (min)', inputMinuti(avvisi.pranzoMinuti, (v) => cambia((a) => void (a.pranzoMinuti = v)), 'Durata della pausa pranzo in minuti', 240, 5, 1), 'di quanto avvisare dopo l\'inizio della pausa', 'durata-pranzo'),
-    riga('Rientro dalla sigaretta', interruttore(avvisi.sigaretta, (v) => cambia((a) => void (a.sigaretta = v)), 'Avviso di rientro dalla pausa sigaretta'), 'prima della fine della tolleranza, vedi sotto', 'avviso-sigaretta'),
-    riga('Anticipo sigaretta (min)', inputMinuti(avvisi.sigarettaAnticipo, (v) => cambia((a) => void (a.sigarettaAnticipo = v)), 'Anticipo dell\'avviso della pausa sigaretta in minuti', 30, 1), '0 = allo scadere della tolleranza', 'anticipo-sigaretta'),
+    riga(`Rientro dalla ${pausa}`, interruttore(avvisi.sigaretta, (v) => cambia((a) => void (a.sigaretta = v)), `Avviso di rientro dalla ${pausa}`), 'prima della fine della tolleranza, vedi sotto', 'avviso-sigaretta'),
+    riga(`Anticipo ${pausa} (min)`, inputMinuti(avvisi.sigarettaAnticipo, (v) => cambia((a) => void (a.sigarettaAnticipo = v)), `Anticipo dell'avviso della ${pausa} in minuti`, 30, 1), '0 = allo scadere della tolleranza', 'anticipo-sigaretta'),
     linkAiuto('Come funzionano gli avvisi?', 'avvisi'),
   );
 }

@@ -179,9 +179,10 @@ describe('lettura del tag', () => {
     expect(azioni.eseguiAzione).toHaveBeenCalledWith('USCITA_PERMESSO', OGGI, expect.any(Function));
   });
 
-  it('prima della fascia pranzo chiede: Pausa sigaretta la fa partire', async () => {
+  it('prima della fascia pranzo chiede: la pausa breve (col nome dello stile) la fa partire', async () => {
+    finto.impostazioni = impostazioni({ pausaBreve: 'birretta' });
     finto.giornate[OGGI] = giornata([['ENTRATA', '08:30']], { data: OGGI });
-    finto.sceltaFoglio = '🚬 Pausa sigaretta';
+    finto.sceltaFoglio = '🍺 Pausa birretta';
     const { gestisciTag } = await carica();
     await gestisciTag(vi.fn());
     expect(azioni.eseguiAzione).toHaveBeenCalledWith('PAUSA_SIGARETTA', OGGI, expect.any(Function));

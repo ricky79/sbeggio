@@ -148,7 +148,8 @@ export function opzioniNotifica(n: Notifica): NotificationOptions & { renotify: 
 const TESTI_GENERICI: Record<TipoAvviso, { titolo: string; testo: string }> = {
   uscita: { titolo: 'Puoi andare via', testo: 'Le ore di oggi sono completate.' },
   pausa: { titolo: 'Fine pausa pranzo', testo: 'È ora di rientrare.' },
-  sigaretta: { titolo: 'Pausa sigaretta', testo: 'Rientra prima che diventi permesso.' },
+  // Il service worker non legge le impostazioni: nome neutro, valido per ogni stile della pausa breve.
+  sigaretta: { titolo: 'Pausa breve', testo: 'Rientra prima che diventi permesso.' },
 };
 
 function isOggetto(v: unknown): v is Record<string, unknown> {

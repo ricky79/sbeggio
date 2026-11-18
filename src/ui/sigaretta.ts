@@ -16,6 +16,7 @@ import {
   spegnimentoDaAnimare,
   testoTimer,
 } from '../core/sigaretta';
+import { nomePausa } from '../core/pausaBreve';
 import { adessoRoma, formattaDataLunga, formattaDurata, formattaOra } from '../core/tempo';
 import type { Evento } from '../core/tipi';
 import { store } from '../storage/store';
@@ -68,6 +69,7 @@ function apriSchermata(data: string, uscita: Evento): void {
 
   // Il tipo si legge all'apertura: con la schermata aperta le impostazioni non sono raggiungibili.
   const tipo = store.impostazioni.tipoSigaretta;
+  const nome = nomePausa(store.impostazioni.pausaBreve);
   const disegno = creaDisegno(tipo, inizio);
   const scena = el('div', { class: 'sigaretta-scena' }, disegno.elemento);
   const timer = el('p', { class: 'sigaretta-timer', role: 'timer' });
@@ -85,7 +87,7 @@ function apriSchermata(data: string, uscita: Evento): void {
     termina();
     cancellaInizioSigaretta();
     void avviso(
-      'Pausa sigaretta non chiusa',
+      `${nome} non chiusa`,
       `Il rientro di ${formattaDataLunga(data)} non è stato registrato: correggi la giornata dallo Storico.`,
     );
     return true;
@@ -99,8 +101,8 @@ function apriSchermata(data: string, uscita: Evento): void {
 
   const dlg = el(
     'dialog',
-    { class: tipo === 'elettronica' ? 'sigaretta elettronica' : 'sigaretta', 'aria-label': 'Pausa sigaretta' },
-    el('header', {}, el('h2', {}, 'Pausa sigaretta'), el('p', { class: 'sigaretta-uscita' }, `uscita alle ${formattaOra(uscita.minuti)}`)),
+    { class: tipo === 'elettronica' ? 'sigaretta elettronica' : 'sigaretta', 'aria-label': nome },
+    el('header', {}, el('h2', {}, nome), el('p', { class: 'sigaretta-uscita' }, `uscita alle ${formattaOra(uscita.minuti)}`)),
     scena,
     timer,
     nota,
@@ -125,7 +127,7 @@ function apriSchermata(data: string, uscita: Evento): void {
             if (giornoCambiato()) return;
             const ok = await conferma(
               'Annullare la pausa?',
-              'L\'uscita per la pausa sigaretta verrà eliminata, come se non l\'avessi registrata.',
+              `L'uscita per la ${nome.toLowerCase()} verrà eliminata, come se non l'avessi registrata.`,
               'Annulla pausa',
               true,
             );
@@ -133,7 +135,7 @@ function apriSchermata(data: string, uscita: Evento): void {
             termina();
             cancellaInizioSigaretta();
             store.modificaGiornata(data, (g) => void (g.eventi = g.eventi.filter((e) => e.id !== uscita.id)));
-            toast('Pausa sigaretta annullata');
+            toast(`${nome} annullata`);
           },
         },
         'Annulla pausa',
@@ -188,7 +190,7 @@ function rientra(data: string, uscita: Evento, inizio: number, annulla?: () => v
   if (esitoRientroSigaretta(trascorsi, store.impostazioni.tolleranzaSigaretta) === 'annulla') {
     store.modificaGiornata(data, (g) => annullaSigarettaNonConteggiata(g, uscita, trascorsi));
     void suona('timbratura');
-    toast(`Pausa sigaretta di ${formattaDurata(durataSigaretta(trascorsi))}: non conteggiata`, annulla);
+    toast(`${nomePausa(store.impostazioni.pausaBreve)} di ${formattaDurata(durataSigaretta(trascorsi))}: non conteggiata`, annulla);
     return;
   }
   const permesso = anteprimaSigaretta(store.giornata(data), store.impostazioni, minuti)?.permesso ?? BLOCCO_PERMESSO_SIGARETTA;

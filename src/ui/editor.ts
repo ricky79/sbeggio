@@ -9,6 +9,7 @@ import {
   eliminaSigarettaNonConteggiata,
   modificaSigarettaNonConteggiata,
 } from '../core/sigaretta';
+import { etichettaPausa, nomePausaMinuscolo } from '../core/pausaBreve';
 import { formattaDurata, formattaOra } from '../core/tempo';
 import { ETICHETTE_EVENTO, TIPI_EVENTO, type Evento, type Ripartizione, type TipoEvento } from '../core/tipi';
 import { store } from '../storage/store';
@@ -32,7 +33,7 @@ export async function editorEvento(data: string, evento: Evento | null, minutiPr
     'select',
     {},
     TIPI_EVENTO.map((t) => el('option', { value: t, selected: evento?.tipo === t }, ETICHETTE_EVENTO[t])),
-    nuovo ? el('option', { value: SIGARETTA }, '🚬 Pausa sigaretta (non conteggiata)') : null,
+    nuovo ? el('option', { value: SIGARETTA }, `${etichettaPausa(store.impostazioni.pausaBreve)} (non conteggiata)`) : null,
   );
   if (nuovo) selTipo.value = 'ENTRATA';
   const ora = campoOra('Orario', evento?.minuti ?? minutiProposti);
@@ -134,7 +135,7 @@ export async function editorSigarettaNonConteggiata(data: string, indice: number
     durata.elemento,
   );
   let elimina = false;
-  await apriFoglio('🚬 Pausa sigaretta', contenuto, [
+  await apriFoglio(etichettaPausa(store.impostazioni.pausaBreve), contenuto, [
     {
       etichetta: 'Salva',
       stile: 'primario',
@@ -146,8 +147,8 @@ export async function editorSigarettaNonConteggiata(data: string, indice: number
   ]);
   if (!elimina) return;
   const ok = await conferma(
-    'Eliminare la pausa sigaretta?',
-    `La pausa sigaretta delle ${formattaOra(sigaretta.minuti)} verrà eliminata.`,
+    `Eliminare la ${nomePausaMinuscolo(store.impostazioni.pausaBreve)}?`,
+    `La ${nomePausaMinuscolo(store.impostazioni.pausaBreve)} delle ${formattaOra(sigaretta.minuti)} verrà eliminata.`,
     'Elimina',
     true,
   );

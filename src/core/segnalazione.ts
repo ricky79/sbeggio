@@ -47,8 +47,8 @@ function righeImpostazioni(imp: Impostazioni): string[] {
     `Pausa da scalare: ${formattaDurata(imp.pausaDaScalare)}`,
     `Pausa minima: ${formattaDurata(imp.pausaMinima)}`,
     `Inizio conteggio: ${formattaOra(imp.orarioMinimoConteggio)}`,
-    `Pausa sigaretta: tolleranza ${formattaDurata(imp.tolleranzaSigaretta)}, ${imp.tipoSigaretta}`,
-    `Avvisi: uscita ${siNo(a.uscita)}, sigaretta ${siNo(a.sigaretta)} (${formattaDurata(a.sigarettaAnticipo)} prima), pranzo ${siNo(a.pranzo)} (dopo ${formattaDurata(a.pranzoMinuti)})`,
+    `Pausa breve: stile ${imp.pausaBreve}${imp.pausaBreve === 'sigaretta' ? ` (${imp.tipoSigaretta})` : ''}, tolleranza ${formattaDurata(imp.tolleranzaSigaretta)}`,
+    `Avvisi: uscita ${siNo(a.uscita)}, pausa breve ${siNo(a.sigaretta)} (${formattaDurata(a.sigarettaAnticipo)} prima), pranzo ${siNo(a.pranzo)} (dopo ${formattaDurata(a.pranzoMinuti)})`,
   ];
 }
 
