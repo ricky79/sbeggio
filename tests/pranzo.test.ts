@@ -19,10 +19,29 @@ import { giornata } from './helpers';
 const MIN = 60_000;
 
 describe('cibo a sorpresa', () => {
-  it('a turno tutti i cibi, uno per ogni minuto di inizio', () => {
+  it('tutti i cibi escono, e con frequenze simili', () => {
     const base = Date.UTC(2026, 9, 16, 10, 0, 0);
-    const visti = new Set(Array.from({ length: CIBI.length }, (_, i) => ciboDellaPausa(base + i * MIN)));
-    expect(visti.size).toBe(CIBI.length);
+    const conta = new Map<string, number>();
+    for (let i = 0; i < 8000; i++) {
+      const c = ciboDellaPausa(base + i * MIN);
+      conta.set(c, (conta.get(c) ?? 0) + 1);
+    }
+    expect(conta.size).toBe(CIBI.length);
+    for (const n of conta.values()) expect(n).toBeGreaterThan(700); // 1000 di media
+  });
+
+  it('pausa alla stessa ora tutti i giorni: il cibo cambia', () => {
+    // Con il resto della divisione 1440 minuti al giorno davano sempre lo stesso cibo.
+    const base = Date.UTC(2026, 9, 1, 11, 31, 0);
+    const visti = new Set(Array.from({ length: 30 }, (_, g) => ciboDellaPausa(base + g * 1440 * MIN)));
+    expect(visti.size).toBeGreaterThanOrEqual(6);
+  });
+
+  it('inizi a pochi minuti di distanza non danno lo stesso cibo in fila', () => {
+    // Prima ogni 4 (poi 8) minuti tornava lo stesso cibo.
+    const base = Date.UTC(2026, 9, 16, 11, 31, 0);
+    const visti = new Set(Array.from({ length: 6 }, (_, i) => ciboDellaPausa(base + i * 8 * MIN)));
+    expect(visti.size).toBeGreaterThan(1);
   });
 
   it('stesso cibo per tutta la pausa: conta il minuto, non i secondi', () => {

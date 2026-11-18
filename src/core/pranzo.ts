@@ -13,13 +13,25 @@ import type { Evento, Giornata } from './tipi';
 export const CIBI = ['ramen', 'pizza', 'panino', 'mela', 'spaghetti', 'gelato', 'insalata', 'sushi'] as const;
 export type Cibo = (typeof CIBI)[number];
 
+/** Mescola i bit di un intero a 32 bit: numeri vicini danno risultati lontani (hash "lowbias32"). */
+function mescola(n: number): number {
+  let x = n >>> 0;
+  x ^= x >>> 16;
+  x = Math.imul(x, 0x7feb352d);
+  x ^= x >>> 15;
+  x = Math.imul(x, 0x846ca68b);
+  x ^= x >>> 16;
+  return x >>> 0;
+}
+
 /**
  * Cibo della pausa iniziata a `inizio` (ms): a caso da una pausa all'altra, ma sempre lo stesso per la
  * stessa pausa, anche chiudendo e riaprendo l'app. Si usano i minuti: l'inizio salvato e quello ricavato
- * dalla timbratura danno lo stesso cibo.
+ * dalla timbratura danno lo stesso cibo. I minuti si mescolano prima di scegliere: col semplice resto
+ * della divisione una pausa alla stessa ora tutti i giorni dava sempre lo stesso cibo.
  */
 export function ciboDellaPausa(inizio: number): Cibo {
-  return CIBI[Math.abs(Math.floor(inizio / 60_000)) % CIBI.length]!;
+  return CIBI[mescola(Math.abs(Math.floor(inizio / 60_000))) % CIBI.length]!;
 }
 
 export interface Avanzamento {
