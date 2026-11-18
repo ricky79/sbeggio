@@ -1582,6 +1582,7 @@ input:disabled {
 .pranzo.finito .mela-buccia,
 .pranzo.finito .forchetta,
 .pranzo.finito .cucchiaino,
+.pranzo.finito .sushi-bacchette,
 .pranzo.finito .gelato-pallina {
   display: none;
 }

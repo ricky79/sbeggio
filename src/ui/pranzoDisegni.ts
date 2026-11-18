@@ -302,7 +302,7 @@ const SUSHI = svg(`
   <ellipse cx="196" cy="156" rx="20" ry="8" fill="#e7e5e4"/>
   <ellipse cx="196" cy="155" rx="15" ry="5.5" fill="#451a03"/>
   <ellipse cx="174" cy="152" rx="7" ry="4" fill="#84cc16"/>
-  <g stroke="#a16207" stroke-width="4" stroke-linecap="round">
+  <g class="sushi-bacchette" stroke="#a16207" stroke-width="4" stroke-linecap="round">
     <path d="M52 74 L196 62"/><path d="M54 82 L198 70"/>
   </g>`);
 
@@ -502,7 +502,8 @@ export function creaDisegnoPranzo(cibo: Cibo): DisegnoPranzo {
           p.setAttribute('visibility', i < s.palline ? 'visible' : 'hidden');
           // Solo la pallina in cima ha gli archi tolti dalle cucchiate.
           const presi = i === s.palline - 1 ? s.cucchiate : 0;
-          cucchiate[i]!.forEach((c, j) => c.setAttribute('visibility', j < presi ? 'visible' : 'hidden'));
+          // Raggio 0 invece di visibility: dentro una maschera è sicuro su tutti i browser (anche Safari).
+          cucchiate[i]!.forEach((c, j) => c.setAttribute('r', j < presi ? '12' : '0'));
         });
       },
     };
